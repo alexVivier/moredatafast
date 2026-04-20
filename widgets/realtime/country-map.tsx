@@ -13,8 +13,9 @@ import type { RealtimeMapData } from "@/lib/datafast/realtime-types";
 import { register, type WidgetContext } from "@/widgets/registry";
 
 // 110m = ~80 KB, cached by the browser after first load.
+// world-atlas latest is v2; v3 doesn't exist on the registry.
 const WORLD_URL =
-  "https://cdn.jsdelivr.net/npm/world-atlas@3/countries-110m.json";
+  "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
 // ISO-3166-1 alpha-2 → numeric code used as the feature id in world-atlas.
 const COUNTRIES: Array<{
