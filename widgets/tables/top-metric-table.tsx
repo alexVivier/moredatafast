@@ -129,7 +129,7 @@ export function TopMetricTable<Row>({
                   >
                     <td className="py-1.5 relative pr-2">
                       <div
-                        className="absolute inset-y-0.5 left-0 bg-primary/10 rounded-sm"
+                        className="absolute inset-y-0.5 left-0 rounded-sm bg-blue-500/15 dark:bg-blue-400/20"
                         style={{ width: `${bar}%` }}
                         aria-hidden
                       />

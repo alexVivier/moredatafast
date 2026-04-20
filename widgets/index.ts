@@ -17,6 +17,7 @@ import "./device/browsers-breakdown";
 import "./device/os-breakdown";
 import "./realtime/live-counter";
 import "./realtime/live-globe";
+import "./realtime/country-map";
 import "./realtime/live-events-feed";
 import "./realtime/live-payments-feed";
 

@@ -85,9 +85,9 @@ export function DonutBreakdown({
                   borderRadius: 8,
                   fontSize: 12,
                 }}
-                formatter={(value) => [
+                formatter={(value, name) => [
                   formatNumber(typeof value === "number" ? value : 0),
-                  "",
+                  String(name ?? ""),
                 ]}
               />
               <Legend
