@@ -1,6 +1,6 @@
 "use client";
 
-import { geoMercator, geoPath } from "d3-geo";
+import { geoArea, geoMercator, geoPath } from "d3-geo";
 import type { Feature, FeatureCollection } from "geojson";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { feature } from "topojson-client";
@@ -41,6 +41,40 @@ const COUNTRIES: Array<{
   { code: "IN", numeric: "356", name: "India", flag: "🇮🇳" },
   { code: "CN", numeric: "156", name: "China", flag: "🇨🇳" },
 ];
+
+/**
+ * Many countries are MultiPolygons that include far-away overseas territories
+ * (France → French Guiana + Réunion, US → Alaska + Hawaii, etc.). Fitting the
+ * viewport to the full geometry makes the mainland look like a tiny speck. We
+ * instead pick the single largest polygon by spherical area to drive the
+ * projection, but still render the whole feature — overseas bits just get
+ * clipped by overflow-hidden.
+ */
+function mainlandFeature(feat: Feature): Feature {
+  if (feat.geometry.type !== "MultiPolygon") return feat;
+  const polygons = feat.geometry.coordinates;
+  if (polygons.length <= 1) return feat;
+
+  let bestIdx = 0;
+  let bestArea = 0;
+  for (let i = 0; i < polygons.length; i++) {
+    const sub: Feature = {
+      type: "Feature",
+      properties: {},
+      geometry: { type: "Polygon", coordinates: polygons[i] },
+    };
+    const area = geoArea(sub);
+    if (area > bestArea) {
+      bestArea = area;
+      bestIdx = i;
+    }
+  }
+  return {
+    type: "Feature",
+    properties: feat.properties,
+    geometry: { type: "Polygon", coordinates: polygons[bestIdx] },
+  };
+}
 
 let topologyCache: Promise<Topology> | null = null;
 function loadTopology(): Promise<Topology> {
@@ -117,13 +151,16 @@ export function CountryMap({ siteId, config }: WidgetContext<Config>) {
         projection: null as ReturnType<typeof geoMercator> | null,
         pathD: null as string | null,
       };
+    const mainland = mainlandFeature(feat);
     const proj = geoMercator().fitExtent(
       [
         [12, 12],
         [size.w - 12, size.h - 12],
       ],
-      feat
+      mainland,
     );
+    // Render the full feature (including any overseas polygons) — anything
+    // outside the SVG viewport is clipped by the parent overflow-hidden.
     const path = geoPath(proj);
     return { projection: proj, pathD: path(feat) };
   }, [feat, size.w, size.h]);
