@@ -33,7 +33,7 @@ export function Topbar({
   user,
 }: TopbarProps) {
   return (
-    <header className="border-b border-border bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/50">
+    <header className="sticky top-0 z-40 isolate border-b border-border bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/50">
       <div className="mx-auto max-w-7xl px-6 h-14 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
           {logoUrl ? (
