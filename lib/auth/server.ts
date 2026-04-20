@@ -3,14 +3,16 @@ import "server-only";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { organization } from "better-auth/plugins";
 
 import { db, schema } from "@/db/client";
 import {
+  sendInvitationEmail,
   sendResetPasswordEmail,
   sendVerificationEmail,
 } from "@/lib/email/resend";
 
-import { seedUnifiedViewForUser } from "./hooks";
+import { createPersonalOrganizationForUser } from "./hooks";
 
 const baseURL =
   process.env.BETTER_AUTH_URL ||
@@ -36,6 +38,9 @@ export const auth = betterAuth({
       session: schema.sessions,
       account: schema.accounts,
       verification: schema.verifications,
+      organization: schema.organizations,
+      member: schema.members,
+      invitation: schema.invitations,
     },
   }),
   emailAndPassword: {
@@ -79,12 +84,35 @@ export const auth = betterAuth({
     user: {
       create: {
         after: async (user) => {
-          await seedUnifiedViewForUser(user.id);
+          await createPersonalOrganizationForUser({
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          });
         },
       },
     },
   },
-  plugins: [nextCookies()],
+  plugins: [
+    organization({
+      allowUserToCreateOrganization: true,
+      organizationLimit: 10,
+      // 48 h — matches the copy in the invitation email.
+      invitationExpiresIn: 60 * 60 * 48,
+      sendInvitationEmail: async ({ email, invitation, organization, inviter }) => {
+        const acceptUrl = `${baseURL}/accept-invite?id=${invitation.id}`;
+        const inviterLabel =
+          inviter.user.name || inviter.user.email || "A teammate";
+        await sendInvitationEmail(
+          email,
+          acceptUrl,
+          organization.name,
+          inviterLabel,
+        );
+      },
+    }),
+    nextCookies(),
+  ],
   trustedOrigins: [baseURL],
 });
 

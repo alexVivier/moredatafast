@@ -2,14 +2,19 @@ import { NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 
 import { db, schema } from "@/db/client";
-import { getSession, unauthorized } from "@/lib/auth/session";
+import { OrgAuthError, requireOrgMember } from "@/lib/auth/session";
 
 export async function DELETE(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  const session = await getSession(request.headers);
-  if (!session) return unauthorized();
+  let organizationId: string;
+  try {
+    ({ organizationId } = await requireOrgMember(request.headers));
+  } catch (err) {
+    if (err instanceof OrgAuthError) return err.toResponse();
+    throw err;
+  }
 
   const { id } = await context.params;
   const deleted = await db
@@ -17,7 +22,7 @@ export async function DELETE(
     .where(
       and(
         eq(schema.segments.id, id),
-        eq(schema.segments.userId, session.user.id),
+        eq(schema.segments.organizationId, organizationId),
       ),
     )
     .returning({ id: schema.segments.id });

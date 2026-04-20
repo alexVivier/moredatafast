@@ -25,6 +25,70 @@ export const users = pgTable("users", {
     .default(sql`now()`),
 });
 
+// ---- Better-Auth organization plugin tables -----------------------------
+
+export const organizations = pgTable(
+  "organizations",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    slug: text("slug").notNull().unique(),
+    logo: text("logo"),
+    metadata: text("metadata"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+  },
+);
+
+export const members = pgTable(
+  "members",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    role: text("role").notNull().default("member"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+  },
+  (t) => ({
+    userIdx: index("idx_members_user").on(t.userId),
+    orgUserUnique: uniqueIndex("unique_org_user").on(t.organizationId, t.userId),
+  }),
+);
+
+export const invitations = pgTable(
+  "invitations",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    role: text("role").notNull().default("member"),
+    status: text("status").notNull().default("pending"),
+    inviterId: text("inviter_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+  },
+  (t) => ({
+    emailIdx: index("idx_invitations_email").on(t.email),
+    orgStatusIdx: index("idx_invitations_org_status").on(
+      t.organizationId,
+      t.status,
+    ),
+  }),
+);
+
 export const sessions = pgTable(
   "sessions",
   {
@@ -36,6 +100,10 @@ export const sessions = pgTable(
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
+    activeOrganizationId: text("active_organization_id").references(
+      () => organizations.id,
+      { onDelete: "set null" },
+    ),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .default(sql`now()`),
@@ -97,15 +165,15 @@ export const verifications = pgTable("verifications", {
     .default(sql`now()`),
 });
 
-// ---- App tables (scoped per user) ---------------------------------------
+// ---- App tables (scoped per organization) -------------------------------
 
 export const sites = pgTable(
   "sites",
   {
     id: text("id").primaryKey(),
-    userId: text("user_id")
+    organizationId: text("organization_id")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => organizations.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     domain: text("domain").notNull(),
     apiKeyEncrypted: text("api_key_encrypted").notNull(),
@@ -118,8 +186,11 @@ export const sites = pgTable(
       .default(sql`now()`),
   },
   (t) => ({
-    userIdx: index("idx_sites_user").on(t.userId),
-    userDomainUnique: uniqueIndex("unique_user_domain").on(t.userId, t.domain),
+    orgIdx: index("idx_sites_org").on(t.organizationId),
+    orgDomainUnique: uniqueIndex("unique_org_domain").on(
+      t.organizationId,
+      t.domain,
+    ),
   }),
 );
 
@@ -127,11 +198,11 @@ export const views = pgTable(
   "views",
   {
     id: text("id").primaryKey(),
-    userId: text("user_id")
+    organizationId: text("organization_id")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => organizations.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    // siteId NULL = unified view (user-level), else scoped to a single site.
+    // siteId NULL = unified view (org-level), else scoped to a single site.
     siteId: text("site_id").references(() => sites.id, { onDelete: "cascade" }),
     isDefault: boolean("is_default").notNull().default(false),
     sortOrder: integer("sort_order").notNull().default(0),
@@ -140,12 +211,12 @@ export const views = pgTable(
       .default(sql`now()`),
   },
   (t) => ({
-    userIdx: index("idx_views_user").on(t.userId),
+    orgIdx: index("idx_views_org").on(t.organizationId),
     siteIdx: index("idx_views_site").on(t.siteId),
   }),
 );
 
-// layoutItems has no direct userId — ownership is transitive via views.userId.
+// layoutItems has no direct orgId — ownership is transitive via views.organizationId.
 export const layoutItems = pgTable(
   "layout_items",
   {
@@ -169,9 +240,9 @@ export const segments = pgTable(
   "segments",
   {
     id: text("id").primaryKey(),
-    userId: text("user_id")
+    organizationId: text("organization_id")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => organizations.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
     siteId: text("site_id").references(() => sites.id, { onDelete: "cascade" }),
     filtersJson: text("filters_json").notNull(),
@@ -180,7 +251,10 @@ export const segments = pgTable(
       .default(sql`now()`),
   },
   (t) => ({
-    userSiteIdx: index("idx_segments_user_site").on(t.userId, t.siteId),
+    orgSiteIdx: index("idx_segments_org_site").on(
+      t.organizationId,
+      t.siteId,
+    ),
   }),
 );
 
@@ -188,6 +262,12 @@ export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
 export type Account = typeof accounts.$inferSelect;
 export type Verification = typeof verifications.$inferSelect;
+export type Organization = typeof organizations.$inferSelect;
+export type NewOrganization = typeof organizations.$inferInsert;
+export type Member = typeof members.$inferSelect;
+export type NewMember = typeof members.$inferInsert;
+export type Invitation = typeof invitations.$inferSelect;
+export type NewInvitation = typeof invitations.$inferInsert;
 export type Site = typeof sites.$inferSelect;
 export type NewSite = typeof sites.$inferInsert;
 export type View = typeof views.$inferSelect;

@@ -10,26 +10,26 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { requirePageSession } from "@/lib/auth/session";
+import { requirePageOrg } from "@/lib/auth/session";
 import { DeleteSiteButton } from "./delete-site-button";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
-  const session = await requirePageSession("/settings");
-  const userId = session.user.id;
+  const { organizationId, role } = await requirePageOrg("/settings");
+  const canManageSites = role === "owner" || role === "admin";
 
   const sites = await db
     .select()
     .from(schema.sites)
-    .where(eq(schema.sites.userId, userId))
+    .where(eq(schema.sites.organizationId, organizationId))
     .orderBy(asc(schema.sites.sortOrder), asc(schema.sites.createdAt));
 
   const viewsBySite = new Map<string, string>();
   const views = await db
     .select()
     .from(schema.views)
-    .where(eq(schema.views.userId, userId));
+    .where(eq(schema.views.organizationId, organizationId));
   for (const v of views) if (v.siteId) viewsBySite.set(v.siteId, v.id);
 
   return (
@@ -41,9 +41,16 @@ export default async function SettingsPage() {
             Manage the DataFast-tracked websites connected to this dashboard.
           </p>
         </div>
-        <Link href="/settings/sites/new">
-          <Button>+ Add site</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/settings/organization">
+            <Button variant="outline">Organization</Button>
+          </Link>
+          {canManageSites ? (
+            <Link href="/settings/sites/new">
+              <Button>+ Add site</Button>
+            </Link>
+          ) : null}
+        </div>
       </div>
 
       {sites.length === 0 ? (
@@ -58,9 +65,15 @@ export default async function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/settings/sites/new">
-              <Button>Add your first site</Button>
-            </Link>
+            {canManageSites ? (
+              <Link href="/settings/sites/new">
+                <Button>Add your first site</Button>
+              </Link>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Ask an admin to add the first site for this organization.
+              </p>
+            )}
           </CardContent>
         </Card>
       ) : (
@@ -101,7 +114,9 @@ export default async function SettingsPage() {
                       </Button>
                     </Link>
                   ) : null}
-                  <DeleteSiteButton siteId={s.id} siteName={s.name} />
+                  {canManageSites ? (
+                    <DeleteSiteButton siteId={s.id} siteName={s.name} />
+                  ) : null}
                 </CardContent>
               </Card>
             );

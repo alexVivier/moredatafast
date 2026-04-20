@@ -13,7 +13,7 @@ import {
   resolveCurrency,
   type PerSite,
 } from "@/lib/datafast/aggregate";
-import { getSession, unauthorized } from "@/lib/auth/session";
+import { OrgAuthError, requireOrgMember } from "@/lib/auth/session";
 
 function revalidateFor(path: string): number | false {
   if (path === "analytics/realtime" || path === "analytics/realtime/map") {
@@ -50,8 +50,13 @@ export async function GET(
   request: Request,
   context: { params: Promise<{ path: string[] }> }
 ) {
-  const session = await getSession(request.headers);
-  if (!session) return unauthorized();
+  let organizationId: string;
+  try {
+    ({ organizationId } = await requireOrgMember(request.headers));
+  } catch (err) {
+    if (err instanceof OrgAuthError) return err.toResponse();
+    throw err;
+  }
 
   const { path } = await context.params;
   const joinedPath = path.join("/");
@@ -62,7 +67,7 @@ export async function GET(
   const sites = await db
     .select()
     .from(schema.sites)
-    .where(eq(schema.sites.userId, session.user.id))
+    .where(eq(schema.sites.organizationId, organizationId))
     .orderBy(asc(schema.sites.sortOrder));
 
   if (sites.length === 0) {

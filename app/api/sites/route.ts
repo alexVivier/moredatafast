@@ -7,7 +7,7 @@ import { db, schema } from "@/db/client";
 import { encrypt } from "@/lib/crypto/keyring";
 import { fetchDataFast, DataFastError } from "@/lib/datafast/client";
 import type { MetadataRow } from "@/lib/datafast/types";
-import { getSession, unauthorized } from "@/lib/auth/session";
+import { OrgAuthError, requireOrgMember } from "@/lib/auth/session";
 
 const createSiteSchema = z.object({
   apiKey: z.string().trim().min(8, "API key is too short"),
@@ -15,8 +15,13 @@ const createSiteSchema = z.object({
 });
 
 export async function GET(request: Request) {
-  const session = await getSession(request.headers);
-  if (!session) return unauthorized();
+  let organizationId: string;
+  try {
+    ({ organizationId } = await requireOrgMember(request.headers));
+  } catch (err) {
+    if (err instanceof OrgAuthError) return err.toResponse();
+    throw err;
+  }
 
   const rows = await db
     .select({
@@ -30,16 +35,21 @@ export async function GET(request: Request) {
       createdAt: schema.sites.createdAt,
     })
     .from(schema.sites)
-    .where(eq(schema.sites.userId, session.user.id))
+    .where(eq(schema.sites.organizationId, organizationId))
     .orderBy(asc(schema.sites.sortOrder), asc(schema.sites.createdAt));
 
   return NextResponse.json({ sites: rows });
 }
 
 export async function POST(request: Request) {
-  const session = await getSession(request.headers);
-  if (!session) return unauthorized();
-  const userId = session.user.id;
+  let organizationId: string;
+  try {
+    // Any admin or owner can add a site.
+    ({ organizationId } = await requireOrgMember(request.headers, "admin"));
+  } catch (err) {
+    if (err instanceof OrgAuthError) return err.toResponse();
+    throw err;
+  }
 
   let json: unknown;
   try {
@@ -97,12 +107,12 @@ export async function POST(request: Request) {
     await db
       .select({ id: schema.sites.id })
       .from(schema.sites)
-      .where(eq(schema.sites.userId, userId))
+      .where(eq(schema.sites.organizationId, organizationId))
   ).length;
 
   await db.insert(schema.sites).values({
     id: siteId,
-    userId,
+    organizationId,
     name: nameOverride || metadata.name || metadata.domain,
     domain: metadata.domain,
     apiKeyEncrypted: encryptedKey,
@@ -115,7 +125,7 @@ export async function POST(request: Request) {
   const viewId = nanoid(12);
   await db.insert(schema.views).values({
     id: viewId,
-    userId,
+    organizationId,
     name: metadata.name || metadata.domain,
     siteId,
     isDefault: false,

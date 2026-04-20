@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "./date-range-picker";
+import { OrganizationSwitcher } from "./organization-switcher";
 import {
   SiteSwitcher,
   type SiteSwitcherEntry,
@@ -52,6 +53,7 @@ export function Topbar({
         </div>
 
         <div className="flex items-center gap-2">
+          <OrganizationSwitcher />
           <SiteSwitcher current={currentViewId} entries={entries} />
           <DateRangePicker />
           <Link href="/settings">

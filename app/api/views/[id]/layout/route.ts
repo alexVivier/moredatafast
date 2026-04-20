@@ -3,7 +3,7 @@ import { z } from "zod";
 import { and, asc, eq } from "drizzle-orm";
 
 import { db, schema } from "@/db/client";
-import { getSession, unauthorized } from "@/lib/auth/session";
+import { OrgAuthError, requireOrgMember } from "@/lib/auth/session";
 
 const itemSchema = z.object({
   id: z.string().min(1).max(24),
@@ -19,11 +19,19 @@ const bodySchema = z.object({
   items: z.array(itemSchema).max(40),
 });
 
-async function assertViewOwned(viewId: string, userId: string) {
+async function assertViewInOrg(
+  viewId: string,
+  organizationId: string,
+): Promise<boolean> {
   const [view] = await db
     .select({ id: schema.views.id })
     .from(schema.views)
-    .where(and(eq(schema.views.id, viewId), eq(schema.views.userId, userId)));
+    .where(
+      and(
+        eq(schema.views.id, viewId),
+        eq(schema.views.organizationId, organizationId),
+      ),
+    );
   return !!view;
 }
 
@@ -31,11 +39,16 @@ export async function GET(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  const session = await getSession(request.headers);
-  if (!session) return unauthorized();
+  let organizationId: string;
+  try {
+    ({ organizationId } = await requireOrgMember(request.headers));
+  } catch (err) {
+    if (err instanceof OrgAuthError) return err.toResponse();
+    throw err;
+  }
 
   const { id } = await context.params;
-  if (!(await assertViewOwned(id, session.user.id))) {
+  if (!(await assertViewInOrg(id, organizationId))) {
     return NextResponse.json({ error: "View not found" }, { status: 404 });
   }
 
@@ -52,11 +65,16 @@ export async function PUT(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  const session = await getSession(request.headers);
-  if (!session) return unauthorized();
+  let organizationId: string;
+  try {
+    ({ organizationId } = await requireOrgMember(request.headers));
+  } catch (err) {
+    if (err instanceof OrgAuthError) return err.toResponse();
+    throw err;
+  }
 
   const { id } = await context.params;
-  if (!(await assertViewOwned(id, session.user.id))) {
+  if (!(await assertViewInOrg(id, organizationId))) {
     return NextResponse.json({ error: "View not found" }, { status: 404 });
   }
 

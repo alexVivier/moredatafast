@@ -2,8 +2,11 @@ import Link from "next/link";
 
 import { AddSiteForm } from "@/components/forms/add-site-form";
 import { Button } from "@/components/ui/button";
+import { requirePageOrg } from "@/lib/auth/session";
 
-export default function NewSitePage() {
+export default async function NewSitePage() {
+  // Only admin/owner can reach this page; members get redirected to "/".
+  await requirePageOrg("/settings/sites/new", "admin");
   return (
     <div className="mx-auto max-w-xl p-6 space-y-4">
       <div className="flex items-center gap-2">

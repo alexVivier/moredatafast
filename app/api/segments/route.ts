@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import { db, schema } from "@/db/client";
 import { filtersSchema } from "@/lib/filters/schema";
-import { getSession, unauthorized } from "@/lib/auth/session";
+import { OrgAuthError, requireOrgMember } from "@/lib/auth/session";
 
 const createSchema = z.object({
   name: z.string().trim().min(1).max(80),
@@ -14,22 +14,29 @@ const createSchema = z.object({
 });
 
 export async function GET(request: Request) {
-  const session = await getSession(request.headers);
-  if (!session) return unauthorized();
-  const userId = session.user.id;
+  let organizationId: string;
+  try {
+    ({ organizationId } = await requireOrgMember(request.headers));
+  } catch (err) {
+    if (err instanceof OrgAuthError) return err.toResponse();
+    throw err;
+  }
 
   const url = new URL(request.url);
   const siteIdParam = url.searchParams.get("siteId");
 
   const scoped =
     siteIdParam === "unified"
-      ? and(eq(schema.segments.userId, userId), isNull(schema.segments.siteId))
+      ? and(
+          eq(schema.segments.organizationId, organizationId),
+          isNull(schema.segments.siteId),
+        )
       : siteIdParam
         ? and(
-            eq(schema.segments.userId, userId),
+            eq(schema.segments.organizationId, organizationId),
             eq(schema.segments.siteId, siteIdParam),
           )
-        : eq(schema.segments.userId, userId);
+        : eq(schema.segments.organizationId, organizationId);
 
   const rows = await db
     .select()
@@ -49,9 +56,13 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const session = await getSession(request.headers);
-  if (!session) return unauthorized();
-  const userId = session.user.id;
+  let organizationId: string;
+  try {
+    ({ organizationId } = await requireOrgMember(request.headers));
+  } catch (err) {
+    if (err instanceof OrgAuthError) return err.toResponse();
+    throw err;
+  }
 
   let json: unknown;
   try {
@@ -78,7 +89,7 @@ export async function POST(request: Request) {
       .where(
         and(
           eq(schema.sites.id, segmentSiteId),
-          eq(schema.sites.userId, userId),
+          eq(schema.sites.organizationId, organizationId),
         ),
       );
     if (!owned) {
@@ -89,7 +100,7 @@ export async function POST(request: Request) {
   const id = nanoid(12);
   await db.insert(schema.segments).values({
     id,
-    userId,
+    organizationId,
     name,
     siteId: segmentSiteId,
     filtersJson: JSON.stringify(filters),

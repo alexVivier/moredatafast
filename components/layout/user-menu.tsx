@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -61,6 +62,15 @@ export function UserMenu({
             <div className="text-xs text-muted-foreground truncate">{email}</div>
           </div>
           <div className="p-1">
+            <Link href="/settings/organization" onClick={() => setOpen(false)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+              >
+                Organization settings
+              </Button>
+            </Link>
             <Button
               variant="ghost"
               size="sm"

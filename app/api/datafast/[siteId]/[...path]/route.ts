@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 import { decrypt } from "@/lib/crypto/keyring";
 import { fetchDataFast, DataFastError } from "@/lib/datafast/client";
-import { getSession, unauthorized } from "@/lib/auth/session";
+import { OrgAuthError, requireOrgMember } from "@/lib/auth/session";
 
 function revalidateFor(path: string): number | false {
   if (path === "analytics/realtime" || path === "analytics/realtime/map") {
@@ -19,8 +19,13 @@ export async function GET(
   request: Request,
   context: { params: Promise<{ siteId: string; path: string[] }> },
 ) {
-  const session = await getSession(request.headers);
-  if (!session) return unauthorized();
+  let organizationId: string;
+  try {
+    ({ organizationId } = await requireOrgMember(request.headers));
+  } catch (err) {
+    if (err instanceof OrgAuthError) return err.toResponse();
+    throw err;
+  }
 
   const { siteId, path } = await context.params;
 
@@ -28,7 +33,10 @@ export async function GET(
     .select()
     .from(schema.sites)
     .where(
-      and(eq(schema.sites.id, siteId), eq(schema.sites.userId, session.user.id)),
+      and(
+        eq(schema.sites.id, siteId),
+        eq(schema.sites.organizationId, organizationId),
+      ),
     );
 
   if (!site) {

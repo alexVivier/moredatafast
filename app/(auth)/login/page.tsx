@@ -130,7 +130,10 @@ export default function LoginPage() {
 
         <p className="text-center text-xs text-muted-foreground">
           No account?{" "}
-          <Link href="/signup" className="underline hover:text-foreground">
+          <Link
+            href={next === "/" ? "/signup" : `/signup?next=${encodeURIComponent(next)}`}
+            className="underline hover:text-foreground"
+          >
             Create one
           </Link>
         </p>

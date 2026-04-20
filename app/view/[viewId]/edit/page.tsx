@@ -8,8 +8,8 @@ import { ViewClient } from "@/components/layout/view-client";
 import type { GridItem } from "@/components/layout/grid-canvas";
 import { getViewLayout } from "@/lib/views/layout-helpers";
 import { effectiveCurrency } from "@/lib/views/currency";
-import { requirePageSession } from "@/lib/auth/session";
-import { getUnifiedViewId } from "@/lib/auth/hooks";
+import { requirePageOrg } from "@/lib/auth/session";
+import { seedUnifiedViewForOrganization } from "@/lib/auth/hooks";
 
 export const dynamic = "force-dynamic";
 
@@ -19,13 +19,19 @@ export default async function EditViewPage({
   params: Promise<{ viewId: string }>;
 }) {
   const { viewId } = await params;
-  const session = await requirePageSession(`/view/${viewId}/edit`);
-  const userId = session.user.id;
+  const { session, organizationId } = await requirePageOrg(
+    `/view/${viewId}/edit`,
+  );
 
   const [view] = await db
     .select()
     .from(schema.views)
-    .where(and(eq(schema.views.id, viewId), eq(schema.views.userId, userId)));
+    .where(
+      and(
+        eq(schema.views.id, viewId),
+        eq(schema.views.organizationId, organizationId),
+      ),
+    );
 
   if (!view) notFound();
 
@@ -40,7 +46,7 @@ export default async function EditViewPage({
             .where(
               and(
                 eq(schema.sites.id, view.siteId),
-                eq(schema.sites.userId, userId),
+                eq(schema.sites.organizationId, organizationId),
               ),
             )
         )[0] ?? null
@@ -51,7 +57,7 @@ export default async function EditViewPage({
   const allSites = await db
     .select()
     .from(schema.sites)
-    .where(eq(schema.sites.userId, userId))
+    .where(eq(schema.sites.organizationId, organizationId))
     .orderBy(asc(schema.sites.sortOrder), asc(schema.sites.createdAt));
 
   if (isUnified && allSites.length === 0) notFound();
@@ -59,12 +65,12 @@ export default async function EditViewPage({
   const allViews = await db
     .select()
     .from(schema.views)
-    .where(eq(schema.views.userId, userId));
+    .where(eq(schema.views.organizationId, organizationId));
 
   const viewsBySite = new Map<string, string>();
   for (const v of allViews) if (v.siteId) viewsBySite.set(v.siteId, v.id);
 
-  const unifiedViewId = await getUnifiedViewId(userId);
+  const unifiedViewId = await seedUnifiedViewForOrganization(organizationId);
 
   const entries: SiteSwitcherEntry[] = [
     { viewId: unifiedViewId, label: "Unified" },

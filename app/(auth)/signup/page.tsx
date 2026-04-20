@@ -162,7 +162,10 @@ export default function SignupPage() {
 
         <p className="text-center text-xs text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/login" className="underline hover:text-foreground">
+          <Link
+            href={next === "/" ? "/login" : `/login?next=${encodeURIComponent(next)}`}
+            className="underline hover:text-foreground"
+          >
             Sign in
           </Link>
         </p>

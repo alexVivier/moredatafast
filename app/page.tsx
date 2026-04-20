@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 
-import { getUnifiedViewId } from "@/lib/auth/hooks";
-import { requirePageSession } from "@/lib/auth/session";
+import { seedUnifiedViewForOrganization } from "@/lib/auth/hooks";
+import { requirePageOrg } from "@/lib/auth/session";
 
 export default async function Home() {
-  const session = await requirePageSession("/");
-  const unifiedId = await getUnifiedViewId(session.user.id);
+  const { organizationId } = await requirePageOrg("/");
+  const unifiedId = await seedUnifiedViewForOrganization(organizationId);
   redirect(`/view/${unifiedId}`);
 }
