@@ -10,6 +10,10 @@ RUN npm ci
 FROM node:22-bookworm-slim AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+# NEXT_PUBLIC_* vars must be available at build time — Next inlines them
+# into the client bundle during `next build`. Forwarded from CI as build args.
+ARG NEXT_PUBLIC_DATAFAST_WEBSITE_ID=
+ENV NEXT_PUBLIC_DATAFAST_WEBSITE_ID=$NEXT_PUBLIC_DATAFAST_WEBSITE_ID
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
