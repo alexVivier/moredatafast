@@ -11,10 +11,11 @@ export function DateRangePicker() {
   const { preset, custom, resolved, setPreset, setCustom } = useDateRangeState();
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
       <Select
         value={preset}
         onChange={(e) => setPreset(e.target.value as DateRangePreset)}
+        className="min-w-[92px]"
       >
         {PRESETS.map((p) => (
           <option key={p} value={p}>
@@ -24,14 +25,14 @@ export function DateRangePicker() {
       </Select>
 
       {preset === "custom" ? (
-        <>
+        <div className="flex items-center gap-1 sm:gap-2 basis-full sm:basis-auto order-3 sm:order-none">
           <Input
             type="date"
             value={custom.startAt ?? resolved.startAt}
             onChange={(e) =>
               setCustom(e.target.value, custom.endAt ?? resolved.endAt)
             }
-            className="w-[140px]"
+            className="flex-1 sm:w-[140px] min-w-0"
             aria-label="Start date"
           />
           <span className="text-muted-foreground text-sm">→</span>
@@ -41,12 +42,12 @@ export function DateRangePicker() {
             onChange={(e) =>
               setCustom(custom.startAt ?? resolved.startAt, e.target.value)
             }
-            className="w-[140px]"
+            className="flex-1 sm:w-[140px] min-w-0"
             aria-label="End date"
           />
-        </>
+        </div>
       ) : (
-        <span className="text-xs text-muted-foreground">
+        <span className="hidden md:inline text-xs text-muted-foreground">
           {resolved.startAt} → {resolved.endAt}
         </span>
       )}

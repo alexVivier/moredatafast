@@ -93,7 +93,7 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
             onClick={() => setOpen(false)}
             aria-hidden
           />
-          <div className="absolute right-0 z-50 mt-1 w-72 rounded-md border border-border bg-card shadow-lg overflow-hidden">
+          <div className="absolute right-0 z-50 mt-1 w-72 max-w-[calc(100vw-1.5rem)] rounded-md border border-border bg-card shadow-lg overflow-hidden">
             <div className="flex items-center justify-between px-3 py-2 border-b border-border">
               <span className="text-xs font-medium">Saved segments</span>
               {canSave ? (

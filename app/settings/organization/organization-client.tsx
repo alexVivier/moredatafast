@@ -199,21 +199,21 @@ export function OrganizationClient({
               return (
                 <div
                   key={m.id}
-                  className="flex items-center gap-3 px-4 py-3"
+                  className="flex flex-wrap items-center gap-2 px-3 py-3 sm:gap-3 sm:px-4"
                 >
                   {m.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={m.image}
                       alt=""
-                      className="h-8 w-8 rounded-full"
+                      className="h-8 w-8 rounded-full shrink-0"
                     />
                   ) : (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold">
                       {(m.name || m.email).slice(0, 1).toUpperCase()}
                     </div>
                   )}
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 basis-0">
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <span className="truncate">{m.name || m.email}</span>
                       {isSelf ? (
@@ -255,16 +255,16 @@ export function OrganizationClient({
               {invitations.map((inv) => (
                 <div
                   key={inv.id}
-                  className="flex items-center gap-3 px-4 py-3"
+                  className="flex flex-wrap items-center gap-2 px-3 py-3 sm:gap-3 sm:px-4"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-semibold">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold">
                     ✉
                   </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 basis-0">
                     <div className="truncate text-sm font-medium">
                       {inv.email}
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-muted-foreground truncate">
                       Invited {inv.inviterEmail ? `by ${inv.inviterEmail} ` : ""}·
                       expires {new Date(inv.expiresAt).toLocaleDateString()}
                     </div>

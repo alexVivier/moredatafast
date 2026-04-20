@@ -116,7 +116,7 @@ export function OrganizationSwitcher() {
       </button>
 
       {open ? (
-        <div className="absolute right-0 top-full z-50 mt-1 w-64 rounded-md border border-border bg-popover shadow-md">
+        <div className="absolute right-0 top-full z-50 mt-1 w-64 max-w-[calc(100vw-1.5rem)] rounded-md border border-border bg-popover shadow-md">
           <div className="px-3 py-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
             Organizations
           </div>

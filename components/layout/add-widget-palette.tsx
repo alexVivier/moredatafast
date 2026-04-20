@@ -42,7 +42,7 @@ export function AddWidgetPalette({ onPick }: Props) {
             if (e.target === e.currentTarget) setOpen(false);
           }}
         >
-          <div className="mt-16 w-full max-w-3xl rounded-lg border border-border bg-card text-card-foreground shadow-lg">
+          <div className="mt-4 sm:mt-16 mx-3 sm:mx-0 w-full max-w-[calc(100vw-1.5rem)] sm:max-w-3xl rounded-lg border border-border bg-card text-card-foreground shadow-lg">
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <div>
                 <h2 className="font-semibold">Add widget</h2>

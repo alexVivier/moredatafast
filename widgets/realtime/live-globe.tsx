@@ -106,7 +106,7 @@ export function LiveGlobe({ siteId }: WidgetContext<Config>) {
   }
 
   return (
-    <div className="flex h-full gap-3">
+    <div className="flex h-full flex-col gap-3 sm:flex-row">
       <div className="flex-1 min-w-0 relative" ref={containerRef}>
         <canvas
           ref={canvasRef}
@@ -125,7 +125,7 @@ export function LiveGlobe({ siteId }: WidgetContext<Config>) {
           {query.isLoading ? "…" : `${visitors.length} live`}
         </div>
       </div>
-      <div className="w-44 shrink-0 overflow-y-auto border-l border-border pl-3 -my-3 py-3">
+      <div className="w-full shrink-0 overflow-y-auto border-t border-border pt-3 sm:w-44 sm:border-l sm:border-t-0 sm:pl-3 sm:-my-3 sm:py-3 sm:pt-3">
         <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-2">
           Live visitors
         </div>

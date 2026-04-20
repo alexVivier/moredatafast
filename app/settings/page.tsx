@@ -33,21 +33,25 @@ export default async function SettingsPage() {
   for (const v of views) if (v.siteId) viewsBySite.set(v.siteId, v.id);
 
   return (
-    <div className="mx-auto max-w-4xl p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Sites</h1>
+    <div className="mx-auto max-w-4xl px-3 sm:px-6 py-4 sm:py-6 space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
+            Sites
+          </h1>
           <p className="text-sm text-muted-foreground">
             Manage the DataFast-tracked websites connected to this dashboard.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Link href="/settings/organization">
-            <Button variant="outline">Organization</Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Link href="/settings/organization" className="flex-1 sm:flex-none">
+            <Button variant="outline" className="w-full">
+              Organization
+            </Button>
           </Link>
           {canManageSites ? (
-            <Link href="/settings/sites/new">
-              <Button>+ Add site</Button>
+            <Link href="/settings/sites/new" className="flex-1 sm:flex-none">
+              <Button className="w-full">+ Add site</Button>
             </Link>
           ) : null}
         </div>
@@ -82,27 +86,27 @@ export default async function SettingsPage() {
             const viewId = viewsBySite.get(s.id);
             return (
               <Card key={s.id}>
-                <CardContent className="flex items-center gap-4 pt-4">
+                <CardContent className="flex flex-wrap items-center gap-3 sm:gap-4 pt-4">
                   {s.logoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={s.logoUrl}
                       alt=""
-                      className="h-10 w-10 rounded bg-muted object-contain"
+                      className="h-10 w-10 rounded bg-muted object-contain shrink-0"
                     />
                   ) : (
-                    <div className="h-10 w-10 rounded bg-muted flex items-center justify-center text-sm font-semibold text-muted-foreground">
+                    <div className="h-10 w-10 rounded bg-muted flex items-center justify-center text-sm font-semibold text-muted-foreground shrink-0">
                       {s.name.slice(0, 2).toUpperCase()}
                     </div>
                   )}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{s.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        · {s.domain}
+                  <div className="flex-1 min-w-0 basis-0">
+                    <div className="flex flex-wrap items-baseline gap-x-2">
+                      <span className="font-medium truncate">{s.name}</span>
+                      <span className="text-xs text-muted-foreground truncate">
+                        {s.domain}
                       </span>
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xs text-muted-foreground truncate">
                       {s.timezone} · {s.currency} · added{" "}
                       {new Date(s.createdAt).toLocaleDateString()}
                     </div>

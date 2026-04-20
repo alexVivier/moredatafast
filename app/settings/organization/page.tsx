@@ -58,7 +58,7 @@ export default async function OrganizationSettingsPage() {
 
   if (!activeOrgId) {
     return (
-      <div className="mx-auto max-w-4xl space-y-6 p-6">
+      <div className="mx-auto max-w-4xl space-y-6 px-3 sm:px-6 py-4 sm:py-6">
         <Header backHref="/settings" />
         <Card>
           <CardHeader>
@@ -84,7 +84,7 @@ export default async function OrganizationSettingsPage() {
     .where(eq(schema.organizations.id, activeOrgId));
   if (!org) {
     return (
-      <div className="mx-auto max-w-4xl space-y-6 p-6">
+      <div className="mx-auto max-w-4xl space-y-6 px-3 sm:px-6 py-4 sm:py-6">
         <Header backHref="/settings" />
         <p className="text-sm text-destructive">
           Active organization not found.
@@ -163,7 +163,7 @@ export default async function OrganizationSettingsPage() {
   const canManage = currentRole === "owner" || currentRole === "admin";
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 p-6">
+    <div className="mx-auto max-w-4xl space-y-6 px-3 sm:px-6 py-4 sm:py-6">
       <Header backHref="/settings" />
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">{org.name}</h1>

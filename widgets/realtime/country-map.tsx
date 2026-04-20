@@ -189,19 +189,19 @@ export function CountryMap({ siteId, config }: WidgetContext<Config>) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-baseline justify-between gap-2 pb-2">
-        <div className="min-w-0">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 pb-2">
+        <div className="min-w-0 flex-1">
           <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground truncate">
             Live map · {country.name}
           </div>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-muted-foreground truncate">
             {countryVisitors.length} visitor
             {countryVisitors.length === 1 ? "" : "s"} in {country.name}
           </div>
         </div>
         <select
           aria-label="Country"
-          className="h-7 shrink-0 rounded-md border border-border bg-background px-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+          className="h-7 max-w-[160px] shrink-0 rounded-md border border-border bg-background px-2 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
           value={selected}
           onChange={(e) => setSelected(e.target.value)}
         >

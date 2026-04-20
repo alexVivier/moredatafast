@@ -133,7 +133,10 @@ export function ViewClient({
               </Button>
             </Link>
           ) : (
-            <Link href={editHref}>
+            // Layout editing is disabled on sub-md viewports (react-grid-layout
+            // can't really handle 1-col drag + the UI crushes), so don't offer
+            // the entry point there either.
+            <Link href={editHref} className="hidden md:inline-block">
               <Button variant="outline" size="sm">
                 Edit layout
               </Button>

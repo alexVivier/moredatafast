@@ -123,7 +123,7 @@ function EditFilterDialog({
       }}
     >
       <div
-        className="mt-24 w-full max-w-md rounded-lg border border-border bg-card text-card-foreground shadow-lg p-4"
+        className="mt-4 sm:mt-24 mx-3 sm:mx-0 w-full max-w-[calc(100vw-1.5rem)] sm:max-w-md rounded-lg border border-border bg-card text-card-foreground shadow-lg p-4"
         role="dialog"
       >
         <div className="mb-3 flex items-center justify-between">
