@@ -34,7 +34,5 @@ next-env.d.ts
 data/
 !data/.gitkeep
 
-# drizzle
-drizzle/meta/_journal.json
 .env.local
 .env.production
