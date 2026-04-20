@@ -58,6 +58,10 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - name: Compute lowercase image reference
+        id: image
+        run: echo "ref=ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]'):latest" >> "$GITHUB_OUTPUT"
+
       - name: SSH deploy
         uses: appleboy/ssh-action@v1
         with:
@@ -65,11 +69,13 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-          envs: GHCR_USER,GHCR_TOKEN
+          envs: GHCR_USER,GHCR_TOKEN,APP_IMAGE
           script: |
             set -euo pipefail
             cd /opt/datafast
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+            # APP_IMAGE is exported by the workflow, overriding whatever is in
+            # .env.production. Docker image refs must be all-lowercase.
             docker compose --env-file .env.production pull
             docker compose --env-file .env.production up -d --remove-orphans
             docker image prune -f
@@ -77,3 +83,4 @@ jobs:
         env:
           GHCR_USER: ${{ secrets.GHCR_USER }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          APP_IMAGE: ${{ steps.image.outputs.ref }}
