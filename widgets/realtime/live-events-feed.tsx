@@ -1,0 +1,115 @@
+"use client";
+
+import { z } from "zod";
+
+import { useWidgetData } from "@/lib/hooks/use-widget-data";
+import type { RealtimeMapData } from "@/lib/datafast/realtime-types";
+import { cn } from "@/lib/utils";
+import { register, type WidgetContext } from "@/widgets/registry";
+import { useVisitorDrawer } from "@/components/visitor/visitor-drawer-context";
+
+type Config = Record<string, never>;
+const configSchema = z.object({}).passthrough();
+
+function relativeTime(iso: string): string {
+  const then = new Date(iso).getTime();
+  const now = Date.now();
+  const sec = Math.max(0, Math.round((now - then) / 1000));
+  if (sec < 5) return "just now";
+  if (sec < 60) return `${sec}s ago`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  return new Date(iso).toLocaleTimeString();
+}
+
+export function LiveEventsFeed({ siteId }: WidgetContext<Config>) {
+  const query = useWidgetData<RealtimeMapData>(
+    siteId,
+    "analytics/realtime/map"
+  );
+  const { open } = useVisitorDrawer();
+  const events = query.data?.data?.recentEvents ?? [];
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex items-baseline justify-between pb-2">
+        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          Live events
+        </div>
+        <div className="text-xs text-muted-foreground">last 10 min</div>
+      </div>
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        {query.isLoading ? (
+          <div className="space-y-1.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-8 w-full animate-pulse rounded bg-muted/40"
+              />
+            ))}
+          </div>
+        ) : events.length === 0 ? (
+          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+            Nothing happening right now.
+          </div>
+        ) : (
+          <ul className="space-y-0.5">
+            {events.map((e) => (
+              <li key={e._id}>
+                <button
+                  type="button"
+                  onClick={() => open(siteId, e.visitorId)}
+                  className="w-full text-left rounded px-2 py-1.5 hover:bg-accent/40 transition-colors"
+                >
+                  <div className="flex items-center gap-2 text-xs">
+                    {e.countryCode ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${e.countryCode.toUpperCase()}.svg`}
+                        alt=""
+                        className="h-2.5 w-3.5 rounded-sm object-cover shrink-0"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className="h-2.5 w-3.5 shrink-0" />
+                    )}
+                    <span
+                      className={cn(
+                        "text-[10px] font-semibold uppercase tracking-wider shrink-0",
+                        e.type === "pageview"
+                          ? "text-blue-500"
+                          : "text-amber-500"
+                      )}
+                    >
+                      {e.type}
+                    </span>
+                    <span className="font-mono truncate flex-1">
+                      {e.path ?? ""}
+                    </span>
+                    <span className="text-muted-foreground shrink-0 text-[11px]">
+                      {relativeTime(e.timestamp)}
+                    </span>
+                  </div>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+register<Config>({
+  id: "live-events-feed",
+  displayName: "Live events feed",
+  description: "Last 10 minutes of pageviews and events. Click a row to inspect the visitor.",
+  category: "realtime",
+  defaultSize: { w: 5, h: 5 },
+  minSize: { w: 3, h: 3 },
+  configSchema: configSchema as unknown as z.ZodType<Config>,
+  defaultConfig: {},
+  Component: LiveEventsFeed,
+});

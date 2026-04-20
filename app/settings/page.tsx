@@ -1,0 +1,121 @@
+import Link from "next/link";
+import { asc, eq } from "drizzle-orm";
+
+import { db, schema } from "@/db/client";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { requirePageSession } from "@/lib/auth/session";
+import { DeleteSiteButton } from "./delete-site-button";
+
+export const dynamic = "force-dynamic";
+
+export default async function SettingsPage() {
+  const session = await requirePageSession("/settings");
+  const userId = session.user.id;
+
+  const sites = await db
+    .select()
+    .from(schema.sites)
+    .where(eq(schema.sites.userId, userId))
+    .orderBy(asc(schema.sites.sortOrder), asc(schema.sites.createdAt));
+
+  const viewsBySite = new Map<string, string>();
+  const views = await db
+    .select()
+    .from(schema.views)
+    .where(eq(schema.views.userId, userId));
+  for (const v of views) if (v.siteId) viewsBySite.set(v.siteId, v.id);
+
+  return (
+    <div className="mx-auto max-w-4xl p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Sites</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage the DataFast-tracked websites connected to this dashboard.
+          </p>
+        </div>
+        <Link href="/settings/sites/new">
+          <Button>+ Add site</Button>
+        </Link>
+      </div>
+
+      {sites.length === 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>No sites yet</CardTitle>
+            <CardDescription>
+              Add your first DataFast website to start seeing analytics.
+              You&apos;ll need an API key from{" "}
+              <span className="font-mono">Website Settings → API</span> in your
+              DataFast dashboard.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/settings/sites/new">
+              <Button>Add your first site</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-3">
+          {sites.map((s) => {
+            const viewId = viewsBySite.get(s.id);
+            return (
+              <Card key={s.id}>
+                <CardContent className="flex items-center gap-4 pt-4">
+                  {s.logoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={s.logoUrl}
+                      alt=""
+                      className="h-10 w-10 rounded bg-muted object-contain"
+                    />
+                  ) : (
+                    <div className="h-10 w-10 rounded bg-muted flex items-center justify-center text-sm font-semibold text-muted-foreground">
+                      {s.name.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{s.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        · {s.domain}
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {s.timezone} · {s.currency} · added{" "}
+                      {new Date(s.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  {viewId ? (
+                    <Link href={`/view/${viewId}`}>
+                      <Button variant="outline" size="sm">
+                        Open
+                      </Button>
+                    </Link>
+                  ) : null}
+                  <DeleteSiteButton siteId={s.id} siteName={s.name} />
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="pt-4 text-xs text-muted-foreground">
+        <p>
+          API keys are encrypted at rest using AES-256-GCM. Back up{" "}
+          <span className="font-mono">data/master.key</span> if you&apos;re using
+          the auto-generated key.
+        </p>
+      </div>
+    </div>
+  );
+}

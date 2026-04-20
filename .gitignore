@@ -1,0 +1,40 @@
+# dependencies
+node_modules
+.pnp
+.pnp.*
+
+# testing
+coverage
+
+# next.js
+.next/
+out/
+build
+dist
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env
+.env*.local
+.env
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# local data
+data/
+!data/.gitkeep
+
+# drizzle
+drizzle/meta/_journal.json
+.env.local
+.env.production

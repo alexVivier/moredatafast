@@ -1,0 +1,22 @@
+@import "react-grid-layout/css/styles.css";
+@import "react-resizable/css/styles.css";
+
+.react-grid-item.react-grid-placeholder {
+  background: hsl(var(--primary) / 0.15) !important;
+  border: 1px dashed hsl(var(--primary) / 0.5) !important;
+  border-radius: 0.5rem;
+  opacity: 0.6;
+  transition-duration: 100ms;
+  z-index: 2;
+}
+
+.react-grid-item > .react-resizable-handle {
+  opacity: 0;
+  transition: opacity 150ms;
+}
+.react-grid-item:hover > .react-resizable-handle {
+  opacity: 0.8;
+}
+.react-grid-item > .react-resizable-handle::after {
+  border-color: hsl(var(--muted-foreground)) !important;
+}
