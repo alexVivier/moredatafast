@@ -13,20 +13,23 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
       <select
         ref={ref}
         className={cn(
-          "h-9 rounded-md border border-input bg-transparent pl-3 pr-8 text-sm font-medium",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          "h-8 rounded-md border border-mdf-line-2 bg-mdf-bg-input pl-2.5 pr-7 text-sm text-mdf-fg-1",
           "appearance-none cursor-pointer",
-          className
+          "hover:border-mdf-line-3",
+          "focus-visible:outline-none focus-visible:border-mdf-line-3",
+          className,
         )}
         {...props}
       >
         {children}
       </select>
       <ChevronDown
-        className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+        size={14}
+        strokeWidth={1.5}
+        className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-mdf-fg-3"
         aria-hidden
       />
     </div>
-  )
+  ),
 );
 Select.displayName = "Select";
