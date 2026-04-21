@@ -77,7 +77,7 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        <Bookmark className="h-3.5 w-3.5" />
+        <Bookmark size={14} strokeWidth={1.5} />
         Segments
         {segments.length > 0 ? (
           <span className="rounded-full bg-primary/10 px-1.5 text-[10px] font-medium">
@@ -106,7 +106,7 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
                     setSaveOpen(true);
                   }}
                 >
-                  <Save className="h-3.5 w-3.5" />
+                  <Save size={14} strokeWidth={1.5} />
                   Save current
                 </Button>
               ) : (
@@ -139,7 +139,7 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
                         onClick={() => applySegment(s)}
                         className="flex-1 text-left flex items-center gap-2 min-w-0"
                       >
-                        <Check className="h-3 w-3 shrink-0 opacity-0 group-hover:opacity-60 transition-opacity" />
+                        <Check size={12} strokeWidth={1.5} className="shrink-0 opacity-0 group-hover:opacity-60 transition-opacity" />
                         <span className="truncate text-sm">{s.name}</span>
                       </button>
                       <button
@@ -148,7 +148,7 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
                         className="opacity-0 group-hover:opacity-60 hover:opacity-100 transition-opacity text-destructive p-1"
                         aria-label={`Delete ${s.name}`}
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 size={14} strokeWidth={1.5} />
                       </button>
                     </li>
                   ))}
@@ -174,7 +174,7 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
                 size="icon"
                 onClick={() => setSaveOpen(false)}
               >
-                <X className="h-4 w-4" />
+                <X size={14} strokeWidth={1.5} />
               </Button>
             </div>
             <Input

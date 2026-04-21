@@ -28,7 +28,7 @@ export function FilterBar() {
         size="sm"
         onClick={() => setEditing(FILTER_KEYS[0])}
       >
-        <Plus className="h-3.5 w-3.5" />
+        <Plus size={14} strokeWidth={1.5} />
         Filter
       </Button>
 
@@ -39,7 +39,7 @@ export function FilterBar() {
           onClick={() => setEditing(k)}
           className="inline-flex items-center gap-1.5 h-8 rounded-md border border-border bg-accent/30 hover:bg-accent/60 transition-colors px-2 text-xs font-medium"
         >
-          <Filter className="h-3 w-3 text-muted-foreground" />
+          <Filter size={12} strokeWidth={1.5} className="text-mdf-fg-3" />
           <span>{FILTER_LABELS[k]}</span>
           <span className="text-muted-foreground">is</span>
           <span
@@ -65,7 +65,7 @@ export function FilterBar() {
             }}
             className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded hover:bg-muted text-muted-foreground"
           >
-            <X className="h-3 w-3" />
+            <X size={12} strokeWidth={1.5} />
           </span>
         </button>
       ))}
@@ -134,7 +134,7 @@ function EditFilterDialog({
             onClick={onCancel}
             aria-label="Close"
           >
-            <X className="h-4 w-4" />
+            <X size={14} strokeWidth={1.5} />
           </Button>
         </div>
 

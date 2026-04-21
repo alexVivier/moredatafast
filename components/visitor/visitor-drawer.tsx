@@ -107,7 +107,7 @@ function VisitorDrawerBody({
           onClick={onClose}
           aria-label="Close"
         >
-          <X className="h-4 w-4" />
+          <X size={14} strokeWidth={1.5} />
         </Button>
       </div>
 
