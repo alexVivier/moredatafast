@@ -14,13 +14,10 @@ export type TopMetricTableProps<Row> = {
   limit: number;
   rowKey: (row: Row, index: number) => string;
   renderLabel: (row: Row) => ReactNode;
-  /** Label of the left column. E.g. "Referrer", "Page", "Country". */
   itemLabel: string;
-  /** Primary metric (rightmost column, drives the bar width). */
   primary: (row: Row) => number;
   primaryLabel: string;
   primaryFormat?: "currency" | "number";
-  /** Optional secondary metric (middle column). */
   secondary?: (row: Row) => number;
   secondaryLabel?: string;
   secondaryFormat?: "currency" | "number";
@@ -61,7 +58,7 @@ export function TopMetricTable<Row>({
   emptyHint,
 }: TopMetricTableProps<Row>) {
   if (error) {
-    return <div className="text-sm text-destructive">{error}</div>;
+    return <div className="text-sm text-mdf-danger">{error}</div>;
   }
 
   const safeRows = rows ?? [];
@@ -71,18 +68,12 @@ export function TopMetricTable<Row>({
     <div className="flex h-full flex-col">
       <div className="flex items-baseline justify-between pb-2 gap-2">
         <div className="min-w-0">
-          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground truncate">
-            {title}
-          </div>
+          <div className="mdf-micro truncate">{title}</div>
           {subtitle ? (
-            <div className="text-xs text-muted-foreground truncate">
-              {subtitle}
-            </div>
+            <div className="text-xs text-mdf-fg-3 truncate">{subtitle}</div>
           ) : null}
         </div>
-        <div className="text-xs text-muted-foreground shrink-0">
-          top {limit}
-        </div>
+        <div className="mdf-micro shrink-0">top {limit}</div>
       </div>
       <div className="flex-1 min-h-0 overflow-auto">
         {loading ? (
@@ -90,28 +81,28 @@ export function TopMetricTable<Row>({
             {Array.from({ length: Math.min(5, limit) }).map((_, i) => (
               <div
                 key={i}
-                className="h-6 w-full animate-pulse rounded bg-muted/40"
+                className="h-8 w-full animate-pulse rounded bg-mdf-line-1"
               />
             ))}
           </div>
         ) : safeRows.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+          <div className="flex h-full items-center justify-center text-sm text-mdf-fg-3">
             {emptyHint ?? "No data in this range"}
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground">
-                <th className="text-left font-medium py-1.5">{itemLabel}</th>
+              <tr className="border-b border-mdf-line-1">
+                <th className="mdf-micro text-left py-1.5">{itemLabel}</th>
                 {secondary && secondaryLabel ? (
-                  <th className="text-right font-medium py-1.5 w-24">
+                  <th className="mdf-micro text-right py-1.5 w-24">
                     {secondaryLabel}
                   </th>
                 ) : null}
                 <th
                   className={cn(
-                    "text-right font-medium py-1.5",
-                    secondary ? "w-24" : "w-32"
+                    "mdf-micro text-right py-1.5",
+                    secondary ? "w-24" : "w-32",
                   )}
                 >
                   {primaryLabel}
@@ -125,24 +116,43 @@ export function TopMetricTable<Row>({
                 return (
                   <tr
                     key={rowKey(row, i)}
-                    className="border-b border-border/40 last:border-0 hover:bg-accent/30 transition-colors"
+                    className="border-b border-mdf-line-1 last:border-0 hover:bg-mdf-line-1 transition-colors"
+                    style={{ height: "var(--mdf-row-h)" }}
                   >
                     <td className="py-1.5 relative pr-2">
                       <div
-                        className="absolute inset-y-0.5 left-0 rounded-sm bg-blue-500/15 dark:bg-blue-400/20"
-                        style={{ width: `${bar}%` }}
+                        className="absolute inset-y-1 left-0 rounded-sm"
+                        style={{
+                          width: `${bar}%`,
+                          background:
+                            "color-mix(in srgb, var(--mdf-cat-1) 18%, transparent)",
+                        }}
                         aria-hidden
                       />
-                      <span className="relative block truncate text-xs">
+                      <span className="relative block truncate text-xs text-mdf-fg-1">
                         {renderLabel(row)}
                       </span>
                     </td>
                     {secondary && secondaryLabel ? (
-                      <td className="py-1.5 text-right tabular-nums text-muted-foreground">
+                      <td
+                        className="py-1.5 text-right text-mdf-fg-2"
+                        style={{
+                          fontFamily: "var(--mdf-font-mono)",
+                          fontVariantNumeric: "tabular-nums",
+                          fontSize: "12px",
+                        }}
+                      >
                         {formatMetric(secondary(row), secondaryFormat, currency)}
                       </td>
                     ) : null}
-                    <td className="py-1.5 text-right tabular-nums">
+                    <td
+                      className="py-1.5 text-right text-mdf-fg-1"
+                      style={{
+                        fontFamily: "var(--mdf-font-mono)",
+                        fontVariantNumeric: "tabular-nums",
+                        fontSize: "12px",
+                      }}
+                    >
                       {formatMetric(primaryValue, primaryFormat, currency)}
                     </td>
                   </tr>

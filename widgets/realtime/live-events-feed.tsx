@@ -35,10 +35,8 @@ export function LiveEventsFeed({ siteId }: WidgetContext<Config>) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-baseline justify-between pb-2">
-        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Live events
-        </div>
-        <div className="text-xs text-muted-foreground">last 10 min</div>
+        <div className="mdf-micro">Live events</div>
+        <div className="mdf-micro">last 10 min</div>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto">
         {query.isLoading ? (
@@ -46,12 +44,12 @@ export function LiveEventsFeed({ siteId }: WidgetContext<Config>) {
             {Array.from({ length: 5 }).map((_, i) => (
               <div
                 key={i}
-                className="h-8 w-full animate-pulse rounded bg-muted/40"
+                className="h-8 w-full animate-pulse rounded bg-mdf-line-1"
               />
             ))}
           </div>
         ) : events.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+          <div className="flex h-full items-center justify-center text-sm text-mdf-fg-3">
             Nothing happening right now.
           </div>
         ) : (
@@ -61,7 +59,7 @@ export function LiveEventsFeed({ siteId }: WidgetContext<Config>) {
                 <button
                   type="button"
                   onClick={() => open(siteId, e.visitorId)}
-                  className="w-full text-left rounded px-2 py-1.5 hover:bg-accent/40 transition-colors"
+                  className="w-full text-left rounded px-2 py-1.5 hover:bg-mdf-line-1 transition-colors"
                 >
                   <div className="flex items-center gap-2 text-xs">
                     {e.countryCode ? (
@@ -77,18 +75,24 @@ export function LiveEventsFeed({ siteId }: WidgetContext<Config>) {
                     )}
                     <span
                       className={cn(
-                        "text-[10px] font-semibold uppercase tracking-wider shrink-0",
+                        "mdf-badge shrink-0",
                         e.type === "pageview"
-                          ? "text-blue-500"
-                          : "text-amber-500"
+                          ? "mdf-badge--info"
+                          : "mdf-badge--brand",
                       )}
                     >
                       {e.type}
                     </span>
-                    <span className="font-mono truncate flex-1">
+                    <span
+                      className="truncate flex-1 text-mdf-fg-1"
+                      style={{
+                        fontFamily: "var(--mdf-font-mono)",
+                        fontSize: "12px",
+                      }}
+                    >
                       {e.path ?? ""}
                     </span>
-                    <span className="text-muted-foreground shrink-0 text-[11px]">
+                    <span className="text-mdf-fg-3 shrink-0 text-[11px] font-mono tabular-nums">
                       {relativeTime(e.timestamp)}
                     </span>
                   </div>

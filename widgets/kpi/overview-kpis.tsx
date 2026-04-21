@@ -3,13 +3,6 @@
 import { z } from "zod";
 
 import { cn } from "@/lib/utils";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { useWidgetData } from "@/lib/hooks/use-widget-data";
 import type { OverviewRow } from "@/lib/datafast/types";
 import {
@@ -23,30 +16,22 @@ import { previousRange } from "@/lib/utils/date-range";
 import { register, type WidgetContext } from "@/widgets/registry";
 
 type Metric =
-  | { key: "visitors"; label: "Visitors"; format: "number" }
-  | { key: "sessions"; label: "Sessions"; format: "number" }
-  | { key: "revenue"; label: "Revenue"; format: "currency" }
-  | { key: "bounce_rate"; label: "Bounce rate"; format: "percent-as-is" }
-  | {
-      key: "conversion_rate";
-      label: "Conversion rate";
-      format: "percent-as-is";
-    }
-  | {
-      key: "avg_session_duration";
-      label: "Avg session duration";
-      format: "duration-ms";
-    };
+  | { key: "visitors"; label: "VISITORS"; format: "number" }
+  | { key: "sessions"; label: "SESSIONS"; format: "number" }
+  | { key: "revenue"; label: "REVENUE"; format: "currency" }
+  | { key: "bounce_rate"; label: "BOUNCE RATE"; format: "percent-as-is" }
+  | { key: "conversion_rate"; label: "CONVERSION RATE"; format: "percent-as-is" }
+  | { key: "avg_session_duration"; label: "AVG SESSION DURATION"; format: "duration-ms" };
 
 const METRICS: Metric[] = [
-  { key: "visitors", label: "Visitors", format: "number" },
-  { key: "sessions", label: "Sessions", format: "number" },
-  { key: "revenue", label: "Revenue", format: "currency" },
-  { key: "conversion_rate", label: "Conversion rate", format: "percent-as-is" },
-  { key: "bounce_rate", label: "Bounce rate", format: "percent-as-is" },
+  { key: "visitors", label: "VISITORS", format: "number" },
+  { key: "sessions", label: "SESSIONS", format: "number" },
+  { key: "revenue", label: "REVENUE", format: "currency" },
+  { key: "conversion_rate", label: "CONVERSION RATE", format: "percent-as-is" },
+  { key: "bounce_rate", label: "BOUNCE RATE", format: "percent-as-is" },
   {
     key: "avg_session_duration",
-    label: "Avg session duration",
+    label: "AVG SESSION DURATION",
     format: "duration-ms",
   },
 ];
@@ -93,19 +78,12 @@ export function OverviewKpis({
 
   if (error) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Overview</CardTitle>
-          <CardDescription className="text-destructive">
-            {error.message}
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <div className="p-4 text-sm text-mdf-danger">{error.message}</div>
     );
   }
 
   return (
-    <div className="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-3 lg:grid-cols-6">
+    <div className="mdf-kpistrip grid-cols-2 sm:grid-cols-3 lg:grid-cols-6" style={{ margin: "-14px -16px" }}>
       {METRICS.map((metric) => {
         const value = row?.[metric.key] ?? 0;
         const prevValue = prevRow?.[metric.key] ?? 0;
@@ -115,55 +93,39 @@ export function OverviewKpis({
             ? "flat"
             : LOWER_IS_BETTER.has(metric.key)
               ? delta.direction === "down"
-                ? "good"
-                : "bad"
+                ? "up"
+                : "down"
               : delta.direction === "up"
-                ? "good"
-                : "bad";
+                ? "up"
+                : "down";
+        const arrow =
+          delta.direction === "up" ? "↑" : delta.direction === "down" ? "↓" : "—";
 
         return (
-          <Card key={metric.key} className="min-h-[88px] sm:min-h-[120px]">
-            <CardHeader className="p-3 pb-1 sm:p-4 sm:pb-2">
-              <CardDescription className="text-[10px] sm:text-xs font-medium uppercase tracking-wider truncate">
-                {metric.label}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-3 pt-0 sm:p-4 sm:pt-0">
-              <div className="text-lg sm:text-2xl font-semibold tabular-nums truncate">
-                {isLoading ? (
-                  <span className="inline-block h-6 w-16 animate-pulse rounded bg-muted/60" />
-                ) : (
-                  formatValue(metric, value, resolvedCurrency)
-                )}
-              </div>
-              <div className="mt-0.5 sm:mt-1 flex flex-wrap items-center gap-x-1 text-[10px] sm:text-xs">
-                {isLoading ? (
-                  <span className="inline-block h-3 w-10 animate-pulse rounded bg-muted/40" />
-                ) : (
-                  <>
-                    <span
-                      className={cn(
-                        "font-medium",
-                        isGood === "good" && "text-emerald-500",
-                        isGood === "bad" && "text-destructive",
-                        isGood === "flat" && "text-muted-foreground"
-                      )}
-                    >
-                      {delta.direction === "up"
-                        ? "↑"
-                        : delta.direction === "down"
-                          ? "↓"
-                          : "·"}{" "}
-                      {delta.label}
-                    </span>
-                    <span className="text-muted-foreground">
-                      vs previous {dateRange.lengthDays}d
-                    </span>
-                  </>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <div key={metric.key} className="mdf-kpistrip__cell">
+            <div className="mdf-kpi__label truncate">{metric.label}</div>
+            <div className="mdf-kpi__value truncate">
+              {isLoading ? (
+                <span className="inline-block h-[36px] w-20 animate-pulse rounded bg-mdf-line-1" />
+              ) : (
+                formatValue(metric, value, resolvedCurrency)
+              )}
+            </div>
+            <div className="mdf-kpi__delta flex flex-wrap items-center gap-x-1">
+              {isLoading ? (
+                <span className="inline-block h-3 w-16 animate-pulse rounded bg-mdf-line-1" />
+              ) : (
+                <>
+                  <span className={cn(isGood)}>
+                    {arrow} {delta.label}
+                  </span>
+                  <span className="text-mdf-fg-3">
+                    vs previous {dateRange.lengthDays}d
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
         );
       })}
     </div>

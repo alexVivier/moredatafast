@@ -16,6 +16,13 @@ import {
 import { useWidgetData } from "@/lib/hooks/use-widget-data";
 import type { TimeseriesResponse } from "@/lib/datafast/types";
 import { formatCurrency, formatNumber } from "@/lib/utils/format";
+import {
+  MDF_AXIS_TICK,
+  MDF_CURSOR_STROKE,
+  MDF_GRID_STROKE,
+  MDF_TOOLTIP_LABEL_STYLE,
+  MDF_TOOLTIP_STYLE,
+} from "@/lib/charts/chart-theme";
 import { register, type WidgetContext } from "@/widgets/registry";
 
 const METRIC_IDS = [
@@ -43,10 +50,10 @@ const METRIC_LABEL: Record<MetricId, string> = {
 };
 
 const METRIC_COLOR: Record<MetricId, string> = {
-  visitors: "hsl(217 91% 60%)",
-  sessions: "hsl(250 91% 66%)",
-  revenue: "hsl(142 71% 45%)",
-  conversion_rate: "hsl(38 92% 50%)",
+  visitors: "var(--mdf-cat-1)",
+  sessions: "var(--mdf-cat-4)",
+  revenue: "var(--mdf-cat-2)",
+  conversion_rate: "var(--mdf-cat-3)",
 };
 
 function intervalForRange(days: number): "hour" | "day" | "week" | "month" {
@@ -100,7 +107,7 @@ export function MultiMetricTimeseries({
 
   if (query.error) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-destructive">
+      <div className="flex h-full items-center justify-center text-sm text-mdf-danger">
         {query.error.message}
       </div>
     );
@@ -110,18 +117,16 @@ export function MultiMetricTimeseries({
     <div className="flex h-full flex-col">
       <div className="flex items-baseline justify-between pb-2">
         <div>
-          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Metrics over time
-          </div>
-          <div className="text-xs text-muted-foreground">
+          <div className="mdf-micro">Metrics over time</div>
+          <div className="text-xs text-mdf-fg-3">
             {metrics.map((m) => METRIC_LABEL[m]).join(" · ")}
           </div>
         </div>
-        <div className="text-xs text-muted-foreground">{interval}</div>
+        <div className="mdf-micro">{interval}</div>
       </div>
       <div className="flex-1 min-h-[140px]">
         {query.isLoading ? (
-          <div className="h-full w-full animate-pulse rounded bg-muted/40" />
+          <div className="h-full w-full animate-pulse rounded bg-mdf-line-1" />
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
@@ -130,15 +135,14 @@ export function MultiMetricTimeseries({
             >
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="var(--border)"
-                opacity={0.3}
+                stroke={MDF_GRID_STROKE}
                 vertical={false}
               />
               <XAxis
                 dataKey="name"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                tick={MDF_AXIS_TICK}
                 interval="preserveStartEnd"
                 minTickGap={40}
               />
@@ -147,7 +151,7 @@ export function MultiMetricTimeseries({
                   yAxisId="count"
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                  tick={MDF_AXIS_TICK}
                   tickFormatter={(v: number) => formatNumber(v)}
                   width={42}
                 />
@@ -158,20 +162,15 @@ export function MultiMetricTimeseries({
                   orientation="right"
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                  tick={MDF_AXIS_TICK}
                   tickFormatter={(v: number) => formatCurrency(v, currency)}
                   width={60}
                 />
               ) : null}
               <Tooltip
-                cursor={{ stroke: "var(--border)", strokeWidth: 1 }}
-                contentStyle={{
-                  background: "var(--popover)",
-                  border: "1px solid var(--border)",
-                  borderRadius: 8,
-                  fontSize: 12,
-                }}
-                labelStyle={{ color: "var(--muted-foreground)" }}
+                cursor={{ stroke: MDF_CURSOR_STROKE, strokeWidth: 1 }}
+                contentStyle={MDF_TOOLTIP_STYLE}
+                labelStyle={MDF_TOOLTIP_LABEL_STYLE}
                 formatter={(value, name) => {
                   const m = name as MetricId;
                   const n = typeof value === "number" ? value : 0;
@@ -183,7 +182,7 @@ export function MultiMetricTimeseries({
               />
               <Legend
                 iconType="line"
-                wrapperStyle={{ fontSize: 11 }}
+                wrapperStyle={{ fontSize: 11, color: "var(--mdf-fg-3)" }}
                 formatter={(name) => METRIC_LABEL[name as MetricId] ?? String(name)}
               />
               {metrics.map((m) => (
@@ -194,7 +193,7 @@ export function MultiMetricTimeseries({
                   dataKey={m}
                   name={m}
                   stroke={METRIC_COLOR[m]}
-                  strokeWidth={2}
+                  strokeWidth={1.5}
                   dot={false}
                 />
               ))}

@@ -15,6 +15,13 @@ import {
 import { useWidgetData } from "@/lib/hooks/use-widget-data";
 import type { TimeseriesResponse } from "@/lib/datafast/types";
 import { formatCurrency } from "@/lib/utils/format";
+import {
+  MDF_AXIS_TICK,
+  MDF_CURSOR_STROKE,
+  MDF_GRID_STROKE,
+  MDF_TOOLTIP_LABEL_STYLE,
+  MDF_TOOLTIP_STYLE,
+} from "@/lib/charts/chart-theme";
 import { register, type WidgetContext } from "@/widgets/registry";
 
 type Config = Record<string, never>;
@@ -68,7 +75,7 @@ export function RevenueTimeseries({
 
   if (query.error) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-destructive">
+      <div className="flex h-full items-center justify-center text-sm text-mdf-danger">
         {query.error.message}
       </div>
     );
@@ -78,19 +85,17 @@ export function RevenueTimeseries({
     <div className="flex h-full flex-col">
       <div className="flex items-baseline justify-between pb-2">
         <div>
-          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Revenue over time
-          </div>
-          <div className="text-2xl font-semibold tabular-nums">
+          <div className="mdf-micro">Revenue over time</div>
+          <div className="mdf-kpi">
             {query.isLoading ? (
-              <span className="inline-block h-7 w-20 animate-pulse rounded bg-muted/60" />
+              <span className="inline-block h-[36px] w-24 animate-pulse rounded bg-mdf-line-1" />
             ) : (
               formatCurrency(total, currency)
             )}
           </div>
           {totalBreakdown &&
           (totalBreakdown.renewal > 0 || totalBreakdown.refund > 0) ? (
-            <div className="text-[11px] text-muted-foreground">
+            <div className="text-[11px] text-mdf-fg-3 font-mono tabular-nums">
               new {formatCurrency(totalBreakdown.new ?? 0, currency)}
               {totalBreakdown.renewal > 0 ? (
                 <>
@@ -107,11 +112,11 @@ export function RevenueTimeseries({
             </div>
           ) : null}
         </div>
-        <div className="text-xs text-muted-foreground">{interval}</div>
+        <div className="mdf-micro">{interval}</div>
       </div>
       <div className="flex-1 min-h-[120px]">
         {query.isLoading ? (
-          <div className="h-full w-full animate-pulse rounded bg-muted/40" />
+          <div className="h-full w-full animate-pulse rounded bg-mdf-line-1" />
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
@@ -120,48 +125,34 @@ export function RevenueTimeseries({
             >
               <defs>
                 <linearGradient id="rev-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor="hsl(142 71% 45%)"
-                    stopOpacity={0.45}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor="hsl(142 71% 45%)"
-                    stopOpacity={0}
-                  />
+                  <stop offset="0%" stopColor="var(--mdf-cat-2)" stopOpacity={0.45} />
+                  <stop offset="100%" stopColor="var(--mdf-cat-2)" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="var(--border)"
-                opacity={0.3}
+                stroke={MDF_GRID_STROKE}
                 vertical={false}
               />
               <XAxis
                 dataKey="name"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                tick={MDF_AXIS_TICK}
                 interval="preserveStartEnd"
                 minTickGap={40}
               />
               <YAxis
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                tick={MDF_AXIS_TICK}
                 tickFormatter={(v: number) => formatCurrency(v, currency)}
                 width={60}
               />
               <Tooltip
-                cursor={{ stroke: "var(--border)", strokeWidth: 1 }}
-                contentStyle={{
-                  background: "var(--popover)",
-                  border: "1px solid var(--border)",
-                  borderRadius: 8,
-                  fontSize: 12,
-                }}
-                labelStyle={{ color: "var(--muted-foreground)" }}
+                cursor={{ stroke: MDF_CURSOR_STROKE, strokeWidth: 1 }}
+                contentStyle={MDF_TOOLTIP_STYLE}
+                labelStyle={MDF_TOOLTIP_LABEL_STYLE}
                 formatter={(value) => [
                   formatCurrency(typeof value === "number" ? value : 0, currency),
                   "Revenue",
@@ -170,8 +161,8 @@ export function RevenueTimeseries({
               <Area
                 type="monotone"
                 dataKey="value"
-                stroke="hsl(142 71% 45%)"
-                strokeWidth={2}
+                stroke="var(--mdf-cat-2)"
+                strokeWidth={1.5}
                 fill="url(#rev-grad)"
               />
             </AreaChart>

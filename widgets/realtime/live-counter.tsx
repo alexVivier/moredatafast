@@ -17,25 +17,31 @@ export function LiveCounter({ siteId }: WidgetContext<Config>) {
 
   return (
     <div className="flex h-full flex-col items-start justify-center">
-      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+      <div className="mdf-micro flex items-center gap-2">
         <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+          <span
+            className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
+            style={{ background: "var(--mdf-success)" }}
+          />
+          <span
+            className="relative inline-flex h-2 w-2 rounded-full"
+            style={{ background: "var(--mdf-success)" }}
+          />
         </span>
         Live now
       </div>
-      <div className="mt-1 text-5xl font-semibold tabular-nums">
+      <div className="mt-2" style={{ fontFamily: "var(--mdf-font-display)", fontSize: "56px", lineHeight: 1.05, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>
         {query.isLoading ? (
-          <span className="inline-block h-12 w-24 animate-pulse rounded bg-muted/60" />
+          <span className="inline-block h-12 w-24 animate-pulse rounded bg-mdf-line-1" />
         ) : (
           formatNumber(count)
         )}
       </div>
-      <div className="text-xs text-muted-foreground">
+      <div className="text-xs text-mdf-fg-3 mt-1">
         visitor{count === 1 ? "" : "s"} active in the last 5 min
       </div>
       {query.error ? (
-        <div className="mt-2 text-xs text-destructive">
+        <div className="mt-2 text-xs text-mdf-danger">
           {query.error.message}
         </div>
       ) : null}
