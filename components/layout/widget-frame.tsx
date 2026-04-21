@@ -1,9 +1,27 @@
 "use client";
 
-import { GripVertical, X } from "lucide-react";
+import { GripVertical, Pin, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
+import { DATE_RANGE_LABELS } from "@/lib/utils/date-range";
+import type { WidgetMeta } from "@/widgets/_meta";
+
+import { WidgetSettingsMenu } from "./widget-settings-menu";
+
+type WidgetFrameProps = {
+  title: string;
+  subtitle?: string | null;
+  editMode: boolean;
+  onRemove?: () => void;
+  children: React.ReactNode;
+  className?: string;
+  /** Meta-driven extras. Only rendered when values are supplied. */
+  pinned?: boolean;
+  dateOverride?: WidgetMeta["dateRangeOverride"];
+  onTogglePin?: () => void;
+  onSetDateOverride?: (next: WidgetMeta["dateRangeOverride"]) => void;
+};
 
 export function WidgetFrame({
   title,
@@ -12,15 +30,27 @@ export function WidgetFrame({
   onRemove,
   children,
   className,
-}: {
-  title: string;
-  subtitle?: string | null;
-  editMode: boolean;
-  onRemove?: () => void;
-  children: React.ReactNode;
-  className?: string;
-}) {
+  pinned,
+  dateOverride,
+  onTogglePin,
+  onSetDateOverride,
+}: WidgetFrameProps) {
   const t = useTranslations("dashboard.widget");
+  const dateOverrideLabel = dateOverride
+    ? DATE_RANGE_LABELS[dateOverride.preset]
+    : null;
+
+  function handleRemove() {
+    if (!onRemove) return;
+    if (pinned) {
+      const ok = window.confirm(
+        "This widget is pinned. Remove it anyway?",
+      );
+      if (!ok) return;
+    }
+    onRemove();
+  }
+
   return (
     <div className={cn("mdf-widget h-full w-full", className)}>
       {editMode ? (
@@ -40,17 +70,61 @@ export function WidgetFrame({
                 {subtitle}
               </span>
             ) : null}
+            {pinned ? (
+              <span
+                className="ml-2 inline-flex items-center text-mdf-brand"
+                aria-label="Pinned"
+                title="Pinned"
+              >
+                <Pin size={11} strokeWidth={1.8} />
+              </span>
+            ) : null}
+            {dateOverrideLabel ? (
+              <span className="ml-2 rounded px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wider text-mdf-fg-3 bg-mdf-line-1">
+                {dateOverrideLabel}
+              </span>
+            ) : null}
           </div>
+          {onTogglePin && onSetDateOverride ? (
+            <WidgetSettingsMenu
+              pinned={!!pinned}
+              override={dateOverride ?? null}
+              onTogglePin={onTogglePin}
+              onSetOverride={onSetDateOverride}
+            />
+          ) : null}
           {onRemove ? (
             <button
               type="button"
               className="mdf-widget__close"
-              onClick={onRemove}
+              onClick={handleRemove}
               aria-label={t("remove")}
             >
               <X size={14} strokeWidth={1.5} />
             </button>
           ) : null}
+        </div>
+      ) : pinned || dateOverrideLabel ? (
+        // Read-only marker row when we have something meta to surface.
+        <div className="mdf-widget__head pointer-events-none">
+          <div className="mdf-widget__title">
+            <span className="mdf-micro" style={{ color: "var(--mdf-fg-2)" }}>
+              {title}
+            </span>
+            {pinned ? (
+              <span
+                className="ml-2 inline-flex items-center text-mdf-brand"
+                aria-label="Pinned"
+              >
+                <Pin size={11} strokeWidth={1.8} />
+              </span>
+            ) : null}
+            {dateOverrideLabel ? (
+              <span className="ml-2 rounded px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wider text-mdf-fg-3 bg-mdf-line-1">
+                {dateOverrideLabel}
+              </span>
+            ) : null}
+          </div>
         </div>
       ) : null}
       <div className="mdf-widget__body">{children}</div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -46,10 +47,10 @@ type Props = {
   yearlySavingsPercent?: number | null;
 };
 
-const ROLE_LABEL: Record<Role, string> = {
-  owner: "Owner",
-  admin: "Admin",
-  member: "Member",
+const ROLE_LABEL_KEY: Record<Role, "roleOwner" | "roleAdmin" | "roleMember"> = {
+  owner: "roleOwner",
+  admin: "roleAdmin",
+  member: "roleMember",
 };
 
 export function OrganizationClient({
@@ -65,6 +66,7 @@ export function OrganizationClient({
   yearlyPriceLabel,
   yearlySavingsPercent,
 }: Props) {
+  const t = useTranslations("settings.organization");
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<Role>("member");
@@ -90,17 +92,16 @@ export function OrganizationClient({
         if (isPaywallError(res.error.message ?? "")) {
           setPaywallOpen(true);
         } else {
-          setError(res.error.message || "Failed to send invitation");
+          setError(res.error.message || t("errInvite"));
         }
         return;
       }
       setEmail("");
       setInviteRole("member");
-      setSuccess(`Invitation sent to ${trimmed}`);
+      setSuccess(t("sentToast", { email: trimmed }));
       router.refresh();
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to send invitation";
+      const message = err instanceof Error ? err.message : t("errInvite");
       if (isPaywallError(message)) {
         setPaywallOpen(true);
       } else {
@@ -119,7 +120,7 @@ export function OrganizationClient({
         invitationId,
       });
       if (res.error) {
-        setError(res.error.message || "Failed to cancel invitation");
+        setError(res.error.message || t("errCancel"));
         return;
       }
       router.refresh();
@@ -131,7 +132,7 @@ export function OrganizationClient({
   async function removeMember(memberId: string, memberEmail: string) {
     if (
       !window.confirm(
-        `Remove ${memberEmail} from ${organizationName}? They will lose access immediately.`,
+        t("confirmRemove", { email: memberEmail, org: organizationName }),
       )
     )
       return;
@@ -143,7 +144,7 @@ export function OrganizationClient({
         organizationId,
       });
       if (res.error) {
-        setError(res.error.message || "Failed to remove member");
+        setError(res.error.message || t("errRemove"));
         return;
       }
       router.refresh();
@@ -153,18 +154,13 @@ export function OrganizationClient({
   }
 
   async function leaveOrg() {
-    if (
-      !window.confirm(
-        `Leave ${organizationName}? You'll lose access to its sites and dashboards.`,
-      )
-    )
-      return;
+    if (!window.confirm(t("confirmLeave", { org: organizationName }))) return;
     setError(null);
     setBusy(true);
     try {
       const res = await authClient.organization.leave({ organizationId });
       if (res.error) {
-        setError(res.error.message || "Failed to leave organization");
+        setError(res.error.message || t("errLeave"));
         return;
       }
       router.replace("/");
@@ -175,16 +171,14 @@ export function OrganizationClient({
   }
 
   async function deleteOrg() {
-    const typed = window.prompt(
-      `Type the org slug to confirm deletion (this cannot be undone):`,
-    );
+    const typed = window.prompt(t("confirmDelete"));
     if (!typed) return;
     setError(null);
     setBusy(true);
     try {
       const res = await authClient.organization.delete({ organizationId });
       if (res.error) {
-        setError(res.error.message || "Failed to delete organization");
+        setError(res.error.message || t("errDelete"));
         return;
       }
       router.replace("/");
@@ -219,7 +213,7 @@ export function OrganizationClient({
       {/* Members --------------------------------------------------------- */}
       <section className="space-y-3">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Members
+          {t("sectionMembers")}
         </h2>
         <Card>
           <CardContent className="divide-y divide-border p-0">
@@ -249,7 +243,7 @@ export function OrganizationClient({
                       <span className="truncate">{m.name || m.email}</span>
                       {isSelf ? (
                         <span className="text-xs text-muted-foreground">
-                          (you)
+                          {t("you")}
                         </span>
                       ) : null}
                     </div>
@@ -257,7 +251,7 @@ export function OrganizationClient({
                       {m.email}
                     </div>
                   </div>
-                  <RoleBadge role={m.role} />
+                  <RoleBadge role={m.role} t={t} />
                   {canRemove ? (
                     <Button
                       variant="ghost"
@@ -265,7 +259,7 @@ export function OrganizationClient({
                       onClick={() => removeMember(m.id, m.email)}
                       disabled={busy}
                     >
-                      Remove
+                      {t("remove")}
                     </Button>
                   ) : null}
                 </div>
@@ -279,7 +273,7 @@ export function OrganizationClient({
       {invitations.length > 0 ? (
         <section className="space-y-3">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Pending invitations
+            {t("sectionPending")}
           </h2>
           <Card>
             <CardContent className="divide-y divide-border p-0">
@@ -296,11 +290,15 @@ export function OrganizationClient({
                       {inv.email}
                     </div>
                     <div className="text-xs text-muted-foreground truncate">
-                      Invited {inv.inviterEmail ? `by ${inv.inviterEmail} ` : ""}·
-                      expires {new Date(inv.expiresAt).toLocaleDateString()}
+                      {inv.inviterEmail
+                        ? t("invitedBy", { email: inv.inviterEmail })
+                        : t("invitedWithout")}{" "}
+                      {t("expires", {
+                        date: new Date(inv.expiresAt).toLocaleDateString(),
+                      })}
                     </div>
                   </div>
-                  <RoleBadge role={inv.role} />
+                  <RoleBadge role={inv.role} t={t} />
                   {canManage ? (
                     <Button
                       variant="ghost"
@@ -308,7 +306,7 @@ export function OrganizationClient({
                       onClick={() => cancelInvite(inv.id)}
                       disabled={busy}
                     >
-                      Cancel
+                      {t("cancel")}
                     </Button>
                   ) : null}
                 </div>
@@ -322,7 +320,7 @@ export function OrganizationClient({
       {canManage ? (
         <section className="space-y-3">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Invite a teammate
+            {t("sectionInvite")}
           </h2>
           <Card>
             <CardContent className="pt-4">
@@ -332,12 +330,12 @@ export function OrganizationClient({
               >
                 <div className="flex-1 space-y-1">
                   <label className="text-xs font-medium text-muted-foreground">
-                    Email
+                    {t("emailLabel")}
                   </label>
                   <input
                     type="email"
                     required
-                    placeholder="teammate@example.com"
+                    placeholder={t("emailPlaceholder")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
@@ -345,25 +343,26 @@ export function OrganizationClient({
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-muted-foreground">
-                    Role
+                    {t("roleLabel")}
                   </label>
                   <select
                     value={inviteRole}
                     onChange={(e) => setInviteRole(e.target.value as Role)}
                     className="h-9 rounded-md border border-border bg-background px-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                   >
-                    <option value="member">Member</option>
-                    <option value="admin">Admin</option>
-                    {isOwner ? <option value="owner">Owner</option> : null}
+                    <option value="member">{t("roleMember")}</option>
+                    <option value="admin">{t("roleAdmin")}</option>
+                    {isOwner ? (
+                      <option value="owner">{t("roleOwner")}</option>
+                    ) : null}
                   </select>
                 </div>
                 <Button type="submit" disabled={busy}>
-                  {busy ? "Sending…" : "Send invite"}
+                  {busy ? t("sending") : t("send")}
                 </Button>
               </form>
               <p className="mt-2 text-xs text-muted-foreground">
-                They&apos;ll get an email with a link to accept. Invitations
-                expire in 48 hours.
+                {t("inviteHint")}
               </p>
             </CardContent>
           </Card>
@@ -373,15 +372,14 @@ export function OrganizationClient({
       {/* Danger zone ---------------------------------------------------- */}
       <section className="space-y-3 pt-4">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Danger zone
+          {t("sectionDanger")}
         </h2>
         <Card>
           <CardContent className="flex flex-col gap-3 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="text-sm font-medium">Leave organization</div>
+              <div className="text-sm font-medium">{t("leaveTitle")}</div>
               <p className="text-xs text-muted-foreground">
-                You will lose access to all sites and dashboards in{" "}
-                {organizationName}.
+                {t("leaveBody", { org: organizationName })}
               </p>
             </div>
             <Button
@@ -390,22 +388,21 @@ export function OrganizationClient({
               disabled={busy || (isOwner && members.length === 1)}
               title={
                 isOwner && members.length === 1
-                  ? "You're the only member — delete the organization instead."
+                  ? t("leaveDisabledTip")
                   : undefined
               }
             >
-              Leave
+              {t("leaveCta")}
             </Button>
           </CardContent>
           {isOwner ? (
             <CardContent className="flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-sm font-medium text-destructive">
-                  Delete organization
+                  {t("deleteTitle")}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Permanently deletes the organization, its sites, views and
-                  segments. This cannot be undone.
+                  {t("deleteBody")}
                 </p>
               </div>
               <Button
@@ -414,7 +411,7 @@ export function OrganizationClient({
                 onClick={deleteOrg}
                 disabled={busy}
               >
-                Delete
+                {t("deleteCta")}
               </Button>
             </CardContent>
           ) : null}
@@ -424,7 +421,13 @@ export function OrganizationClient({
   );
 }
 
-function RoleBadge({ role }: { role: Role }) {
+function RoleBadge({
+  role,
+  t,
+}: {
+  role: Role;
+  t: (key: "roleOwner" | "roleAdmin" | "roleMember") => string;
+}) {
   const tone =
     role === "owner"
       ? "bg-amber-500/15 text-amber-700 dark:text-amber-400"
@@ -435,7 +438,7 @@ function RoleBadge({ role }: { role: Role }) {
     <span
       className={`shrink-0 rounded px-2 py-0.5 text-[10px] font-medium uppercase ${tone}`}
     >
-      {ROLE_LABEL[role]}
+      {t(ROLE_LABEL_KEY[role])}
     </span>
   );
 }

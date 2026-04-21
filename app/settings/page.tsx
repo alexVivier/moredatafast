@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { asc, eq } from "drizzle-orm";
 
 import { db, schema } from "@/db/client";
@@ -19,6 +20,7 @@ export const dynamic = "force-dynamic";
 export default async function SettingsPage() {
   const { organizationId, role } = await requirePageOrg("/settings");
   const canManageSites = role === "owner" || role === "admin";
+  const t = await getTranslations("settings.sites");
 
   const sites = await db
     .select()
@@ -38,21 +40,19 @@ export default async function SettingsPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
-            Sites
+            {t("title")}
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Manage the DataFast-tracked websites connected to this dashboard.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("lead")}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <Link href="/settings/organization" className="flex-1 sm:flex-none">
             <Button variant="outline" className="w-full">
-              Organization
+              {t("organization")}
             </Button>
           </Link>
           {canManageSites ? (
             <Link href="/settings/sites/new" className="flex-1 sm:flex-none">
-              <Button className="w-full">+ Add site</Button>
+              <Button className="w-full">{t("addSite")}</Button>
             </Link>
           ) : null}
         </div>
@@ -61,22 +61,17 @@ export default async function SettingsPage() {
       {sites.length === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>No sites yet</CardTitle>
-            <CardDescription>
-              Add your first DataFast website to start seeing analytics.
-              You&apos;ll need an API key from{" "}
-              <span className="font-mono">Website Settings → API</span> in your
-              DataFast dashboard.
-            </CardDescription>
+            <CardTitle>{t("noSitesTitle")}</CardTitle>
+            <CardDescription>{t("noSitesBody")}</CardDescription>
           </CardHeader>
           <CardContent>
             {canManageSites ? (
               <Link href="/settings/sites/new">
-                <Button>Add your first site</Button>
+                <Button>{t("noSitesCta")}</Button>
               </Link>
             ) : (
               <p className="text-xs text-muted-foreground">
-                Ask an admin to add the first site for this organization.
+                {t("noSitesReader")}
               </p>
             )}
           </CardContent>
@@ -109,15 +104,15 @@ export default async function SettingsPage() {
                       </span>
                     </div>
                     <div className="text-xs text-muted-foreground truncate">
-                      {s.timezone} · {s.currency} · added{" "}
-                      {new Date(s.createdAt).toLocaleDateString()}
+                      {s.timezone} · {s.currency} ·{" "}
+                      {t("metaAdded", {
+                        date: new Date(s.createdAt).toLocaleDateString(),
+                      })}
                     </div>
                   </div>
                   {viewId ? (
                     <Link href={`/view/${viewId}`}>
-                      <Button variant="outline" size="sm">
-                        Open
-                      </Button>
+                      <Button variant="outline">{t("open")}</Button>
                     </Link>
                   ) : null}
                   {canManageSites ? (
@@ -131,11 +126,7 @@ export default async function SettingsPage() {
       )}
 
       <div className="pt-4 text-xs text-muted-foreground">
-        <p>
-          API keys are encrypted at rest using AES-256-GCM. Back up{" "}
-          <span className="font-mono">data/master.key</span> if you&apos;re using
-          the auto-generated key.
-        </p>
+        <p>{t("footNote")}</p>
       </div>
     </div>
   );

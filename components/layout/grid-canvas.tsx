@@ -16,6 +16,12 @@ import { WidgetFrame } from "./widget-frame";
 import { getWidget } from "@/widgets";
 import "@/widgets";
 import type { ResolvedDateRange } from "@/lib/utils/date-range";
+import {
+  effectiveDateRange,
+  parseWidgetMeta,
+  writeWidgetMeta,
+  type WidgetMeta,
+} from "@/widgets/_meta";
 
 type RglModule = typeof import("react-grid-layout");
 
@@ -191,6 +197,18 @@ function GridCanvasInner({
     [items, onChange]
   );
 
+  const handlePatchMeta = useCallback(
+    (id: string, patch: Partial<WidgetMeta>) => {
+      const next = items.map((item) =>
+        item.id === id
+          ? { ...item, configJson: writeWidgetMeta(item.configJson, patch) }
+          : item,
+      );
+      onChange(next);
+    },
+    [items, onChange],
+  );
+
   const layouts = useMemo(
     () => ({
       lg: itemsToLayout(items),
@@ -230,6 +248,8 @@ function GridCanvasInner({
         >
           {items.map((item) => {
             const def = getWidget(item.widgetType);
+            const meta = parseWidgetMeta(item.configJson);
+            const itemDateRange = effectiveDateRange(meta, dateRange);
             return (
               <div key={item.id}>
                 {def ? (
@@ -239,11 +259,24 @@ function GridCanvasInner({
                     onRemove={
                       effectiveEditMode ? () => handleRemove(item.id) : undefined
                     }
+                    pinned={!!meta.pinned}
+                    dateOverride={meta.dateRangeOverride}
+                    onTogglePin={
+                      effectiveEditMode
+                        ? () => handlePatchMeta(item.id, { pinned: !meta.pinned })
+                        : undefined
+                    }
+                    onSetDateOverride={
+                      effectiveEditMode
+                        ? (next) =>
+                            handlePatchMeta(item.id, { dateRangeOverride: next })
+                        : undefined
+                    }
                   >
                     <def.Component
                       siteId={siteId}
                       currency={currency}
-                      dateRange={dateRange}
+                      dateRange={itemDateRange}
                       config={parseConfig(item.configJson, def.defaultConfig)}
                     />
                   </WidgetFrame>
@@ -255,6 +288,7 @@ function GridCanvasInner({
                     onRemove={
                       effectiveEditMode ? () => handleRemove(item.id) : undefined
                     }
+                    pinned={!!meta.pinned}
                   >
                     <div className="text-sm text-muted-foreground">
                       {t("unknownWidget", { type: item.widgetType })}

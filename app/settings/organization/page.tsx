@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { and, asc, desc, eq } from "drizzle-orm";
 
 import { db, schema } from "@/db/client";
@@ -39,6 +40,8 @@ type InvitationRow = {
 
 export default async function OrganizationSettingsPage() {
   const session = await requirePageSession("/settings/organization");
+  const t = await getTranslations("settings.organization");
+  const tHeader = await getTranslations("settings.header");
 
   // We intentionally don't call requirePageOrg here so that a user without any
   // org can land on this page and create one.
@@ -60,18 +63,15 @@ export default async function OrganizationSettingsPage() {
   if (!activeOrgId) {
     return (
       <div className="mx-auto max-w-4xl space-y-6 px-3 sm:px-6 py-4 sm:py-6">
-        <Header backHref="/settings" />
+        <Header backHref="/settings" label={tHeader("back")} />
         <Card>
           <CardHeader>
-            <CardTitle>No organization yet</CardTitle>
-            <CardDescription>
-              Create one from the dropdown in the top bar to start adding sites
-              and inviting teammates.
-            </CardDescription>
+            <CardTitle>{t("noOrgTitle")}</CardTitle>
+            <CardDescription>{t("noOrgBody")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/">
-              <Button>Back to dashboard</Button>
+              <Button>{t("noOrgBack")}</Button>
             </Link>
           </CardContent>
         </Card>
@@ -86,10 +86,8 @@ export default async function OrganizationSettingsPage() {
   if (!org) {
     return (
       <div className="mx-auto max-w-4xl space-y-6 px-3 sm:px-6 py-4 sm:py-6">
-        <Header backHref="/settings" />
-        <p className="text-sm text-destructive">
-          Active organization not found.
-        </p>
+        <Header backHref="/settings" label={tHeader("back")} />
+        <p className="text-sm text-destructive">{t("notFound")}</p>
       </div>
     );
   }
@@ -164,15 +162,21 @@ export default async function OrganizationSettingsPage() {
   const canManage = currentRole === "owner" || currentRole === "admin";
   const prices = await getPlanPrices();
 
+  const membersCount = members.length;
+  const memberLabel = t(
+    membersCount === 1 ? "metaMember" : "metaMemberPlural",
+    { count: membersCount },
+  );
+
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-3 sm:px-6 py-4 sm:py-6">
-      <Header backHref="/settings" />
+      <Header backHref="/settings" label={tHeader("back")} />
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">{org.name}</h1>
         <p className="text-sm text-muted-foreground">
-          {members.length} member{members.length === 1 ? "" : "s"} · slug{" "}
-          <span className="font-mono">{org.slug}</span> · your role:{" "}
-          <span className="font-medium">{currentRole}</span>
+          {memberLabel} · {t("metaSlug")}{" "}
+          <span className="font-mono">{org.slug}</span> · {t("metaYourRole")}{" "}
+          <span className="font-medium">{t(`role${currentRole.charAt(0).toUpperCase()}${currentRole.slice(1)}` as "roleOwner" | "roleAdmin" | "roleMember")}</span>
         </p>
       </div>
 
@@ -193,12 +197,12 @@ export default async function OrganizationSettingsPage() {
   );
 }
 
-function Header({ backHref }: { backHref: string }) {
+function Header({ backHref, label }: { backHref: string; label: string }) {
   return (
     <div className="flex items-center gap-2">
       <Link href={backHref}>
         <Button variant="ghost" size="sm">
-          ← Back
+          {label}
         </Button>
       </Link>
     </div>
