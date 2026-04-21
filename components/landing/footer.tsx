@@ -5,7 +5,7 @@ export function Footer() {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/logo-mark.svg" alt="MDF" style={{ height: 16 }} />
-          <span>© 2026 More Data Fast · Built solo in Marseille</span>
+          <span>© 2026 More Data Fast</span>
         </div>
         <div className="lp-footer__links">
           <a href="/terms">Terms</a>

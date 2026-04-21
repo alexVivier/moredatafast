@@ -44,7 +44,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
           </div>
 
           <p className="mt-6 text-center text-[11px] text-mdf-fg-3 font-mono tracking-wider">
-            © 2026 more data fast · built solo in marseille
+            © 2026 more data fast
           </p>
         </div>
       </main>
