@@ -18,6 +18,18 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+// Applied before React hydrates — prevents a light→dark flash for users who
+// picked light mode and came back. Reads the same localStorage key as
+// use-theme.ts.
+const THEME_INIT_SCRIPT = `
+try {
+  var t = window.localStorage.getItem('mdf-theme');
+  document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
+} catch (e) {
+  document.documentElement.dataset.theme = 'dark';
+}
+`;
+
 export default function RootLayout({
   children,
 }: {
@@ -25,6 +37,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="dark" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="antialiased">
         <AppProviders>{children}</AppProviders>
       </body>

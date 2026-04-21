@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Moon, Sun } from "lucide-react";
 
 import { authClient } from "@/lib/auth/client";
 import { FeedbackDialog } from "@/components/feedback/feedback-dialog";
+import { useTheme } from "@/lib/hooks/use-theme";
 
 export function UserMenu({
   email,
@@ -21,6 +22,7 @@ export function UserMenu({
   const [open, setOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     function onClickAway(e: MouseEvent) {
@@ -82,6 +84,21 @@ export function UserMenu({
               className="w-full text-left px-3 py-1.5 text-sm rounded-sm hover:bg-mdf-line-1 text-mdf-fg-1"
             >
               Send feedback
+            </button>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="w-full flex items-center justify-between gap-2 px-3 py-1.5 text-sm rounded-sm hover:bg-mdf-line-1 text-mdf-fg-1"
+            >
+              <span>Theme</span>
+              <span className="inline-flex items-center gap-1.5 text-xs text-mdf-fg-3">
+                {theme === "dark" ? (
+                  <Moon size={14} strokeWidth={1.5} />
+                ) : (
+                  <Sun size={14} strokeWidth={1.5} />
+                )}
+                {theme === "dark" ? "Dark" : "Light"}
+              </span>
             </button>
             <button
               type="button"
