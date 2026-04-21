@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="mdf-diamond" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFAD57"></stop>
+      <stop offset="100%" stop-color="#E08A2A"></stop>
+    </linearGradient>
+  </defs>
+  
+  <rect x="10" y="10" width="44" height="44" rx="10" ry="10" transform="rotate(45 32 32)" fill="url(#mdf-diamond)"></rect>
+  
+  <path d="M32 8 L56 32 L32 56 L8 32 Z" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"></path>
+  
+  <g fill="#1A0F03" transform="translate(32 32) rotate(45)">
+    <rect x="-10" y="2" width="5" height="8" rx="1"></rect>
+    <rect x="-3" y="-3" width="5" height="13" rx="1"></rect>
+    <rect x="4" y="-8" width="5" height="18" rx="1"></rect>
+  </g>
+</svg>

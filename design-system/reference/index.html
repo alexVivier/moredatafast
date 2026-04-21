@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>More Data Fast — Your DataFast numbers, recomposed.</title>
+<link rel="icon" type="image/svg+xml" href="../design-system/logo-mark.svg"/>
+<link rel="stylesheet" href="landing.css"/>
+<style>
+  @keyframes lpPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  @keyframes lpSlideIn {
+    from { transform: translateY(-6px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  /* Badge colours (copy of design-system badge styles so we can use them here) */
+  .mdf-badge { display:inline-flex; align-items:center; gap:4px; font-size:10px; letter-spacing:.04em; font-weight:600; padding:2px 6px; border-radius:2px; text-transform:uppercase; }
+  .mdf-badge--info { background:rgba(76,130,247,.14); color:#8BB0F9; }
+  .mdf-badge--success { background:rgba(51,192,138,.14); color:#67D3A7; }
+  .mdf-badge--warn { background:rgba(230,200,76,.14); color:#E8D275; }
+  .mdf-badge--brand { background:rgba(245,155,60,.14); color:#FFB56E; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+  // TWEAK defaults — editable from the tweaks panel
+  window.LP_TWEAKS = /*EDITMODE-BEGIN*/{
+    "accent": "#4C82F7",
+    "headline": "recomposed",
+    "heroDensity": "preview",
+    "showGridBg": true
+  }/*EDITMODE-END*/;
+
+  // Apply accent token
+  function applyTweaks(t) {
+    document.documentElement.style.setProperty("--lp-accent", t.accent);
+    document.body.classList.toggle("lp-no-grid", !t.showGridBg);
+  }
+  applyTweaks(window.LP_TWEAKS);
+</script>
+
+<script type="text/babel" src="widgets.jsx?v=2"></script>
+<script type="text/babel" src="sections.jsx?v=2"></script>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+// --- Tweaks panel ---
+const TweaksPanel = ({ open, onClose, tweaks, setTweaks }) => {
+  const accents = [
+    { name: "Signal blue", val: "#4C82F7" },
+    { name: "Verdant green", val: "#33C08A" },
+    { name: "Brand orange", val: "#F59B3C" },
+    { name: "Plum", val: "#C061F4" },
+    { name: "Amber", val: "#E6C84C" },
+  ];
+  const headlines = [
+    { val: "recomposed", label: "recomposed." },
+    { val: "unblocked", label: "unblocked." },
+    { val: "finally readable", label: "finally readable." },
+  ];
+  const update = (patch) => {
+    const next = { ...tweaks, ...patch };
+    setTweaks(next);
+    window.parent.postMessage({ type: "__edit_mode_set_keys", edits: patch }, "*");
+  };
+  return (
+    <div className="lp-tweaks" data-open={open}>
+      <div className="lp-tweaks__head">
+        <h3>Tweaks</h3>
+        <button className="lp-tweaks__close" onClick={onClose} aria-label="Close">×</button>
+      </div>
+      <div className="lp-tweaks__row">
+        <label>Chart accent</label>
+        <div className="lp-tweaks__swatches">
+          {accents.map(a => (
+            <button key={a.val} className="lp-tweaks__swatch" title={a.name}
+              data-active={tweaks.accent === a.val}
+              style={{ background: a.val }}
+              onClick={() => update({ accent: a.val })}
+            />
+          ))}
+        </div>
+      </div>
+      <div className="lp-tweaks__row">
+        <label>Headline angle</label>
+        <div className="lp-tweaks__pills">
+          {headlines.map(h => (
+            <button key={h.val} className="lp-tweaks__pill"
+              data-active={tweaks.headline === h.val}
+              onClick={() => update({ headline: h.val })}
+            >{h.label}</button>
+          ))}
+        </div>
+      </div>
+      <div className="lp-tweaks__row">
+        <label>Grid overlay</label>
+        <div className="lp-tweaks__pills">
+          <button className="lp-tweaks__pill" data-active={tweaks.showGridBg} onClick={() => update({ showGridBg: true })}>Shown</button>
+          <button className="lp-tweaks__pill" data-active={!tweaks.showGridBg} onClick={() => update({ showGridBg: false })}>Hidden</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+function App() {
+  const [tweaks, setTweaks] = useState(window.LP_TWEAKS);
+  const [tweaksOpen, setTweaksOpen] = useState(false);
+
+  useEffect(() => {
+    applyTweaks(tweaks);
+  }, [tweaks]);
+
+  useEffect(() => {
+    const onMsg = (e) => {
+      if (!e.data) return;
+      if (e.data.type === "__activate_edit_mode") setTweaksOpen(true);
+      if (e.data.type === "__deactivate_edit_mode") setTweaksOpen(false);
+    };
+    window.addEventListener("message", onMsg);
+    window.parent.postMessage({ type: "__edit_mode_available" }, "*");
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
+
+  // Patch hero title with current headline tweak
+  const heroEl = (
+    <div data-screen-label="00 Landing">
+      <Nav/>
+      <Hero/>
+      <ValueProps/>
+      <WidgetShowcase/>
+      <Compare/>
+      <Pricing/>
+      <Faq/>
+      <FinalCta/>
+      <Footer/>
+      <TweaksPanel open={tweaksOpen} onClose={() => setTweaksOpen(false)} tweaks={tweaks} setTweaks={setTweaks}/>
+    </div>
+  );
+  return heroEl;
+}
+
+// Override hero headline to respect tweak — small live patch after mount
+const observer = () => {
+  const t = window.LP_TWEAKS;
+  const em = document.querySelector(".lp-hero__title em");
+  if (em && t.headline) em.textContent = t.headline + ".";
+};
+
+ReactDOM.createRoot(document.getElementById("app")).render(<App/>);
+setTimeout(observer, 100);
+
+// Re-apply headline on tweak change via MutationObserver-free polling
+setInterval(() => {
+  const em = document.querySelector(".lp-hero__title em");
+  if (em && window.LP_TWEAKS.headline && em.textContent !== window.LP_TWEAKS.headline + ".") {
+    em.textContent = window.LP_TWEAKS.headline + ".";
+  }
+}, 300);
+</script>
+</body>
+</html>

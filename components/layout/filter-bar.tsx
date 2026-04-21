@@ -25,7 +25,6 @@ export function FilterBar() {
     <div className="flex items-center gap-2 flex-wrap">
       <Button
         variant="outline"
-        size="sm"
         onClick={() => setEditing(FILTER_KEYS[0])}
       >
         <Plus size={14} strokeWidth={1.5} />
@@ -71,7 +70,7 @@ export function FilterBar() {
       ))}
 
       {count > 0 ? (
-        <Button variant="ghost" size="sm" onClick={() => clear()}>
+        <Button variant="ghost" onClick={() => clear()}>
           Clear all
         </Button>
       ) : null}

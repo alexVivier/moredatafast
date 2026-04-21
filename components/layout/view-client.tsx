@@ -128,18 +128,14 @@ export function ViewClient({
           <SegmentsDropdown siteId={siteId} />
           {editMode ? (
             <Link href={readHref}>
-              <Button variant="outline" size="sm">
-                Done
-              </Button>
+              <Button variant="outline">Done</Button>
             </Link>
           ) : (
             // Layout editing is disabled on sub-md viewports (react-grid-layout
             // can't really handle 1-col drag + the UI crushes), so don't offer
             // the entry point there either.
             <Link href={editHref} className="hidden md:inline-block">
-              <Button variant="outline" size="sm">
-                Edit layout
-              </Button>
+              <Button variant="outline">Edit layout</Button>
             </Link>
           )}
         </div>

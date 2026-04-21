@@ -62,7 +62,6 @@ export function TopMetricTable<Row>({
   }
 
   const safeRows = rows ?? [];
-  const maxPrimary = Math.max(1, ...safeRows.map(primary));
 
   return (
     <div className="flex h-full flex-col">
@@ -112,24 +111,14 @@ export function TopMetricTable<Row>({
             <tbody>
               {safeRows.map((row, i) => {
                 const primaryValue = primary(row);
-                const bar = (primaryValue / maxPrimary) * 100;
                 return (
                   <tr
                     key={rowKey(row, i)}
                     className="border-b border-mdf-line-1 last:border-0 hover:bg-mdf-line-1 transition-colors"
                     style={{ height: "var(--mdf-row-h)" }}
                   >
-                    <td className="py-1.5 relative pr-2">
-                      <div
-                        className="absolute inset-y-1 left-0 rounded-sm"
-                        style={{
-                          width: `${bar}%`,
-                          background:
-                            "color-mix(in srgb, var(--mdf-cat-1) 11%, transparent)",
-                        }}
-                        aria-hidden
-                      />
-                      <span className="relative block truncate text-xs text-mdf-fg-1">
+                    <td className="py-1.5 pr-2">
+                      <span className="block truncate text-xs text-mdf-fg-1">
                         {renderLabel(row)}
                       </span>
                     </td>

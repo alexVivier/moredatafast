@@ -72,7 +72,6 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
     <div className="relative">
       <Button
         variant="outline"
-        size="sm"
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -80,7 +79,7 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
         <Bookmark size={14} strokeWidth={1.5} />
         Segments
         {segments.length > 0 ? (
-          <span className="rounded-full bg-primary/10 px-1.5 text-[10px] font-medium">
+          <span className="rounded-full bg-mdf-line-1 px-1.5 text-[10px] font-medium text-mdf-fg-2">
             {segments.length}
           </span>
         ) : null}

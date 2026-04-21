@@ -2,12 +2,18 @@ import { getSessionCookie } from "better-auth/cookies";
 import { NextResponse, type NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Public marketing landing — auth is handled inside app/page.tsx (renders
+  // the landing for anon, redirects to the dashboard for signed-in users).
+  if (pathname === "/") {
+    return NextResponse.next();
+  }
+
   const sessionCookie = getSessionCookie(request);
   if (sessionCookie) {
     return NextResponse.next();
   }
-
-  const { pathname } = request.nextUrl;
 
   if (pathname.startsWith("/api/")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -25,11 +31,11 @@ export const config = {
     /**
      * Protect everything EXCEPT:
      *  - Next.js internals (_next/static, _next/image)
-     *  - favicon / public assets
+     *  - favicon.* / public brand assets
      *  - Better-Auth handler (/api/auth/*)
      *  - Health check
      *  - Auth pages themselves
      */
-    "/((?!_next/static|_next/image|favicon.ico|api/auth|api/health|login|signup|verify-email|forgot-password|reset-password).*)",
+    "/((?!_next/static|_next/image|favicon|brand|api/auth|api/health|login|signup|verify-email|forgot-password|reset-password).*)",
   ],
 };
