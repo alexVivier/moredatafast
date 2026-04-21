@@ -5,6 +5,7 @@ import type {
   Compactor,
   Layout,
   LayoutItem,
+  ResponsiveLayouts,
   UseContainerWidthResult,
 } from "react-grid-layout";
 
@@ -150,10 +151,16 @@ function GridCanvasInner({
   const isMobileBreakpoint = width > 0 && width < BREAKPOINTS.md;
   const effectiveEditMode = editMode && !isMobileBreakpoint;
 
+  // We only persist authoritative desktop positions. On every layout change,
+  // ResponsiveGridLayout hands us the full per-breakpoint map; we read
+  // `layouts.lg` (always reflects what we passed in for desktop, plus any
+  // user drag/resize on desktop) and ignore anything else. This is robust
+  // against the race where width hasn't caught up to a breakpoint switch.
   const handleLayoutChange = useCallback(
-    (layout: Layout) => {
-      if (isMobileBreakpoint) return;
-      const byId = new Map(layout.map((l) => [l.i, l]));
+    (_currentLayout: Layout, allLayouts: ResponsiveLayouts<string>) => {
+      const lgLayout = allLayouts.lg;
+      if (!lgLayout || lgLayout.length === 0) return;
+      const byId = new Map(lgLayout.map((l) => [l.i, l]));
       let changed = false;
       const next = items.map((item) => {
         const l = byId.get(item.id);
@@ -171,7 +178,7 @@ function GridCanvasInner({
       });
       if (changed) onChange(next);
     },
-    [items, onChange, isMobileBreakpoint]
+    [items, onChange]
   );
 
   const handleRemove = useCallback(

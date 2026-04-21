@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { getSession, requirePageSession } from "@/lib/auth/session";
 import type { Role } from "@/lib/auth/session";
+import { getPlanPrices } from "@/lib/billing/prices";
 
 import { OrganizationClient } from "./organization-client";
 
@@ -161,6 +162,7 @@ export default async function OrganizationSettingsPage() {
   }));
 
   const canManage = currentRole === "owner" || currentRole === "admin";
+  const prices = await getPlanPrices();
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-3 sm:px-6 py-4 sm:py-6">
@@ -183,6 +185,9 @@ export default async function OrganizationSettingsPage() {
         isOwner={currentRole === "owner"}
         members={serializeMembers(members)}
         invitations={serializeInvitations(invitations)}
+        monthlyPriceLabel={prices.monthly?.display ?? null}
+        yearlyPriceLabel={prices.yearly?.display ?? null}
+        yearlySavingsPercent={prices.yearlySavingsPercent}
       />
     </div>
   );

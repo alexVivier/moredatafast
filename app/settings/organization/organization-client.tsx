@@ -41,6 +41,9 @@ type Props = {
   isOwner: boolean;
   members: MemberDTO[];
   invitations: InvitationDTO[];
+  monthlyPriceLabel?: string | null;
+  yearlyPriceLabel?: string | null;
+  yearlySavingsPercent?: number | null;
 };
 
 const ROLE_LABEL: Record<Role, string> = {
@@ -58,6 +61,9 @@ export function OrganizationClient({
   isOwner,
   members,
   invitations,
+  monthlyPriceLabel,
+  yearlyPriceLabel,
+  yearlySavingsPercent,
 }: Props) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -195,6 +201,9 @@ export function OrganizationClient({
         onClose={() => setPaywallOpen(false)}
         organizationId={organizationId}
         reason="invite teammates"
+        monthlyPriceLabel={monthlyPriceLabel}
+        yearlyPriceLabel={yearlyPriceLabel}
+        yearlySavingsPercent={yearlySavingsPercent}
       />
       {error ? (
         <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">

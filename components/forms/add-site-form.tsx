@@ -15,7 +15,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function AddSiteForm() {
+type AddSiteFormProps = {
+  monthlyPriceLabel?: string | null;
+  yearlyPriceLabel?: string | null;
+  yearlySavingsPercent?: number | null;
+};
+
+export function AddSiteForm({
+  monthlyPriceLabel,
+  yearlyPriceLabel,
+  yearlySavingsPercent,
+}: AddSiteFormProps = {}) {
   const router = useRouter();
   const [apiKey, setApiKey] = useState("");
   const [nameOverride, setNameOverride] = useState("");
@@ -65,6 +75,9 @@ export function AddSiteForm() {
         onClose={() => setPaywallOrgId(null)}
         organizationId={paywallOrgId ?? ""}
         reason="add more sites"
+        monthlyPriceLabel={monthlyPriceLabel}
+        yearlyPriceLabel={yearlyPriceLabel}
+        yearlySavingsPercent={yearlySavingsPercent}
       />
       <Card>
         <CardHeader>

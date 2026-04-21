@@ -11,6 +11,9 @@ type Props = {
   organizationId: string;
   subscriptionStatus: string | null;
   cancelAtPeriodEnd: boolean;
+  monthlyPriceLabel?: string | null;
+  yearlyPriceLabel?: string | null;
+  yearlySavingsPercent?: number | null;
 };
 
 const ACTIVE = new Set(["active", "trialing"]);
@@ -19,6 +22,9 @@ export function BillingClient({
   organizationId,
   subscriptionStatus,
   cancelAtPeriodEnd,
+  monthlyPriceLabel,
+  yearlyPriceLabel,
+  yearlySavingsPercent,
 }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -30,6 +36,7 @@ export function BillingClient({
     : false;
   const isPastDue =
     subscriptionStatus === "past_due" || subscriptionStatus === "unpaid";
+  const yearlyAvailable = !!yearlyPriceLabel;
 
   async function upgrade() {
     setBusy(true);
@@ -140,28 +147,51 @@ export function BillingClient({
               <button
                 type="button"
                 onClick={() => setInterval("month")}
-                className={`flex-1 rounded px-3 py-1.5 text-xs font-medium transition ${
+                className={`flex-1 rounded px-3 py-2 text-xs font-medium transition ${
                   interval === "month"
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-accent/50"
                 }`}
               >
-                Monthly
+                <div className="font-semibold">Monthly</div>
+                {monthlyPriceLabel ? (
+                  <div className="mt-0.5 text-[10px] opacity-80">
+                    {monthlyPriceLabel}
+                  </div>
+                ) : null}
               </button>
-              <button
-                type="button"
-                onClick={() => setInterval("year")}
-                className={`flex-1 rounded px-3 py-1.5 text-xs font-medium transition ${
-                  interval === "year"
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-accent/50"
-                }`}
-              >
-                Yearly
-              </button>
+              {yearlyAvailable ? (
+                <button
+                  type="button"
+                  onClick={() => setInterval("year")}
+                  className={`flex-1 rounded px-3 py-2 text-xs font-medium transition ${
+                    interval === "year"
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-accent/50"
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-1.5 font-semibold">
+                    Yearly
+                    {yearlySavingsPercent && yearlySavingsPercent > 0 ? (
+                      <span className="rounded bg-emerald-500/20 px-1 py-0.5 text-[9px] text-emerald-600 dark:text-emerald-400">
+                        -{yearlySavingsPercent}%
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="mt-0.5 text-[10px] opacity-80">
+                    {yearlyPriceLabel}
+                  </div>
+                </button>
+              ) : null}
             </div>
             <Button onClick={upgrade} disabled={busy} className="w-full">
-              {busy ? "Redirecting…" : "Subscribe"}
+              {busy
+                ? "Redirecting…"
+                : `Subscribe — ${
+                    interval === "year" && yearlyPriceLabel
+                      ? yearlyPriceLabel
+                      : (monthlyPriceLabel ?? "Premium")
+                  }`}
             </Button>
           </CardContent>
         </Card>

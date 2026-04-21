@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { requirePageOrg } from "@/lib/auth/session";
+import { getPlanPrices } from "@/lib/billing/prices";
 
 import { BillingClient } from "./billing-client";
 
@@ -36,6 +37,7 @@ export default async function BillingPage({
     .limit(1);
 
   const { success, canceled } = await searchParams;
+  const prices = await getPlanPrices();
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-3 sm:px-6 py-4 sm:py-6">
@@ -80,6 +82,9 @@ export default async function BillingPage({
         organizationId={organizationId}
         subscriptionStatus={billing.subscriptionStatus}
         cancelAtPeriodEnd={billing.cancelAtPeriodEnd}
+        monthlyPriceLabel={prices.monthly?.display ?? null}
+        yearlyPriceLabel={prices.yearly?.display ?? null}
+        yearlySavingsPercent={prices.yearlySavingsPercent}
       />
     </div>
   );

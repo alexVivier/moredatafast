@@ -11,6 +11,10 @@ type Props = {
   organizationId: string;
   /** Short reason copy injected into the title ("add more sites", "invite teammates"…). */
   reason: string;
+  /** Pre-formatted prices passed from the server. */
+  monthlyPriceLabel?: string | null;
+  yearlyPriceLabel?: string | null;
+  yearlySavingsPercent?: number | null;
 };
 
 export function PaywallDialog({
@@ -18,10 +22,15 @@ export function PaywallDialog({
   onClose,
   organizationId,
   reason,
+  monthlyPriceLabel,
+  yearlyPriceLabel,
+  yearlySavingsPercent,
 }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [interval, setInterval] = useState<"month" | "year">("month");
+
+  const yearlyAvailable = !!yearlyPriceLabel;
 
   if (!open) return null;
 
@@ -72,25 +81,42 @@ export function PaywallDialog({
           <button
             type="button"
             onClick={() => setInterval("month")}
-            className={`flex-1 rounded px-3 py-1.5 text-xs font-medium transition ${
+            className={`flex-1 rounded px-3 py-2 text-xs font-medium transition ${
               interval === "month"
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-accent/50"
             }`}
           >
-            Monthly
+            <div className="font-semibold">Monthly</div>
+            {monthlyPriceLabel ? (
+              <div className="mt-0.5 text-[10px] opacity-80">
+                {monthlyPriceLabel}
+              </div>
+            ) : null}
           </button>
-          <button
-            type="button"
-            onClick={() => setInterval("year")}
-            className={`flex-1 rounded px-3 py-1.5 text-xs font-medium transition ${
-              interval === "year"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-accent/50"
-            }`}
-          >
-            Yearly
-          </button>
+          {yearlyAvailable ? (
+            <button
+              type="button"
+              onClick={() => setInterval("year")}
+              className={`flex-1 rounded px-3 py-2 text-xs font-medium transition ${
+                interval === "year"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent/50"
+              }`}
+            >
+              <div className="flex items-center justify-center gap-1.5 font-semibold">
+                Yearly
+                {yearlySavingsPercent && yearlySavingsPercent > 0 ? (
+                  <span className="rounded bg-emerald-500/20 px-1 py-0.5 text-[9px] text-emerald-600 dark:text-emerald-400">
+                    -{yearlySavingsPercent}%
+                  </span>
+                ) : null}
+              </div>
+              <div className="mt-0.5 text-[10px] opacity-80">
+                {yearlyPriceLabel}
+              </div>
+            </button>
+          ) : null}
         </div>
 
         {error ? (
