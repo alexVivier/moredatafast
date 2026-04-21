@@ -217,6 +217,10 @@ export const views = pgTable(
     siteId: text("site_id").references(() => sites.id, { onDelete: "cascade" }),
     isDefault: boolean("is_default").notNull().default(false),
     sortOrder: integer("sort_order").notNull().default(0),
+    // Once set, `getViewLayout` stops lazily seeding defaults — so a user
+    // who deletes every widget (empty layout = intentional) isn't greeted
+    // with the starter kit on the next page load.
+    layoutSeededAt: timestamp("layout_seeded_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .default(sql`now()`),

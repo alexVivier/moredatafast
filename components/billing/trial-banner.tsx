@@ -32,21 +32,11 @@ export async function TrialBanner({
     );
   }
 
-  if (trialActive && trialEndsAt) {
-    const end = new Date(trialEndsAt);
-    const days = Math.max(
-      0,
-      Math.ceil((end.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
-    );
-    const key = days === 1 ? "trialDays" : "trialDaysPlural";
-    return (
-      <TrialStrip
-        tone="default"
-        message={t(key, { days })}
-        ctaLabel={t("upgrade")}
-      />
-    );
-  }
+  // Don't render an active-trial strip — the trial countdown lives on the
+  // billing page and the nav, we don't need a chrome-wide banner nagging
+  // users every page load. Payment-failure / trial-ended states still
+  // surface below because those are actionable.
+  if (trialActive && trialEndsAt) return null;
 
   return (
     <TrialStrip

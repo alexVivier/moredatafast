@@ -29,6 +29,13 @@
       "when": 1779080400000,
       "tag": "0003_add_view_shares",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1779166800000,
+      "tag": "0004_add_view_layout_seeded",
+      "breakpoints": true
     }
   ]
 }

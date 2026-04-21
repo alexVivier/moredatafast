@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 
 import { db, schema } from "@/db/client";
 import { OrgAuthError, requireOrgMember } from "@/lib/auth/session";
@@ -109,6 +109,18 @@ export async function PUT(
         configJson: item.configJson,
       });
     }
+    // An explicit save — even an empty one — counts as the user taking
+    // ownership of the layout. Mark the view seeded so the lazy seeder in
+    // `getViewLayout` doesn't reintroduce defaults if they saved `[]`.
+    await tx
+      .update(schema.views)
+      .set({ layoutSeededAt: new Date() })
+      .where(
+        and(
+          eq(schema.views.id, id),
+          isNull(schema.views.layoutSeededAt),
+        ),
+      );
   });
 
   return NextResponse.json({

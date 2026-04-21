@@ -1,6 +1,6 @@
 import "server-only";
 
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 import { db, schema } from "@/db/client";
@@ -8,9 +8,11 @@ import { db, schema } from "@/db/client";
 export type LayoutRow = typeof schema.layoutItems.$inferSelect;
 
 /**
- * Returns the layout items for a view. If the view is missing items AND
- * `withDefault` is truthy, seeds a reasonable starting layout (one KPI row,
- * one timeseries, one top-pages table).
+ * Returns the layout items for a view. If the view has never been seeded
+ * AND `seedDefault` is truthy, inserts a starter layout (KPI row + timeseries
+ * + top-pages) exactly once — even under concurrent requests — and records
+ * that on `views.layoutSeededAt` so a user who later empties the layout
+ * doesn't get defaults rewritten on top of their intent.
  */
 export async function getViewLayout(
   viewId: string,
@@ -23,6 +25,21 @@ export async function getViewLayout(
     .orderBy(asc(schema.layoutItems.y), asc(schema.layoutItems.x));
 
   if (existing.length > 0 || !options.seedDefault) return existing;
+
+  // Atomic claim: only the request that flips `layout_seeded_at` from NULL
+  // actually seeds. Concurrent requests get an empty `returning` and skip.
+  const claimed = await db
+    .update(schema.views)
+    .set({ layoutSeededAt: new Date() })
+    .where(
+      and(
+        eq(schema.views.id, viewId),
+        isNull(schema.views.layoutSeededAt),
+      ),
+    )
+    .returning({ id: schema.views.id });
+
+  if (claimed.length === 0) return existing;
 
   const defaults: Omit<LayoutRow, "id">[] = [
     {
