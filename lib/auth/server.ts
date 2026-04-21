@@ -16,6 +16,7 @@ import {
   sendResetPasswordEmail,
   sendVerificationEmail,
 } from "@/lib/email/resend";
+import { DISCORD_COLORS, notifyDiscord } from "@/lib/notifications/discord";
 
 import { createPersonalOrganizationForUser } from "./hooks";
 
@@ -99,6 +100,15 @@ export const auth = betterAuth({
             email: user.email,
             name: user.name,
           });
+          notifyDiscord("events", {
+            title: "New signup",
+            color: DISCORD_COLORS.blue,
+            fields: [
+              { name: "Email", value: user.email, inline: true },
+              { name: "Name", value: user.name || "—", inline: true },
+              { name: "User ID", value: user.id, inline: false },
+            ],
+          }).catch(() => {});
         },
       },
     },
@@ -136,6 +146,17 @@ export const auth = betterAuth({
             }
             throw err;
           }
+        },
+        afterCreateOrganization: async ({ organization, user }) => {
+          notifyDiscord("events", {
+            title: "New organization",
+            color: DISCORD_COLORS.green,
+            fields: [
+              { name: "Name", value: organization.name, inline: true },
+              { name: "Slug", value: organization.slug, inline: true },
+              { name: "Created by", value: user.email, inline: false },
+            ],
+          }).catch(() => {});
         },
       },
     }),

@@ -3,7 +3,6 @@
 import { Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   CATEGORY_LABELS,
@@ -30,34 +29,47 @@ export function AddWidgetPalette({ onPick }: Props) {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} size="sm">
-        <Plus className="h-4 w-4" />
+      <button type="button" onClick={() => setOpen(true)} className="mdf-addbtn">
+        <Plus size={14} strokeWidth={1.5} />
         Add widget
-      </Button>
+      </button>
 
       {open ? (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center bg-background/80 backdrop-blur-sm animate-in fade-in"
+          className="fixed inset-0 z-50 flex items-start justify-center bg-mdf-bg-overlay backdrop-blur-sm animate-in fade-in"
           onClick={(e) => {
             if (e.target === e.currentTarget) setOpen(false);
           }}
         >
-          <div className="mt-4 sm:mt-16 mx-3 sm:mx-0 w-full max-w-[calc(100vw-1.5rem)] sm:max-w-3xl rounded-lg border border-border bg-card text-card-foreground shadow-lg">
-            <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <div
+            className="mt-4 sm:mt-16 mx-3 sm:mx-0 w-full max-w-[calc(100vw-1.5rem)] sm:max-w-3xl rounded-[14px] border border-mdf-line-2 bg-mdf-bg-raised text-mdf-fg-1"
+            style={{ boxShadow: "var(--mdf-shadow-modal)" }}
+          >
+            <div className="flex items-center justify-between border-b border-mdf-line-1 px-4 py-3">
               <div>
-                <h2 className="font-semibold">Add widget</h2>
-                <p className="text-xs text-muted-foreground">
+                <h2
+                  className="text-mdf-fg-1"
+                  style={{
+                    fontFamily: "var(--mdf-font-display)",
+                    fontSize: "20px",
+                    lineHeight: 1.1,
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  Add widget
+                </h2>
+                <p className="text-xs text-mdf-fg-3 mt-0.5">
                   Pick one to drop it into your dashboard.
                 </p>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
+              <button
+                type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close"
+                className="mdf-widget__close"
               >
-                <X className="h-4 w-4" />
-              </Button>
+                <X size={14} strokeWidth={1.5} />
+              </button>
             </div>
             <div className="max-h-[70vh] overflow-y-auto p-4 space-y-6">
               {(
@@ -69,7 +81,7 @@ export function AddWidgetPalette({ onPick }: Props) {
                 if (defs.length === 0) return null;
                 return (
                   <div key={cat}>
-                    <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
+                    <div className="mdf-micro mb-2">
                       {CATEGORY_LABELS[cat]}
                     </div>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -82,20 +94,20 @@ export function AddWidgetPalette({ onPick }: Props) {
                             setOpen(false);
                           }}
                           className={cn(
-                            "flex flex-col items-start gap-1 rounded-md border border-border bg-background p-3 text-left transition-colors",
-                            "hover:border-primary/40 hover:bg-accent/50"
+                            "flex flex-col items-start gap-1 rounded-md border border-mdf-line-1 bg-mdf-bg-surface p-3 text-left",
+                            "transition-colors hover:border-mdf-line-3",
                           )}
                         >
                           <div className="flex items-center justify-between w-full">
-                            <span className="font-medium text-sm">
+                            <span className="font-medium text-sm text-mdf-fg-1">
                               {def.displayName}
                             </span>
-                            <span className="text-xs text-muted-foreground tabular-nums">
+                            <span className="text-[11px] text-mdf-fg-3 font-mono tabular-nums">
                               {def.defaultSize.w}×{def.defaultSize.h}
                             </span>
                           </div>
                           {def.description ? (
-                            <span className="text-xs text-muted-foreground leading-snug">
+                            <span className="text-xs text-mdf-fg-2 leading-snug">
                               {def.description}
                             </span>
                           ) : null}

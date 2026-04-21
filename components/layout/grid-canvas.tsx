@@ -122,7 +122,7 @@ export function GridCanvas(props: Props) {
 
   if (!rgl) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
+      <div className="rounded-[10px] border border-mdf-line-1 bg-mdf-bg-surface p-6 text-sm text-mdf-fg-3">
         Loading grid…
       </div>
     );
@@ -201,7 +201,7 @@ function GridCanvasInner({
 
   if (items.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border bg-muted/30 p-12 text-center text-sm text-muted-foreground">
+      <div className="rounded-[10px] border border-dashed border-mdf-line-3 bg-transparent p-12 text-center text-sm text-mdf-fg-3">
         {editMode
           ? "Empty canvas — click + Add widget above to drop your first widget."
           : "No widgets yet. Switch to Edit mode to customize this view."}
@@ -220,7 +220,7 @@ function GridCanvasInner({
           breakpoints={BREAKPOINTS}
           cols={COLS}
           rowHeight={60}
-          margin={[12, 12]}
+          margin={[16, 16]}
           containerPadding={[0, 0]}
           compactor={verticalCompactor as Compactor}
           dragConfig={{ enabled: effectiveEditMode, handle: ".drag-handle" }}

@@ -9,6 +9,7 @@ import { fetchDataFast, DataFastError } from "@/lib/datafast/client";
 import type { MetadataRow } from "@/lib/datafast/types";
 import { OrgAuthError, requireOrgMember } from "@/lib/auth/session";
 import { PaywallError, requirePaidAction } from "@/lib/billing/gating";
+import { DISCORD_COLORS, notifyDiscord } from "@/lib/notifications/discord";
 import { faviconUrlForDomain } from "@/lib/utils/favicon";
 
 const createSiteSchema = z.object({
@@ -140,6 +141,29 @@ export async function POST(request: Request) {
     isDefault: false,
     sortOrder: siteCount + 1,
   });
+
+  const [orgRow] = await db
+    .select({ name: schema.organizations.name })
+    .from(schema.organizations)
+    .where(eq(schema.organizations.id, organizationId))
+    .limit(1);
+  notifyDiscord("events", {
+    title: "New site added",
+    color: DISCORD_COLORS.green,
+    fields: [
+      { name: "Domain", value: metadata.domain, inline: true },
+      {
+        name: "Name",
+        value: nameOverride || metadata.name || metadata.domain,
+        inline: true,
+      },
+      {
+        name: "Organization",
+        value: orgRow?.name ?? organizationId,
+        inline: false,
+      },
+    ],
+  }).catch(() => {});
 
   return NextResponse.json({
     site: {

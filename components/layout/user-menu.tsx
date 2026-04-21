@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 import { authClient } from "@/lib/auth/client";
+import { FeedbackDialog } from "@/components/feedback/feedback-dialog";
 
 export function UserMenu({
   email,
@@ -18,6 +19,7 @@ export function UserMenu({
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -73,6 +75,16 @@ export function UserMenu({
             </MenuItem>
             <button
               type="button"
+              onClick={() => {
+                setOpen(false);
+                setFeedbackOpen(true);
+              }}
+              className="w-full text-left px-3 py-1.5 text-sm rounded-sm hover:bg-mdf-line-1 text-mdf-fg-1"
+            >
+              Send feedback
+            </button>
+            <button
+              type="button"
               onClick={onSignOut}
               className="w-full text-left px-3 py-1.5 text-sm rounded-sm hover:bg-mdf-line-1 text-mdf-fg-1"
             >
@@ -81,6 +93,10 @@ export function UserMenu({
           </nav>
         </div>
       ) : null}
+      <FeedbackDialog
+        open={feedbackOpen}
+        onClose={() => setFeedbackOpen(false)}
+      />
     </div>
   );
 }
