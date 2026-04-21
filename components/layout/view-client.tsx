@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { nanoid } from "nanoid";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { GridCanvas, type GridItem } from "./grid-canvas";
 import { AddWidgetPalette } from "./add-widget-palette";
@@ -41,6 +42,7 @@ export function ViewClient({
 }: Props) {
   const t = useTranslations("dashboard.editMode");
   const tShare = useTranslations("dialogs.share");
+  const router = useRouter();
   const { resolved } = useDateRangeState();
 
   const [items, setItems] = useState<GridItem[]>(initialItems);
@@ -99,9 +101,9 @@ export function ViewClient({
     [editMode, doSave]
   );
 
-  // Flush any debounced save synchronously. Used on navigation, tab hide,
-  // and reload. `keepalive: true` tells the browser to complete the request
-  // even if the page is unloading.
+  // Fire-and-forget flush. Used on pagehide / beforeunload where we can't
+  // await anything — `keepalive: true` tells the browser to finish the
+  // request even if the page is unloading.
   const flushNow = useCallback(() => {
     if (saveTimer.current) {
       clearTimeout(saveTimer.current);
@@ -113,6 +115,34 @@ export function ViewClient({
       void doSave(pending, { keepalive: true });
     }
   }, [doSave]);
+
+  // Awaitable flush for interactive transitions (Done button). We MUST wait
+  // for the save to land before navigating, otherwise the read page SSRs
+  // from stale DB rows and the user sees their edits reset.
+  const flushAndWait = useCallback(async () => {
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
+    const pending = pendingItems.current;
+    if (!pending) return;
+    pendingItems.current = null;
+    await doSave(pending);
+  }, [doSave]);
+
+  const [navigating, setNavigating] = useState(false);
+  const handleDone = useCallback(async () => {
+    setNavigating(true);
+    try {
+      await flushAndWait();
+      router.push(readHref);
+      // Invalidate the RSC cache so the read page re-fetches the freshly
+      // saved layout rather than serving a prefetched old payload.
+      router.refresh();
+    } finally {
+      setNavigating(false);
+    }
+  }, [flushAndWait, router, readHref]);
 
   useEffect(() => {
     if (!editMode) return;
@@ -244,9 +274,13 @@ export function ViewClient({
             </Button>
           ) : null}
           {editMode ? (
-            <Link href={readHref} onClick={() => flushNow()}>
-              <Button variant="outline">{t("done")}</Button>
-            </Link>
+            <Button
+              variant="outline"
+              onClick={handleDone}
+              disabled={navigating || saveState === "saving"}
+            >
+              {navigating || saveState === "saving" ? t("saving") : t("done")}
+            </Button>
           ) : (
             // Layout editing is disabled on sub-md viewports (react-grid-layout
             // can't really handle 1-col drag + the UI crushes), so don't offer
