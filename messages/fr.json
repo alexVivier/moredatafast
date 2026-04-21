@@ -1,0 +1,28 @@
+{
+  "common": {
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire",
+    "signOut": "Se déconnecter",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "delete": "Supprimer",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "retry": "Réessayer",
+    "loading": "Chargement…",
+    "search": "Rechercher",
+    "saving": "Enregistrement…",
+    "saved": "Enregistré",
+    "saveFailed": "Échec de l'enregistrement",
+    "language": "Langue",
+    "theme": "Thème",
+    "dark": "Sombre",
+    "light": "Clair",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "name": "Nom",
+    "or": "OU"
+  }
+}

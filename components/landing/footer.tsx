@@ -1,3 +1,5 @@
+import { LocaleSwitcher } from "@/components/providers/locale-switcher";
+
 export function Footer() {
   return (
     <footer className="lp-footer">
@@ -13,6 +15,7 @@ export function Footer() {
           <a href="/status">Status</a>
           <a href="/changelog">Changelog</a>
           <a href="mailto:hi@moredatafast.com">Contact</a>
+          <LocaleSwitcher />
         </div>
       </div>
     </footer>

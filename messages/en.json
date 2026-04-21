@@ -1,0 +1,28 @@
+{
+  "common": {
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "signOut": "Log out",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "retry": "Retry",
+    "loading": "Loading…",
+    "search": "Search",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "saveFailed": "Save failed",
+    "language": "Language",
+    "theme": "Theme",
+    "dark": "Dark",
+    "light": "Light",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "or": "OR"
+  }
+}

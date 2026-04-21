@@ -7,6 +7,7 @@ import { ChevronDown, Moon, Sun } from "lucide-react";
 
 import { authClient } from "@/lib/auth/client";
 import { FeedbackDialog } from "@/components/feedback/feedback-dialog";
+import { LocaleSwitcher } from "@/components/providers/locale-switcher";
 import { useTheme } from "@/lib/hooks/use-theme";
 
 export function UserMenu({
@@ -100,6 +101,10 @@ export function UserMenu({
                 {theme === "dark" ? "Dark" : "Light"}
               </span>
             </button>
+            <div className="flex items-center justify-between gap-2 px-3 py-1.5 text-sm text-mdf-fg-1">
+              <span>Language</span>
+              <LocaleSwitcher />
+            </div>
             <button
               type="button"
               onClick={onSignOut}
