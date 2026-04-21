@@ -25,6 +25,77 @@
     "name": "Nom",
     "or": "OU"
   },
+  "settings": {
+    "header": {
+      "back": "← Retour"
+    },
+    "sites": {
+      "title": "Sites",
+      "lead": "Gérez les sites suivis par DataFast connectés à ce dashboard.",
+      "organization": "Organisation",
+      "addSite": "+ Ajouter un site",
+      "open": "Ouvrir",
+      "noSitesTitle": "Pas encore de sites",
+      "noSitesBody": "Ajoutez votre premier site suivi par DataFast pour commencer à voir les analytics. Il vous faut une clé API depuis Website Settings → API dans votre dashboard DataFast.",
+      "noSitesCta": "Ajouter votre premier site",
+      "noSitesReader": "Demandez à un admin d'ajouter le premier site de cette organisation.",
+      "metaAdded": "ajouté le {date}",
+      "footNote": "Les clés API sont chiffrées au repos via AES-256-GCM. Sauvegardez data/master.key si vous utilisez la clé auto-générée."
+    },
+    "organization": {
+      "noOrgTitle": "Pas encore d'organisation",
+      "noOrgBody": "Créez-en une depuis le menu déroulant de la barre du haut pour commencer à ajouter des sites et inviter des collaborateurs.",
+      "noOrgBack": "Retour au dashboard",
+      "notFound": "Organisation active introuvable.",
+      "metaMember": "{count} membre",
+      "metaMemberPlural": "{count} membres",
+      "metaSlug": "slug",
+      "metaYourRole": "votre rôle :",
+      "roleOwner": "Propriétaire",
+      "roleAdmin": "Admin",
+      "roleMember": "Membre",
+      "sectionMembers": "Membres",
+      "sectionPending": "Invitations en attente",
+      "sectionInvite": "Inviter un collaborateur",
+      "sectionDanger": "Zone sensible",
+      "you": "(vous)",
+      "remove": "Retirer",
+      "cancel": "Annuler",
+      "invitedBy": "Invité par {email} ·",
+      "invitedWithout": "Invité ·",
+      "expires": "expire le {date}",
+      "emailPlaceholder": "collegue@exemple.com",
+      "emailLabel": "E-mail",
+      "roleLabel": "Rôle",
+      "send": "Envoyer l'invitation",
+      "sending": "Envoi…",
+      "inviteHint": "Ils recevront un e-mail avec un lien pour accepter. Les invitations expirent après 48 heures.",
+      "errInvite": "Échec de l'envoi de l'invitation",
+      "errCancel": "Échec de l'annulation de l'invitation",
+      "errRemove": "Échec du retrait du membre",
+      "errLeave": "Échec de la sortie de l'organisation",
+      "errDelete": "Échec de la suppression de l'organisation",
+      "sentToast": "Invitation envoyée à {email}",
+      "confirmRemove": "Retirer {email} de {org} ? L'accès sera coupé immédiatement.",
+      "confirmLeave": "Quitter {org} ? Vous perdrez l'accès à ses sites et dashboards.",
+      "confirmDelete": "Tapez le slug de l'organisation pour confirmer la suppression (action irréversible) :",
+      "leaveTitle": "Quitter l'organisation",
+      "leaveBody": "Vous perdrez l'accès à tous les sites et dashboards de {org}.",
+      "leaveCta": "Quitter",
+      "leaveDisabledTip": "Vous êtes le seul membre — supprimez plutôt l'organisation.",
+      "deleteTitle": "Supprimer l'organisation",
+      "deleteBody": "Supprime définitivement l'organisation, ses sites, ses vues et ses segments. Action irréversible.",
+      "deleteCta": "Supprimer"
+    },
+    "billing": {
+      "title": "Facturation",
+      "back": "← Retour"
+    },
+    "siteNew": {
+      "title": "Ajouter un site",
+      "back": "← Retour aux sites"
+    }
+  },
   "widgets": {
     "overview": {
       "displayName": "Overview KPIs",

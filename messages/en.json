@@ -25,6 +25,77 @@
     "name": "Name",
     "or": "OR"
   },
+  "settings": {
+    "header": {
+      "back": "← Back"
+    },
+    "sites": {
+      "title": "Sites",
+      "lead": "Manage the DataFast-tracked websites connected to this dashboard.",
+      "organization": "Organization",
+      "addSite": "+ Add site",
+      "open": "Open",
+      "noSitesTitle": "No sites yet",
+      "noSitesBody": "Add your first DataFast website to start seeing analytics. You'll need an API key from Website Settings → API in your DataFast dashboard.",
+      "noSitesCta": "Add your first site",
+      "noSitesReader": "Ask an admin to add the first site for this organization.",
+      "metaAdded": "added {date}",
+      "footNote": "API keys are encrypted at rest using AES-256-GCM. Back up data/master.key if you're using the auto-generated key."
+    },
+    "organization": {
+      "noOrgTitle": "No organization yet",
+      "noOrgBody": "Create one from the dropdown in the top bar to start adding sites and inviting teammates.",
+      "noOrgBack": "Back to dashboard",
+      "notFound": "Active organization not found.",
+      "metaMember": "{count} member",
+      "metaMemberPlural": "{count} members",
+      "metaSlug": "slug",
+      "metaYourRole": "your role:",
+      "roleOwner": "Owner",
+      "roleAdmin": "Admin",
+      "roleMember": "Member",
+      "sectionMembers": "Members",
+      "sectionPending": "Pending invitations",
+      "sectionInvite": "Invite a teammate",
+      "sectionDanger": "Danger zone",
+      "you": "(you)",
+      "remove": "Remove",
+      "cancel": "Cancel",
+      "invitedBy": "Invited by {email} ·",
+      "invitedWithout": "Invited ·",
+      "expires": "expires {date}",
+      "emailPlaceholder": "teammate@example.com",
+      "emailLabel": "Email",
+      "roleLabel": "Role",
+      "send": "Send invite",
+      "sending": "Sending…",
+      "inviteHint": "They'll get an email with a link to accept. Invitations expire in 48 hours.",
+      "errInvite": "Failed to send invitation",
+      "errCancel": "Failed to cancel invitation",
+      "errRemove": "Failed to remove member",
+      "errLeave": "Failed to leave organization",
+      "errDelete": "Failed to delete organization",
+      "sentToast": "Invitation sent to {email}",
+      "confirmRemove": "Remove {email} from {org}? They will lose access immediately.",
+      "confirmLeave": "Leave {org}? You'll lose access to its sites and dashboards.",
+      "confirmDelete": "Type the org slug to confirm deletion (this cannot be undone):",
+      "leaveTitle": "Leave organization",
+      "leaveBody": "You will lose access to all sites and dashboards in {org}.",
+      "leaveCta": "Leave",
+      "leaveDisabledTip": "You're the only member — delete the organization instead.",
+      "deleteTitle": "Delete organization",
+      "deleteBody": "Permanently deletes the organization, its sites, views and segments. This cannot be undone.",
+      "deleteCta": "Delete"
+    },
+    "billing": {
+      "title": "Billing",
+      "back": "← Back"
+    },
+    "siteNew": {
+      "title": "Add a site",
+      "back": "← Back to sites"
+    }
+  },
   "widgets": {
     "overview": {
       "displayName": "Overview KPIs",
