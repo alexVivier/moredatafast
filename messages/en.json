@@ -25,6 +25,130 @@
     "name": "Name",
     "or": "OR"
   },
+  "widgets": {
+    "overview": {
+      "displayName": "Overview KPIs",
+      "description": "Visitors, sessions, revenue, bounce rate, conversion, session duration — with period-over-period deltas.",
+      "visitors": "VISITORS",
+      "sessions": "SESSIONS",
+      "revenue": "REVENUE",
+      "conversionRate": "CONVERSION RATE",
+      "bounceRate": "BOUNCE RATE",
+      "avgSessionDuration": "AVG SESSION DURATION",
+      "vsPrev": "vs previous {days}d",
+      "deltaNew": "new",
+      "errorTitle": "Overview"
+    },
+    "timeseries": {
+      "labelOverTime": "{metric} over time",
+      "metricVisitors": "Visitors",
+      "metricSessions": "Sessions",
+      "metricRevenue": "Revenue",
+      "metricConversion": "Conversion rate",
+      "labelMetricsOverTime": "Metrics over time",
+      "labelRevenueOverTime": "Revenue over time",
+      "intervalHour": "hour",
+      "intervalDay": "day",
+      "intervalWeek": "week",
+      "intervalMonth": "month",
+      "breakdownNew": "new",
+      "breakdownRenewal": "renewal",
+      "breakdownRefund": "refund"
+    },
+    "table": {
+      "top": "top {n}",
+      "empty": "No data in this range",
+      "colCity": "City",
+      "colCountry": "Country",
+      "colRegion": "Region",
+      "colPage": "Page",
+      "colReferrer": "Referrer",
+      "colHostname": "Hostname",
+      "colCampaign": "Campaign",
+      "colGoal": "Goal",
+      "colVisitors": "Visitors",
+      "colRevenue": "Revenue"
+    },
+    "cities": {
+      "displayName": "Cities",
+      "description": "Visitor breakdown by city."
+    },
+    "countries": {
+      "displayName": "Countries",
+      "description": "Visitor breakdown by country."
+    },
+    "regions": {
+      "displayName": "Regions",
+      "description": "Visitor breakdown by region / state."
+    },
+    "pages": {
+      "displayName": "Top pages",
+      "description": "Most-viewed pages, revenue and visitors."
+    },
+    "referrers": {
+      "displayName": "Top referrers",
+      "description": "External domains that sent you traffic."
+    },
+    "hostnames": {
+      "displayName": "Top hostnames",
+      "description": "Domains your visitors landed on."
+    },
+    "campaigns": {
+      "displayName": "Top campaigns",
+      "description": "UTM & ref-tagged traffic grouped by campaign.",
+      "empty": "No campaigns yet — tag your links with ?ref= or UTM params."
+    },
+    "goals": {
+      "displayName": "Top goals",
+      "description": "Custom conversion goals, ranked by completions."
+    },
+    "devices": {
+      "displayName": "Devices",
+      "description": "Donut: desktop / mobile / tablet visitors.",
+      "totalLabel": "visitors",
+      "empty": "No data in this range"
+    },
+    "browsers": {
+      "displayName": "Browsers",
+      "description": "Donut: top browsers.",
+      "totalLabel": "visitors"
+    },
+    "os": {
+      "displayName": "Operating systems",
+      "description": "Donut: top operating systems.",
+      "totalLabel": "visitors"
+    },
+    "live": {
+      "eventsDisplay": "Live events feed",
+      "eventsDescription": "Last 10 minutes of pageviews and events. Click a row to inspect the visitor.",
+      "paymentsDisplay": "Live payments feed",
+      "paymentsDescription": "Recent payments received in the last 10 minutes with new/renewal badges.",
+      "last10": "last 10 min",
+      "events": "Live events",
+      "payments": "Live payments",
+      "empty": "Nothing happening right now.",
+      "paymentsEmpty": "No payments yet.",
+      "justNow": "just now",
+      "secondsAgo": "{n}s ago",
+      "minutesAgo": "{n}m ago",
+      "hoursAgo": "{n}h ago"
+    },
+    "counter": {
+      "displayName": "Live visitor counter",
+      "description": "Big number showing visitors active right now. Polls every 5s.",
+      "liveNow": "Live now",
+      "activeSingular": "visitor active in the last 5 min",
+      "activePlural": "visitors active in the last 5 min"
+    },
+    "categories": {
+      "kpi": "KPIs",
+      "timeseries": "Timeseries",
+      "table": "Tables",
+      "device": "Devices",
+      "geo": "Geo",
+      "realtime": "Realtime"
+    }
+  },
   "dashboard": {
     "topbar": {
       "settings": "Settings",

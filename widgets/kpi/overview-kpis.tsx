@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 
 import { cn } from "@/lib/utils";
@@ -15,28 +16,32 @@ import {
 import { previousRange } from "@/lib/utils/date-range";
 import { register, type WidgetContext } from "@/widgets/registry";
 
-type Metric =
-  | { key: "visitors"; label: "VISITORS"; format: "number" }
-  | { key: "sessions"; label: "SESSIONS"; format: "number" }
-  | { key: "revenue"; label: "REVENUE"; format: "currency" }
-  | { key: "bounce_rate"; label: "BOUNCE RATE"; format: "percent-as-is" }
-  | { key: "conversion_rate"; label: "CONVERSION RATE"; format: "percent-as-is" }
-  | { key: "avg_session_duration"; label: "AVG SESSION DURATION"; format: "duration-ms" };
+type MetricKey =
+  | "visitors"
+  | "sessions"
+  | "revenue"
+  | "bounce_rate"
+  | "conversion_rate"
+  | "avg_session_duration";
+
+type MetricFormat = "number" | "currency" | "percent-as-is" | "duration-ms";
+
+type Metric = {
+  key: MetricKey;
+  labelKey: "visitors" | "sessions" | "revenue" | "conversionRate" | "bounceRate" | "avgSessionDuration";
+  format: MetricFormat;
+};
 
 const METRICS: Metric[] = [
-  { key: "visitors", label: "VISITORS", format: "number" },
-  { key: "sessions", label: "SESSIONS", format: "number" },
-  { key: "revenue", label: "REVENUE", format: "currency" },
-  { key: "conversion_rate", label: "CONVERSION RATE", format: "percent-as-is" },
-  { key: "bounce_rate", label: "BOUNCE RATE", format: "percent-as-is" },
-  {
-    key: "avg_session_duration",
-    label: "AVG SESSION DURATION",
-    format: "duration-ms",
-  },
+  { key: "visitors", labelKey: "visitors", format: "number" },
+  { key: "sessions", labelKey: "sessions", format: "number" },
+  { key: "revenue", labelKey: "revenue", format: "currency" },
+  { key: "conversion_rate", labelKey: "conversionRate", format: "percent-as-is" },
+  { key: "bounce_rate", labelKey: "bounceRate", format: "percent-as-is" },
+  { key: "avg_session_duration", labelKey: "avgSessionDuration", format: "duration-ms" },
 ];
 
-const LOWER_IS_BETTER = new Set<Metric["key"]>(["bounce_rate"]);
+const LOWER_IS_BETTER = new Set<MetricKey>(["bounce_rate"]);
 
 function formatValue(metric: Metric, value: number, currency: string): string {
   switch (metric.format) {
@@ -58,6 +63,7 @@ export function OverviewKpis({
   dateRange,
   currency,
 }: WidgetContext<OverviewKpisConfig>) {
+  const t = useTranslations("widgets.overview");
   const prev = previousRange(dateRange);
 
   const current = useWidgetData<OverviewRow[]>(siteId, "analytics/overview", {
@@ -103,7 +109,7 @@ export function OverviewKpis({
 
         return (
           <div key={metric.key} className="mdf-kpistrip__cell">
-            <div className="mdf-kpi__label truncate">{metric.label}</div>
+            <div className="mdf-kpi__label truncate">{t(metric.labelKey)}</div>
             <div className="mdf-kpi__value truncate">
               {isLoading ? (
                 <span className="inline-block h-[36px] w-20 animate-pulse rounded bg-mdf-line-1" />
@@ -120,7 +126,7 @@ export function OverviewKpis({
                     {arrow} {delta.label}
                   </span>
                   <span className="text-mdf-fg-3">
-                    vs previous {dateRange.lengthDays}d
+                    {t("vsPrev", { days: dateRange.lengthDays })}
                   </span>
                 </>
               )}

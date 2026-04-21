@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 
 import { useWidgetData } from "@/lib/hooks/use-widget-data";
@@ -18,24 +19,25 @@ export function TopReferrers({
   currency,
   config,
 }: WidgetContext<Config>) {
+  const t = useTranslations("widgets");
   const query = useWidgetData<Row[]>(siteId, "analytics/referrers", {
     limit: config.limit,
   });
 
   return (
     <TopMetricTable<Row>
-      title="Top referrers"
+      title={t("referrers.displayName")}
       rows={query.data?.data}
       loading={query.isLoading}
       error={query.error?.message ?? null}
       limit={config.limit}
-      itemLabel="Referrer"
+      itemLabel={t("table.colReferrer")}
       rowKey={(r, i) => `${r.referrer}-${i}`}
-      renderLabel={(r) => r.referrer || "Direct/None"}
+      renderLabel={(r) => r.referrer || "—"}
       primary={(r) => r.visitors}
-      primaryLabel="Visitors"
+      primaryLabel={t("table.colVisitors")}
       secondary={(r) => r.revenue}
-      secondaryLabel="Revenue"
+      secondaryLabel={t("table.colRevenue")}
       secondaryFormat="currency"
       currency={currency}
     />

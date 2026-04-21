@@ -25,6 +25,130 @@
     "name": "Nom",
     "or": "OU"
   },
+  "widgets": {
+    "overview": {
+      "displayName": "Overview KPIs",
+      "description": "Visiteurs, sessions, revenus, rebond, conversion, durée session — avec deltas vs période précédente.",
+      "visitors": "VISITEURS",
+      "sessions": "SESSIONS",
+      "revenue": "REVENUS",
+      "conversionRate": "TAUX DE CONVERSION",
+      "bounceRate": "TAUX DE REBOND",
+      "avgSessionDuration": "DURÉE MOY. SESSION",
+      "vsPrev": "vs {days} jours précédents",
+      "deltaNew": "nouveau",
+      "errorTitle": "Overview"
+    },
+    "timeseries": {
+      "labelOverTime": "{metric} dans le temps",
+      "metricVisitors": "Visiteurs",
+      "metricSessions": "Sessions",
+      "metricRevenue": "Revenus",
+      "metricConversion": "Taux de conversion",
+      "labelMetricsOverTime": "Métriques dans le temps",
+      "labelRevenueOverTime": "Revenus dans le temps",
+      "intervalHour": "heure",
+      "intervalDay": "jour",
+      "intervalWeek": "semaine",
+      "intervalMonth": "mois",
+      "breakdownNew": "nouveau",
+      "breakdownRenewal": "renouvellement",
+      "breakdownRefund": "remboursement"
+    },
+    "table": {
+      "top": "top {n}",
+      "empty": "Pas de données sur cette plage",
+      "colCity": "Ville",
+      "colCountry": "Pays",
+      "colRegion": "Région",
+      "colPage": "Page",
+      "colReferrer": "Référent",
+      "colHostname": "Hôte",
+      "colCampaign": "Campagne",
+      "colGoal": "Objectif",
+      "colVisitors": "Visiteurs",
+      "colRevenue": "Revenus"
+    },
+    "cities": {
+      "displayName": "Villes",
+      "description": "Répartition des visiteurs par ville."
+    },
+    "countries": {
+      "displayName": "Pays",
+      "description": "Répartition des visiteurs par pays."
+    },
+    "regions": {
+      "displayName": "Régions",
+      "description": "Répartition des visiteurs par région."
+    },
+    "pages": {
+      "displayName": "Top pages",
+      "description": "Pages les plus vues, revenus et visiteurs."
+    },
+    "referrers": {
+      "displayName": "Top référents",
+      "description": "Domaines externes qui vous ont envoyé du trafic."
+    },
+    "hostnames": {
+      "displayName": "Top hôtes",
+      "description": "Domaines sur lesquels vos visiteurs ont atterri."
+    },
+    "campaigns": {
+      "displayName": "Top campagnes",
+      "description": "Trafic tagué UTM & ref groupé par campagne.",
+      "empty": "Pas encore de campagnes — taguez vos liens avec ?ref= ou des paramètres UTM."
+    },
+    "goals": {
+      "displayName": "Top objectifs",
+      "description": "Objectifs de conversion personnalisés, classés par complétion."
+    },
+    "devices": {
+      "displayName": "Appareils",
+      "description": "Donut : visiteurs desktop / mobile / tablet.",
+      "totalLabel": "visiteurs",
+      "empty": "Pas de données sur cette plage"
+    },
+    "browsers": {
+      "displayName": "Navigateurs",
+      "description": "Donut : principaux navigateurs.",
+      "totalLabel": "visiteurs"
+    },
+    "os": {
+      "displayName": "Systèmes d'exploitation",
+      "description": "Donut : principaux systèmes d'exploitation.",
+      "totalLabel": "visiteurs"
+    },
+    "live": {
+      "eventsDisplay": "Flux d'événements live",
+      "eventsDescription": "10 dernières minutes de pageviews et d'événements. Cliquez sur une ligne pour inspecter le visiteur.",
+      "paymentsDisplay": "Flux de paiements live",
+      "paymentsDescription": "Paiements reçus dans les 10 dernières minutes avec badges nouveau/renouvellement.",
+      "last10": "10 dernières min",
+      "events": "Événements live",
+      "payments": "Paiements live",
+      "empty": "Rien ne se passe en ce moment.",
+      "paymentsEmpty": "Pas encore de paiements.",
+      "justNow": "à l'instant",
+      "secondsAgo": "il y a {n}s",
+      "minutesAgo": "il y a {n}min",
+      "hoursAgo": "il y a {n}h"
+    },
+    "counter": {
+      "displayName": "Compteur de visiteurs live",
+      "description": "Grand chiffre montrant les visiteurs actifs maintenant. Mise à jour toutes les 5s.",
+      "liveNow": "En live",
+      "activeSingular": "visiteur actif dans les 5 dernières min",
+      "activePlural": "visiteurs actifs dans les 5 dernières min"
+    },
+    "categories": {
+      "kpi": "KPIs",
+      "timeseries": "Séries temporelles",
+      "table": "Tableaux",
+      "device": "Appareils",
+      "geo": "Géo",
+      "realtime": "Temps réel"
+    }
+  },
   "dashboard": {
     "topbar": {
       "settings": "Paramètres",

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 import { Sparkles, Repeat2 } from "lucide-react";
 
@@ -11,20 +12,25 @@ import { register, type WidgetContext } from "@/widgets/registry";
 type Config = Record<string, never>;
 const configSchema = z.object({}).passthrough();
 
-function relativeTime(iso: string): string {
-  const then = new Date(iso).getTime();
-  const now = Date.now();
-  const sec = Math.max(0, Math.round((now - then) / 1000));
-  if (sec < 5) return "just now";
-  if (sec < 60) return `${sec}s ago`;
-  const min = Math.floor(sec / 60);
-  if (min < 60) return `${min}m ago`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h ago`;
-  return new Date(iso).toLocaleTimeString();
+function useRelativeTime() {
+  const t = useTranslations("widgets.live");
+  return (iso: string): string => {
+    const then = new Date(iso).getTime();
+    const now = Date.now();
+    const sec = Math.max(0, Math.round((now - then) / 1000));
+    if (sec < 5) return t("justNow");
+    if (sec < 60) return t("secondsAgo", { n: sec });
+    const min = Math.floor(sec / 60);
+    if (min < 60) return t("minutesAgo", { n: min });
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return t("hoursAgo", { n: hr });
+    return new Date(iso).toLocaleTimeString();
+  };
 }
 
 export function LivePaymentsFeed({ siteId }: WidgetContext<Config>) {
+  const t = useTranslations("widgets.live");
+  const relativeTime = useRelativeTime();
   const query = useWidgetData<RealtimeMapData>(
     siteId,
     "analytics/realtime/map"
@@ -34,8 +40,8 @@ export function LivePaymentsFeed({ siteId }: WidgetContext<Config>) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-baseline justify-between pb-2">
-        <div className="mdf-micro">Live payments</div>
-        <div className="mdf-micro">last 10 min</div>
+        <div className="mdf-micro">{t("payments")}</div>
+        <div className="mdf-micro">{t("last10")}</div>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto">
         {query.isLoading ? (
@@ -49,7 +55,7 @@ export function LivePaymentsFeed({ siteId }: WidgetContext<Config>) {
           </div>
         ) : payments.length === 0 ? (
           <div className="flex h-full items-center justify-center text-sm text-mdf-fg-3">
-            No payments yet.
+            {t("paymentsEmpty")}
           </div>
         ) : (
           <ul className="space-y-0.5">

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 
 import { useWidgetData } from "@/lib/hooks/use-widget-data";
@@ -12,6 +13,7 @@ type Config = Record<string, never>;
 const configSchema = z.object({}).passthrough();
 
 export function DevicesBreakdown({ siteId }: WidgetContext<Config>) {
+  const t = useTranslations("widgets.devices");
   const query = useWidgetData<Row[]>(siteId, "analytics/devices");
   const rows = (query.data?.data ?? []).map((r) => ({
     name: r.device,
@@ -20,11 +22,11 @@ export function DevicesBreakdown({ siteId }: WidgetContext<Config>) {
 
   return (
     <DonutBreakdown
-      title="Devices"
+      title={t("displayName")}
       rows={rows}
       loading={query.isLoading}
       error={query.error?.message ?? null}
-      totalLabel="visitors"
+      totalLabel={t("totalLabel")}
     />
   );
 }

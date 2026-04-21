@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 
 import { useWidgetData } from "@/lib/hooks/use-widget-data";
@@ -24,6 +25,7 @@ export function TopPages({
   currency,
   config,
 }: WidgetContext<Config>) {
+  const t = useTranslations("widgets");
   const query = useWidgetData<Row[]>(siteId, "analytics/pages", {
     limit: config.limit,
   });
@@ -41,10 +43,10 @@ export function TopPages({
     <div className="flex h-full flex-col">
       <div className="flex items-baseline justify-between pb-2">
         <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Top pages
+          {t("pages.displayName")}
         </div>
         <div className="text-xs text-muted-foreground">
-          top {config.limit}
+          {t("table.top", { n: config.limit })}
         </div>
       </div>
       <div className="flex-1 min-h-0 overflow-auto">
@@ -59,15 +61,19 @@ export function TopPages({
           </div>
         ) : rows.length === 0 ? (
           <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-            No pages in this range
+            {t("table.empty")}
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground">
-                <th className="text-left font-medium py-1.5">Page</th>
-                <th className="text-right font-medium py-1.5 w-24">Visitors</th>
-                <th className="text-right font-medium py-1.5 w-24">Revenue</th>
+                <th className="text-left font-medium py-1.5">{t("table.colPage")}</th>
+                <th className="text-right font-medium py-1.5 w-24">
+                  {t("table.colVisitors")}
+                </th>
+                <th className="text-right font-medium py-1.5 w-24">
+                  {t("table.colRevenue")}
+                </th>
               </tr>
             </thead>
             <tbody>

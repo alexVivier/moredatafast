@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { z } from "zod";
 import {
@@ -42,6 +43,7 @@ export function RevenueTimeseries({
   currency,
   dateRange,
 }: WidgetContext<Config>) {
+  const t = useTranslations("widgets.timeseries");
   const interval = intervalForRange(dateRange.lengthDays);
   const query = useWidgetData<TimeseriesResponse["data"]>(
     siteId,
@@ -85,7 +87,7 @@ export function RevenueTimeseries({
     <div className="flex h-full flex-col">
       <div className="flex items-baseline justify-between pb-2">
         <div>
-          <div className="mdf-micro">Revenue over time</div>
+          <div className="mdf-micro">{t("labelRevenueOverTime")}</div>
           <div className="mdf-kpi">
             {query.isLoading ? (
               <span className="inline-block h-[36px] w-24 animate-pulse rounded bg-mdf-line-1" />
@@ -96,23 +98,33 @@ export function RevenueTimeseries({
           {totalBreakdown &&
           (totalBreakdown.renewal > 0 || totalBreakdown.refund > 0) ? (
             <div className="text-[11px] text-mdf-fg-3 font-mono tabular-nums">
-              new {formatCurrency(totalBreakdown.new ?? 0, currency)}
+              {t("breakdownNew")} {formatCurrency(totalBreakdown.new ?? 0, currency)}
               {totalBreakdown.renewal > 0 ? (
                 <>
-                  {" · "}renewal{" "}
+                  {" · "}
+                  {t("breakdownRenewal")}{" "}
                   {formatCurrency(totalBreakdown.renewal, currency)}
                 </>
               ) : null}
               {totalBreakdown.refund > 0 ? (
                 <>
-                  {" · "}refund{" "}
+                  {" · "}
+                  {t("breakdownRefund")}{" "}
                   {formatCurrency(totalBreakdown.refund, currency)}
                 </>
               ) : null}
             </div>
           ) : null}
         </div>
-        <div className="mdf-micro">{interval}</div>
+        <div className="mdf-micro">
+          {t(
+            `interval${interval.charAt(0).toUpperCase()}${interval.slice(1)}` as
+              | "intervalHour"
+              | "intervalDay"
+              | "intervalWeek"
+              | "intervalMonth",
+          )}
+        </div>
       </div>
       <div className="flex-1 min-h-[120px]">
         {query.isLoading ? (
@@ -155,7 +167,7 @@ export function RevenueTimeseries({
                 labelStyle={MDF_TOOLTIP_LABEL_STYLE}
                 formatter={(value) => [
                   formatCurrency(typeof value === "number" ? value : 0, currency),
-                  "Revenue",
+                  t("metricRevenue"),
                 ]}
               />
               <Area

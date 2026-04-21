@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 
 import { useWidgetData } from "@/lib/hooks/use-widget-data";
@@ -14,28 +15,28 @@ const configSchema = z.object({
 });
 
 export function TopGoals({ siteId, config }: WidgetContext<Config>) {
+  const t = useTranslations("widgets");
   const query = useWidgetData<Row[]>(siteId, "analytics/goals", {
     limit: config.limit,
   });
 
   return (
     <TopMetricTable<Row>
-      title="Top goals"
+      title={t("goals.displayName")}
       rows={query.data?.data}
       loading={query.isLoading}
       error={query.error?.message ?? null}
       limit={config.limit}
-      itemLabel="Goal"
+      itemLabel={t("table.colGoal")}
       rowKey={(r, i) => `${r.goal}-${i}`}
       renderLabel={(r) => (
         <span className="font-mono">{r.goal}</span>
       )}
       primary={(r) => r.completions}
-      primaryLabel="Completions"
+      primaryLabel={t("table.colVisitors")}
       secondary={(r) => r.visitors}
-      secondaryLabel="Visitors"
+      secondaryLabel={t("table.colVisitors")}
       secondaryFormat="number"
-      emptyHint="No custom goals tracked yet."
     />
   );
 }

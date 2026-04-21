@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -57,6 +58,7 @@ export function TopMetricTable<Row>({
   currency = "USD",
   emptyHint,
 }: TopMetricTableProps<Row>) {
+  const t = useTranslations("widgets.table");
   if (error) {
     return <div className="text-sm text-mdf-danger">{error}</div>;
   }
@@ -72,7 +74,7 @@ export function TopMetricTable<Row>({
             <div className="text-xs text-mdf-fg-3 truncate">{subtitle}</div>
           ) : null}
         </div>
-        <div className="mdf-micro shrink-0">top {limit}</div>
+        <div className="mdf-micro shrink-0">{t("top", { n: limit })}</div>
       </div>
       <div className="flex-1 min-h-0 overflow-auto">
         {loading ? (
@@ -86,7 +88,7 @@ export function TopMetricTable<Row>({
           </div>
         ) : safeRows.length === 0 ? (
           <div className="flex h-full items-center justify-center text-sm text-mdf-fg-3">
-            {emptyHint ?? "No data in this range"}
+            {emptyHint ?? t("empty")}
           </div>
         ) : (
           <table className="w-full text-sm">

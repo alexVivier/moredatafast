@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 import { formatNumber } from "@/lib/utils/format";
@@ -22,6 +23,7 @@ export function DonutBreakdown({
   total?: number;
   totalLabel?: string;
 }) {
+  const t = useTranslations("widgets.devices");
   if (error) {
     return <div className="text-sm text-mdf-danger">{error}</div>;
   }
@@ -38,7 +40,7 @@ export function DonutBreakdown({
         <div className="mdf-micro">{title}</div>
         {sum > 0 ? (
           <div className="text-xs text-mdf-fg-3 font-mono tabular-nums">
-            {formatNumber(sum)} {totalLabel ?? "total"}
+            {formatNumber(sum)} {totalLabel ?? t("totalLabel")}
           </div>
         ) : null}
       </div>
@@ -47,7 +49,7 @@ export function DonutBreakdown({
           <div className="h-full w-full animate-pulse rounded-full bg-mdf-line-1" />
         ) : data.length === 0 ? (
           <div className="flex h-full items-center justify-center text-sm text-mdf-fg-3">
-            No data in this range
+            {t("empty")}
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">

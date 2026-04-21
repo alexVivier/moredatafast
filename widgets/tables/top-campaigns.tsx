@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 
 import { useWidgetData } from "@/lib/hooks/use-widget-data";
@@ -61,27 +62,28 @@ export function TopCampaigns({
   currency,
   config,
 }: WidgetContext<Config>) {
+  const t = useTranslations("widgets");
   const query = useWidgetData<Row[]>(siteId, "analytics/campaigns", {
     limit: config.limit,
   });
 
   return (
     <TopMetricTable<Row>
-      title="Top campaigns"
+      title={t("campaigns.displayName")}
       rows={query.data?.data}
       loading={query.isLoading}
       error={query.error?.message ?? null}
       limit={config.limit}
-      itemLabel="Campaign"
+      itemLabel={t("table.colCampaign")}
       rowKey={(r, i) => `${keyForCampaign(r.campaign)}-${i}`}
       renderLabel={(r) => summarizeCampaign(r.campaign)}
       primary={(r) => r.visitors}
-      primaryLabel="Visitors"
+      primaryLabel={t("table.colVisitors")}
       secondary={(r) => r.revenue}
-      secondaryLabel="Revenue"
+      secondaryLabel={t("table.colRevenue")}
       secondaryFormat="currency"
       currency={currency}
-      emptyHint="No campaigns yet — tag your links with ?ref= or UTM params."
+      emptyHint={t("campaigns.empty")}
     />
   );
 }

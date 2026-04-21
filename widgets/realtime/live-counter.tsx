@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 
 import { useWidgetData } from "@/lib/hooks/use-widget-data";
@@ -12,6 +13,7 @@ type Config = Record<string, never>;
 const configSchema = z.object({}).passthrough();
 
 export function LiveCounter({ siteId }: WidgetContext<Config>) {
+  const t = useTranslations("widgets.counter");
   const query = useWidgetData<Row[]>(siteId, "analytics/realtime");
   const count = query.data?.data?.[0]?.visitors ?? 0;
 
@@ -28,7 +30,7 @@ export function LiveCounter({ siteId }: WidgetContext<Config>) {
             style={{ background: "var(--mdf-success)" }}
           />
         </span>
-        Live now
+        {t("liveNow")}
       </div>
       <div className="mt-2" style={{ fontFamily: "var(--mdf-font-display)", fontSize: "56px", lineHeight: 1.05, letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>
         {query.isLoading ? (
@@ -38,7 +40,7 @@ export function LiveCounter({ siteId }: WidgetContext<Config>) {
         )}
       </div>
       <div className="text-xs text-mdf-fg-3 mt-1">
-        visitor{count === 1 ? "" : "s"} active in the last 5 min
+        {count === 1 ? t("activeSingular") : t("activePlural")}
       </div>
       {query.error ? (
         <div className="mt-2 text-xs text-mdf-danger">

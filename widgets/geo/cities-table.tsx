@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 
 import { useWidgetData } from "@/lib/hooks/use-widget-data";
@@ -18,24 +19,25 @@ export function CitiesTable({
   currency,
   config,
 }: WidgetContext<Config>) {
+  const t = useTranslations("widgets");
   const query = useWidgetData<Row[]>(siteId, "analytics/cities", {
     limit: config.limit,
   });
 
   return (
     <TopMetricTable<Row>
-      title="Cities"
+      title={t("cities.displayName")}
       rows={query.data?.data}
       loading={query.isLoading}
       error={query.error?.message ?? null}
       limit={config.limit}
-      itemLabel="City"
+      itemLabel={t("table.colCity")}
       rowKey={(r, i) => `${r.city}-${i}`}
       renderLabel={(r) => r.city}
       primary={(r) => r.visitors}
-      primaryLabel="Visitors"
+      primaryLabel={t("table.colVisitors")}
       secondary={(r) => r.revenue}
-      secondaryLabel="Revenue"
+      secondaryLabel={t("table.colRevenue")}
       secondaryFormat="currency"
       currency={currency}
     />

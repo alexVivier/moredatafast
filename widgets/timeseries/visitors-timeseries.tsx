@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { z } from "zod";
 import {
@@ -42,6 +43,7 @@ export function VisitorsTimeseries({
   dateRange,
   config,
 }: WidgetContext<Config>) {
+  const t = useTranslations("widgets.timeseries");
   const interval = intervalForRange(dateRange.lengthDays);
   const metric = config.metric;
   const query = useWidgetData<TimeseriesResponse["data"]>(
@@ -80,13 +82,20 @@ export function VisitorsTimeseries({
     );
   }
 
-  const label = metric === "visitors" ? "Visitors" : "Sessions";
+  const label = metric === "visitors" ? t("metricVisitors") : t("metricSessions");
+  const intervalLabel = t(
+    `interval${interval.charAt(0).toUpperCase()}${interval.slice(1)}` as
+      | "intervalHour"
+      | "intervalDay"
+      | "intervalWeek"
+      | "intervalMonth",
+  );
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-baseline justify-between pb-2">
         <div>
-          <div className="mdf-micro">{label} over time</div>
+          <div className="mdf-micro">{t("labelOverTime", { metric: label })}</div>
           <div className="mdf-kpi">
             {query.isLoading ? (
               <span className="inline-block h-[36px] w-20 animate-pulse rounded bg-mdf-line-1" />
@@ -95,7 +104,7 @@ export function VisitorsTimeseries({
             )}
           </div>
         </div>
-        <div className="mdf-micro">{interval}</div>
+        <div className="mdf-micro">{intervalLabel}</div>
       </div>
       <div className="flex-1 min-h-[120px]">
         {query.isLoading ? (
@@ -136,8 +145,8 @@ export function VisitorsTimeseries({
                 cursor={{ stroke: MDF_CURSOR_STROKE, strokeWidth: 1 }}
                 contentStyle={MDF_TOOLTIP_STYLE}
                 labelStyle={MDF_TOOLTIP_LABEL_STYLE}
-                formatter={(value) => [
-                  formatNumber(typeof value === "number" ? value : 0),
+                formatter={(v) => [
+                  formatNumber(typeof v === "number" ? v : 0),
                   label,
                 ]}
               />

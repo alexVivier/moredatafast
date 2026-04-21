@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { z } from "zod";
 import {
@@ -42,11 +43,11 @@ const configSchema = z.object({
 });
 type Config = z.infer<typeof configSchema>;
 
-const METRIC_LABEL: Record<MetricId, string> = {
-  visitors: "Visitors",
-  sessions: "Sessions",
-  revenue: "Revenue",
-  conversion_rate: "Conversion rate",
+const METRIC_LABEL_KEY: Record<MetricId, "metricVisitors" | "metricSessions" | "metricRevenue" | "metricConversion"> = {
+  visitors: "metricVisitors",
+  sessions: "metricSessions",
+  revenue: "metricRevenue",
+  conversion_rate: "metricConversion",
 };
 
 const METRIC_COLOR: Record<MetricId, string> = {
@@ -73,7 +74,9 @@ export function MultiMetricTimeseries({
   dateRange,
   config,
 }: WidgetContext<Config>) {
+  const t = useTranslations("widgets.timeseries");
   const interval = intervalForRange(dateRange.lengthDays);
+  const labelFor = (m: MetricId) => t(METRIC_LABEL_KEY[m]);
   const metrics: MetricId[] = config.metrics.length ? config.metrics : ["visitors"];
   const fieldsParam = [...metrics, "name"].join(",");
 
@@ -117,12 +120,20 @@ export function MultiMetricTimeseries({
     <div className="flex h-full flex-col">
       <div className="flex items-baseline justify-between pb-2">
         <div>
-          <div className="mdf-micro">Metrics over time</div>
+          <div className="mdf-micro">{t("labelMetricsOverTime")}</div>
           <div className="text-xs text-mdf-fg-3">
-            {metrics.map((m) => METRIC_LABEL[m]).join(" · ")}
+            {metrics.map(labelFor).join(" · ")}
           </div>
         </div>
-        <div className="mdf-micro">{interval}</div>
+        <div className="mdf-micro">
+          {t(
+            `interval${interval.charAt(0).toUpperCase()}${interval.slice(1)}` as
+              | "intervalHour"
+              | "intervalDay"
+              | "intervalWeek"
+              | "intervalMonth",
+          )}
+        </div>
       </div>
       <div className="flex-1 min-h-[140px]">
         {query.isLoading ? (
@@ -174,16 +185,16 @@ export function MultiMetricTimeseries({
                 formatter={(value, name) => {
                   const m = name as MetricId;
                   const n = typeof value === "number" ? value : 0;
-                  if (m === "revenue") return [formatCurrency(n, currency), METRIC_LABEL[m]];
+                  if (m === "revenue") return [formatCurrency(n, currency), labelFor(m)];
                   if (m === "conversion_rate")
-                    return [`${n.toFixed(2)}%`, METRIC_LABEL[m]];
-                  return [formatNumber(n), METRIC_LABEL[m] ?? String(m)];
+                    return [`${n.toFixed(2)}%`, labelFor(m)];
+                  return [formatNumber(n), labelFor(m) ?? String(m)];
                 }}
               />
               <Legend
                 iconType="line"
                 wrapperStyle={{ fontSize: 11, color: "var(--mdf-fg-3)" }}
-                formatter={(name) => METRIC_LABEL[name as MetricId] ?? String(name)}
+                formatter={(name) => labelFor(name as MetricId)}
               />
               {metrics.map((m) => (
                 <Line

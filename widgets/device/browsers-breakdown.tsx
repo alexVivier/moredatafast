@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 
 import { useWidgetData } from "@/lib/hooks/use-widget-data";
@@ -14,6 +15,7 @@ const configSchema = z.object({
 });
 
 export function BrowsersBreakdown({ siteId, config }: WidgetContext<Config>) {
+  const t = useTranslations("widgets.browsers");
   const query = useWidgetData<Row[]>(siteId, "analytics/browsers", {
     limit: config.limit,
   });
@@ -24,11 +26,11 @@ export function BrowsersBreakdown({ siteId, config }: WidgetContext<Config>) {
 
   return (
     <DonutBreakdown
-      title="Browsers"
+      title={t("displayName")}
       rows={rows}
       loading={query.isLoading}
       error={query.error?.message ?? null}
-      totalLabel="visitors"
+      totalLabel={t("totalLabel")}
     />
   );
 }
