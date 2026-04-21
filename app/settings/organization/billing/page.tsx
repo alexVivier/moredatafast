@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { eq } from "drizzle-orm";
 
 import { db, schema } from "@/db/client";
@@ -24,11 +25,13 @@ export default async function BillingPage({
 }: {
   searchParams: Promise<Search>;
 }) {
-  // Admin/owner only — members don't manage billing.
   const { organizationId, role, billing } = await requirePageOrg(
     "/settings/organization/billing",
     "admin",
   );
+  const t = await getTranslations("settings.billing");
+  const tHeader = await getTranslations("settings.header");
+  const tOrg = await getTranslations("settings.organization");
 
   const [org] = await db
     .select({ name: schema.organizations.name })
@@ -39,34 +42,40 @@ export default async function BillingPage({
   const { success, canceled } = await searchParams;
   const prices = await getPlanPrices();
 
+  const roleLabel = tOrg(
+    `role${role.charAt(0).toUpperCase()}${role.slice(1)}` as
+      | "roleOwner"
+      | "roleAdmin"
+      | "roleMember",
+  );
+
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-3 sm:px-6 py-4 sm:py-6">
       <div className="flex items-center gap-2">
         <Link href="/settings/organization">
           <Button variant="ghost" size="sm">
-            ← Back
+            {tHeader("back")}
           </Button>
         </Link>
       </div>
 
       <div>
         <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
-          Billing — {org?.name ?? "Organization"}
+          {t("titleWithOrg", { org: org?.name ?? t("titleFallback") })}
         </h1>
         <p className="text-sm text-muted-foreground">
-          One subscription per organization. Members with role{" "}
-          <span className="font-medium">{role}</span> can manage it.
+          {t("lead", { role: roleLabel })}
         </p>
       </div>
 
       {success ? (
         <div className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-400">
-          Subscription active — welcome to Premium.
+          {t("toastSuccess")}
         </div>
       ) : null}
       {canceled ? (
         <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-300">
-          Checkout canceled. You can resume any time below.
+          {t("toastCanceled")}
         </div>
       ) : null}
 
@@ -90,7 +99,7 @@ export default async function BillingPage({
   );
 }
 
-function StatusCard({
+async function StatusCard({
   trialEndsAt,
   trialActive,
   subscriptionStatus,
@@ -103,28 +112,23 @@ function StatusCard({
   periodEnd: Date | null;
   cancelAtPeriodEnd: boolean;
 }) {
-  let title = "No active subscription";
+  const t = await getTranslations("settings.billing");
+  let title = t("statusNoSub");
   let description: React.ReactNode = null;
   let tone = "border-border";
 
   if (subscriptionStatus === "active" || subscriptionStatus === "trialing") {
-    title = subscriptionStatus === "trialing" ? "Premium — trial" : "Premium — active";
+    title =
+      subscriptionStatus === "trialing" ? t("statusTrial") : t("statusActive");
     tone = "border-emerald-500/30 bg-emerald-500/5";
     description = (
       <>
         {cancelAtPeriodEnd ? (
-          <>
-            Scheduled to cancel on{" "}
-            <span className="font-medium">
-              {periodEnd ? periodEnd.toLocaleDateString() : "—"}
-            </span>
-            . You&apos;ll keep access until then.
-          </>
+          t("statusScheduledCancel", {
+            date: periodEnd ? periodEnd.toLocaleDateString() : "—",
+          })
         ) : periodEnd ? (
-          <>
-            Next billing date:{" "}
-            <span className="font-medium">{periodEnd.toLocaleDateString()}</span>
-          </>
+          t("statusNextBilling", { date: periodEnd.toLocaleDateString() })
         ) : null}
       </>
     );
@@ -132,31 +136,25 @@ function StatusCard({
     subscriptionStatus === "past_due" ||
     subscriptionStatus === "unpaid"
   ) {
-    title = "Payment failed";
+    title = t("statusPastDue");
     tone = "border-destructive/40 bg-destructive/10";
-    description = (
-      <>Update your card from the Stripe billing portal to restore access.</>
-    );
+    description = <>{t("statusPastDueBody")}</>;
   } else if (trialActive) {
     const days = Math.max(
       0,
       Math.ceil((trialEndsAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
     );
-    title = `Free trial — ${days} day${days === 1 ? "" : "s"} left`;
+    title = t(days === 1 ? "statusFreeTrial" : "statusFreeTrialPlural", {
+      days,
+    });
     tone = "border-blue-500/30 bg-blue-500/5";
     description = (
-      <>
-        Trial ends on{" "}
-        <span className="font-medium">{trialEndsAt.toLocaleDateString()}</span>.
-        Upgrade any time to keep adding sites and inviting teammates.
-      </>
+      <>{t("statusTrialBody", { date: trialEndsAt.toLocaleDateString() })}</>
     );
   } else {
-    title = "Trial ended";
+    title = t("statusTrialEnded");
     tone = "border-destructive/40 bg-destructive/10";
-    description = (
-      <>Subscribe to Premium to add sites or invite teammates.</>
-    );
+    description = <>{t("statusTrialEndedBody")}</>;
   }
 
   return (

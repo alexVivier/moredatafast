@@ -10,6 +10,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Public share URLs (read-only views) and their data proxy. Access control
+  // is enforced inside the route handlers via the token in the URL.
+  if (
+    pathname.startsWith("/share/") ||
+    pathname.startsWith("/api/public/")
+  ) {
+    return NextResponse.next();
+  }
+
   const sessionCookie = getSessionCookie(request);
   if (sessionCookie) {
     return NextResponse.next();

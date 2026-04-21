@@ -9,8 +9,10 @@ import { GridCanvas, type GridItem } from "./grid-canvas";
 import { AddWidgetPalette } from "./add-widget-palette";
 import { FilterBar } from "./filter-bar";
 import { SegmentsDropdown } from "./segments-dropdown";
+import { ShareDialog } from "./share-dialog";
 import { Button } from "@/components/ui/button";
 import { useDateRangeState } from "@/lib/hooks/use-date-range";
+import { downloadCsv, rowsToCsv } from "@/lib/utils/csv";
 import type { WidgetDefinition } from "@/widgets";
 
 type Props = {
@@ -46,6 +48,8 @@ export function ViewClient({
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">(
     "idle"
   );
+  const [shareOpen, setShareOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   // Only reset local state to server state when the viewId actually changes.
   // Guarding on initialItems alone caused unrelated parent re-renders to wipe
@@ -129,6 +133,50 @@ export function ViewClient({
     [persist]
   );
 
+  const exportCsv = useCallback(async () => {
+    setExporting(true);
+    try {
+      const path =
+        siteId === "unified"
+          ? "aggregate/analytics/timeseries"
+          : `${encodeURIComponent(siteId)}/analytics/timeseries`;
+      const params = new URLSearchParams({
+        fields: "visitors,sessions,revenue,conversion_rate,bounce_rate,name",
+        interval: "day",
+        startAt: resolved.startAt,
+        endAt: resolved.endAt,
+      });
+      const res = await fetch(`/api/datafast/${path}?${params.toString()}`);
+      if (!res.ok) throw new Error(`Export failed (${res.status})`);
+      const envelope = (await res.json()) as {
+        data?: Array<Record<string, unknown>>;
+      };
+      const rows = envelope.data ?? [];
+      if (rows.length === 0) {
+        alert("No data to export for the selected range.");
+        return;
+      }
+      const csv = rowsToCsv(rows, [
+        "name",
+        "timestamp",
+        "visitors",
+        "sessions",
+        "revenue",
+        "conversion_rate",
+        "bounce_rate",
+      ]);
+      const safeSite = siteId === "unified" ? "unified" : siteId;
+      downloadCsv(
+        `datafast-${safeSite}-${resolved.startAt}_to_${resolved.endAt}.csv`,
+        csv,
+      );
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Export failed");
+    } finally {
+      setExporting(false);
+    }
+  }, [siteId, resolved.startAt, resolved.endAt]);
+
   const handlePick = useCallback(
     (def: WidgetDefinition<unknown>) => {
       setItems((prev) => {
@@ -176,6 +224,24 @@ export function ViewClient({
         <FilterBar />
         <div className="flex items-center gap-2 shrink-0">
           <SegmentsDropdown siteId={siteId} />
+          <Button
+            variant="outline"
+            onClick={exportCsv}
+            disabled={exporting}
+            className="hidden md:inline-flex"
+            title="Download daily metrics as CSV for the selected date range"
+          >
+            {exporting ? "Exporting…" : "Export CSV"}
+          </Button>
+          {siteId !== "unified" ? (
+            <Button
+              variant="outline"
+              onClick={() => setShareOpen(true)}
+              className="hidden md:inline-flex"
+            >
+              Share
+            </Button>
+          ) : null}
           {editMode ? (
             <Link href={readHref} onClick={() => flushNow()}>
               <Button variant="outline">{t("done")}</Button>
@@ -207,6 +273,12 @@ export function ViewClient({
         items={items}
         editMode={editMode}
         onChange={handleChange}
+      />
+
+      <ShareDialog
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        viewId={viewId}
       />
     </div>
   );

@@ -247,6 +247,30 @@ export const layoutItems = pgTable(
   }),
 );
 
+export const viewShares = pgTable(
+  "view_shares",
+  {
+    id: text("id").primaryKey(),
+    viewId: text("view_id")
+      .notNull()
+      .references(() => views.id, { onDelete: "cascade" }),
+    token: text("token").notNull(),
+    createdBy: text("created_by")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    lastAccessedAt: timestamp("last_accessed_at", { withTimezone: true }),
+  },
+  (t) => ({
+    tokenUnique: uniqueIndex("unique_view_share_token").on(t.token),
+    viewIdx: index("idx_view_shares_view").on(t.viewId),
+  }),
+);
+
 export const segments = pgTable(
   "segments",
   {

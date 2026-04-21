@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -11,6 +12,7 @@ export function AcceptInviteActions({
 }: {
   invitationId: string;
 }) {
+  const t = useTranslations("settings.acceptInvite");
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,11 +25,9 @@ export function AcceptInviteActions({
         invitationId,
       });
       if (res.error) {
-        setError(res.error.message || "Failed to accept invitation");
+        setError(res.error.message || t("errAccept"));
         return;
       }
-      // The plugin flips activeOrganizationId server-side; a router refresh is
-      // enough to re-render RSCs with the new org.
       router.replace("/");
       router.refresh();
     } finally {
@@ -36,7 +36,7 @@ export function AcceptInviteActions({
   }
 
   async function reject() {
-    if (!window.confirm("Decline this invitation?")) return;
+    if (!window.confirm(t("confirmDecline"))) return;
     setError(null);
     setBusy(true);
     try {
@@ -44,7 +44,7 @@ export function AcceptInviteActions({
         invitationId,
       });
       if (res.error) {
-        setError(res.error.message || "Failed to decline invitation");
+        setError(res.error.message || t("errDecline"));
         return;
       }
       router.replace("/");
@@ -63,10 +63,10 @@ export function AcceptInviteActions({
       ) : null}
       <div className="flex items-center gap-2">
         <Button onClick={accept} disabled={busy}>
-          {busy ? "Joining…" : "Accept invitation"}
+          {busy ? t("joining") : t("accept")}
         </Button>
         <Button variant="outline" onClick={reject} disabled={busy}>
-          Decline
+          {t("decline")}
         </Button>
       </div>
     </div>

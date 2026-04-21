@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -26,6 +27,7 @@ export function BillingClient({
   yearlyPriceLabel,
   yearlySavingsPercent,
 }: Props) {
+  const t = useTranslations("settings.billing");
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,9 +53,9 @@ export function BillingClient({
         successUrl: `${origin}/settings/organization/billing?success=1`,
         cancelUrl: `${origin}/settings/organization/billing?canceled=1`,
       });
-      if (res.error) setError(res.error.message || "Failed to start checkout");
+      if (res.error) setError(res.error.message || t("errCheckout"));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to start checkout");
+      setError(err instanceof Error ? err.message : t("errCheckout"));
     } finally {
       setBusy(false);
     }
@@ -70,21 +72,16 @@ export function BillingClient({
             ? `${window.location.origin}/settings/organization/billing`
             : undefined,
       });
-      if (res.error) setError(res.error.message || "Failed to open portal");
+      if (res.error) setError(res.error.message || t("errPortal"));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to open portal");
+      setError(err instanceof Error ? err.message : t("errPortal"));
     } finally {
       setBusy(false);
     }
   }
 
   async function cancel() {
-    if (
-      !window.confirm(
-        "Cancel the subscription at the end of the current billing period? You'll keep access until then.",
-      )
-    )
-      return;
+    if (!window.confirm(t("confirmCancel"))) return;
     setBusy(true);
     setError(null);
     try {
@@ -96,12 +93,12 @@ export function BillingClient({
             : "",
       });
       if (res.error) {
-        setError(res.error.message || "Failed to cancel");
+        setError(res.error.message || t("errCancel"));
         return;
       }
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to cancel");
+      setError(err instanceof Error ? err.message : t("errCancel"));
     } finally {
       setBusy(false);
     }
@@ -115,16 +112,21 @@ export function BillingClient({
         referenceId: organizationId,
       });
       if (res.error) {
-        setError(res.error.message || "Failed to restore");
+        setError(res.error.message || t("errRestore"));
         return;
       }
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to restore");
+      setError(err instanceof Error ? err.message : t("errRestore"));
     } finally {
       setBusy(false);
     }
   }
+
+  const subscribePrice =
+    interval === "year" && yearlyPriceLabel
+      ? yearlyPriceLabel
+      : (monthlyPriceLabel ?? t("subscribeFallback"));
 
   return (
     <div className="space-y-4">
@@ -138,9 +140,9 @@ export function BillingClient({
         <Card>
           <CardContent className="space-y-4 pt-4">
             <div>
-              <h3 className="text-sm font-semibold">Subscribe to Premium</h3>
+              <h3 className="text-sm font-semibold">{t("subscribeTitle")}</h3>
               <p className="text-xs text-muted-foreground">
-                One plan, unlocks unlimited sites and teammates for the org.
+                {t("subscribeBody")}
               </p>
             </div>
             <div className="flex rounded-md border border-border p-0.5">
@@ -153,7 +155,7 @@ export function BillingClient({
                     : "text-muted-foreground hover:bg-accent/50"
                 }`}
               >
-                <div className="font-semibold">Monthly</div>
+                <div className="font-semibold">{t("monthly")}</div>
                 {monthlyPriceLabel ? (
                   <div className="mt-0.5 text-[10px] opacity-80">
                     {monthlyPriceLabel}
@@ -171,7 +173,7 @@ export function BillingClient({
                   }`}
                 >
                   <div className="flex items-center justify-center gap-1.5 font-semibold">
-                    Yearly
+                    {t("yearly")}
                     {yearlySavingsPercent && yearlySavingsPercent > 0 ? (
                       <span className="rounded bg-emerald-500/20 px-1 py-0.5 text-[9px] text-emerald-600 dark:text-emerald-400">
                         -{yearlySavingsPercent}%
@@ -186,12 +188,8 @@ export function BillingClient({
             </div>
             <Button onClick={upgrade} disabled={busy} className="w-full">
               {busy
-                ? "Redirecting…"
-                : `Subscribe — ${
-                    interval === "year" && yearlyPriceLabel
-                      ? yearlyPriceLabel
-                      : (monthlyPriceLabel ?? "Premium")
-                  }`}
+                ? t("redirecting")
+                : t("subscribeCta", { price: subscribePrice })}
             </Button>
           </CardContent>
         </Card>
@@ -201,13 +199,11 @@ export function BillingClient({
         <Card>
           <CardContent className="flex flex-col gap-3 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="text-sm font-semibold">Manage billing</h3>
-              <p className="text-xs text-muted-foreground">
-                Update your card, download invoices, or change plan.
-              </p>
+              <h3 className="text-sm font-semibold">{t("manageTitle")}</h3>
+              <p className="text-xs text-muted-foreground">{t("manageBody")}</p>
             </div>
             <Button variant="outline" onClick={openPortal} disabled={busy}>
-              {busy ? "Opening…" : "Open billing portal"}
+              {busy ? t("opening") : t("managePortal")}
             </Button>
           </CardContent>
         </Card>
@@ -217,11 +213,8 @@ export function BillingClient({
         <Card>
           <CardContent className="flex flex-col gap-3 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="text-sm font-semibold">Cancel subscription</h3>
-              <p className="text-xs text-muted-foreground">
-                Cancels at the end of the current period. No refund for the
-                remaining days.
-              </p>
+              <h3 className="text-sm font-semibold">{t("cancelTitle")}</h3>
+              <p className="text-xs text-muted-foreground">{t("cancelBody")}</p>
             </div>
             <Button
               variant="outline"
@@ -229,7 +222,7 @@ export function BillingClient({
               onClick={cancel}
               disabled={busy}
             >
-              Cancel
+              {t("cancelCta")}
             </Button>
           </CardContent>
         </Card>
@@ -239,14 +232,11 @@ export function BillingClient({
         <Card>
           <CardContent className="flex flex-col gap-3 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="text-sm font-semibold">Resume subscription</h3>
-              <p className="text-xs text-muted-foreground">
-                The subscription is scheduled to cancel. Restore it to stay on
-                Premium.
-              </p>
+              <h3 className="text-sm font-semibold">{t("resumeTitle")}</h3>
+              <p className="text-xs text-muted-foreground">{t("resumeBody")}</p>
             </div>
             <Button onClick={restore} disabled={busy}>
-              Resume
+              {t("resumeCta")}
             </Button>
           </CardContent>
         </Card>

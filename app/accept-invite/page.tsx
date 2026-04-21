@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { eq } from "drizzle-orm";
 
 import { db, schema } from "@/db/client";
@@ -26,21 +27,20 @@ export default async function AcceptInvitePage({
   const { id } = await searchParams;
   const thisPath = `/accept-invite${id ? `?id=${encodeURIComponent(id)}` : ""}`;
   const session = await requirePageSession(thisPath);
+  const t = await getTranslations("settings.acceptInvite");
+  const tOrg = await getTranslations("settings.organization");
 
   if (!id) {
     return (
       <Shell>
         <Card>
           <CardHeader>
-            <CardTitle>Missing invitation id</CardTitle>
-            <CardDescription>
-              The link you used is incomplete. Ask the sender to forward the
-              original email.
-            </CardDescription>
+            <CardTitle>{t("missingTitle")}</CardTitle>
+            <CardDescription>{t("missingBody")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/">
-              <Button variant="outline">Back to dashboard</Button>
+              <Button variant="outline">{t("backToDashboard")}</Button>
             </Link>
           </CardContent>
         </Card>
@@ -66,14 +66,12 @@ export default async function AcceptInvitePage({
       <Shell>
         <Card>
           <CardHeader>
-            <CardTitle>Invitation not found</CardTitle>
-            <CardDescription>
-              It may have been revoked or has already been accepted.
-            </CardDescription>
+            <CardTitle>{t("notFoundTitle")}</CardTitle>
+            <CardDescription>{t("notFoundBody")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/">
-              <Button variant="outline">Back to dashboard</Button>
+              <Button variant="outline">{t("backToDashboard")}</Button>
             </Link>
           </CardContent>
         </Card>
@@ -87,15 +85,16 @@ export default async function AcceptInvitePage({
       <Shell>
         <Card>
           <CardHeader>
-            <CardTitle>Invitation already {invRow.status}</CardTitle>
+            <CardTitle>
+              {t("alreadyTitle", { status: invRow.status })}
+            </CardTitle>
             <CardDescription>
-              This link has already been used. Ask {invRow.email}&apos;s inviter
-              for a fresh one if you still need access.
+              {t("alreadyBody", { email: invRow.email })}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/">
-              <Button variant="outline">Back to dashboard</Button>
+              <Button variant="outline">{t("backToDashboard")}</Button>
             </Link>
           </CardContent>
         </Card>
@@ -107,14 +106,12 @@ export default async function AcceptInvitePage({
       <Shell>
         <Card>
           <CardHeader>
-            <CardTitle>Invitation expired</CardTitle>
-            <CardDescription>
-              Invitations are valid for 48 hours. Ask for a new one.
-            </CardDescription>
+            <CardTitle>{t("expiredTitle")}</CardTitle>
+            <CardDescription>{t("expiredBody")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/">
-              <Button variant="outline">Back to dashboard</Button>
+              <Button variant="outline">{t("backToDashboard")}</Button>
             </Link>
           </CardContent>
         </Card>
@@ -131,8 +128,14 @@ export default async function AcceptInvitePage({
     .from(schema.users)
     .where(eq(schema.users.id, invRow.inviterId));
 
-  const inviterLabel = inviter?.name || inviter?.email || "A teammate";
-  const orgName = org?.name ?? "this organization";
+  const inviterLabel = inviter?.name || inviter?.email || t("aTeammate");
+  const orgName = org?.name ?? t("thisOrganization");
+  const roleLabel = tOrg(
+    `role${invRow.role.charAt(0).toUpperCase()}${invRow.role.slice(1)}` as
+      | "roleOwner"
+      | "roleAdmin"
+      | "roleMember",
+  );
 
   const emailMatches =
     session.user.email.toLowerCase() === invRow.email.toLowerCase();
@@ -142,21 +145,20 @@ export default async function AcceptInvitePage({
       <Shell>
         <Card>
           <CardHeader>
-            <CardTitle>Different account required</CardTitle>
+            <CardTitle>{t("wrongAccountTitle")}</CardTitle>
             <CardDescription>
-              This invitation was sent to{" "}
-              <span className="font-medium">{invRow.email}</span>, but
-              you&apos;re signed in as{" "}
-              <span className="font-medium">{session.user.email}</span>.
+              {t("wrongAccountBody", {
+                invited: invRow.email,
+                current: session.user.email,
+              })}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             <p className="text-xs text-muted-foreground">
-              Sign out and sign in with the invited email, then reopen this
-              link.
+              {t("wrongAccountHint")}
             </p>
             <Link href={`/login?next=${encodeURIComponent(thisPath)}`}>
-              <Button variant="outline">Switch account</Button>
+              <Button variant="outline">{t("wrongAccountCta")}</Button>
             </Link>
           </CardContent>
         </Card>
@@ -168,10 +170,9 @@ export default async function AcceptInvitePage({
     <Shell>
       <Card>
         <CardHeader>
-          <CardTitle>Join {orgName}</CardTitle>
+          <CardTitle>{t("joinTitle", { org: orgName })}</CardTitle>
           <CardDescription>
-            {inviterLabel} invited you to collaborate as{" "}
-            <span className="font-medium">{invRow.role}</span>.
+            {t("joinBody", { inviter: inviterLabel, role: roleLabel })}
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -26,6 +27,7 @@ export function AddSiteForm({
   yearlyPriceLabel,
   yearlySavingsPercent,
 }: AddSiteFormProps = {}) {
+  const t = useTranslations("settings.siteNew");
   const router = useRouter();
   const [apiKey, setApiKey] = useState("");
   const [nameOverride, setNameOverride] = useState("");
@@ -52,7 +54,7 @@ export function AddSiteForm({
         return;
       }
       if (!res.ok) {
-        setError(body.error || `Request failed (${res.status})`);
+        setError(body.error || t("errRequest", { status: res.status }));
         return;
       }
       if (body.viewId) {
@@ -62,7 +64,7 @@ export function AddSiteForm({
       }
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Network error");
+      setError(err instanceof Error ? err.message : t("errNetwork"));
     } finally {
       setSubmitting(false);
     }
@@ -74,29 +76,24 @@ export function AddSiteForm({
         open={paywallOrgId !== null}
         onClose={() => setPaywallOrgId(null)}
         organizationId={paywallOrgId ?? ""}
-        reason="add more sites"
+        reason={t("paywallReason")}
         monthlyPriceLabel={monthlyPriceLabel}
         yearlyPriceLabel={yearlyPriceLabel}
         yearlySavingsPercent={yearlySavingsPercent}
       />
       <Card>
         <CardHeader>
-          <CardTitle>Connect your DataFast website</CardTitle>
-          <CardDescription>
-            Paste the API key from{" "}
-            <span className="font-mono">Website Settings → API</span>. The key is
-            validated against <span className="font-mono">/analytics/metadata</span>{" "}
-            and encrypted before it touches the disk.
-          </CardDescription>
+          <CardTitle>{t("cardTitle")}</CardTitle>
+          <CardDescription>{t("cardBody")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="apiKey">API key</Label>
+              <Label htmlFor="apiKey">{t("apiKey")}</Label>
               <Input
                 id="apiKey"
                 type="password"
-                placeholder="dfapi_..."
+                placeholder={t("apiKeyPlaceholder")}
                 required
                 autoFocus
                 autoComplete="off"
@@ -105,10 +102,10 @@ export function AddSiteForm({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="name">Display name (optional)</Label>
+              <Label htmlFor="name">{t("displayName")}</Label>
               <Input
                 id="name"
-                placeholder="Leave blank to use the name from DataFast"
+                placeholder={t("displayNamePlaceholder")}
                 value={nameOverride}
                 onChange={(e) => setNameOverride(e.target.value)}
               />
@@ -122,7 +119,7 @@ export function AddSiteForm({
 
             <div className="flex justify-end gap-2">
               <Button type="submit" disabled={submitting || apiKey.length < 8}>
-                {submitting ? "Validating…" : "Add site"}
+                {submitting ? t("submitting") : t("submit")}
               </Button>
             </div>
           </form>

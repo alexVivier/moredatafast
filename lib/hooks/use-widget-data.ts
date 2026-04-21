@@ -1,11 +1,18 @@
 "use client";
 
-import { useMemo } from "react";
+import { createContext, useContext, useMemo } from "react";
 import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 
 import type { DataFastEnvelope } from "@/lib/datafast/types";
 import { useFilters } from "@/lib/hooks/use-filters";
 import { encodeFilters } from "@/lib/filters/schema";
+
+/**
+ * When a widget is rendered inside a public /share/[token] page, a non-null
+ * value is provided here. All DataFast calls route through the public proxy
+ * (`/api/public/share/TOKEN/...`) instead of the org-scoped authenticated one.
+ */
+export const ShareContext = createContext<{ token: string } | null>(null);
 
 export type QueryParams = Record<
   string,
@@ -38,8 +45,10 @@ function endpointCadence(path: string): {
   if (path === "analytics/realtime") {
     return { staleTime: 0, refetchInterval: 5_000 };
   }
+  // Realtime map / payments feed — polled at the same 5s cadence as the
+  // counter so "live events the second they happen" holds as a promise.
   if (path === "analytics/realtime/map") {
-    return { staleTime: 0, refetchInterval: 10_000 };
+    return { staleTime: 0, refetchInterval: 5_000 };
   }
   if (path === "analytics/metadata") {
     return { staleTime: 3_600_000, refetchInterval: false };
@@ -66,8 +75,12 @@ export type WidgetDataError = {
 function buildProxyUrl(
   siteId: string,
   path: string,
-  params?: QueryParams
+  params?: QueryParams,
+  shareToken?: string,
 ): string {
+  if (shareToken) {
+    return `/api/public/share/${encodeURIComponent(shareToken)}/datafast/${encodeURIComponent(siteId)}/${path}${serializeParams(params)}`;
+  }
   if (siteId === "unified") {
     return `/api/datafast/aggregate/${path}${serializeParams(params)}`;
   }
@@ -77,9 +90,10 @@ function buildProxyUrl(
 async function fetchProxy<T>(
   siteId: string,
   path: string,
-  params?: QueryParams
+  params?: QueryParams,
+  shareToken?: string,
 ): Promise<DataFastEnvelope<T>> {
-  const url = buildProxyUrl(siteId, path, params);
+  const url = buildProxyUrl(siteId, path, params, shareToken);
   const res = await fetch(url, { credentials: "same-origin" });
   const json = (await res.json().catch(() => ({}))) as unknown;
   if (!res.ok) {
@@ -103,6 +117,7 @@ export function useWidgetData<T = unknown>(
   options?: UseWidgetDataOptions
 ) {
   const { filters } = useFilters();
+  const share = useContext(ShareContext);
   const { staleTime, refetchInterval } = endpointCadence(path);
 
   const mergedParams = useMemo(() => {
@@ -114,7 +129,7 @@ export function useWidgetData<T = unknown>(
 
   return useQuery<DataFastEnvelope<T>, Error>({
     queryKey: widgetKey(siteId, path, mergedParams),
-    queryFn: () => fetchProxy<T>(siteId, path, mergedParams),
+    queryFn: () => fetchProxy<T>(siteId, path, mergedParams, share?.token),
     staleTime,
     refetchInterval,
     enabled: options?.enabled ?? true,
