@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import {
-  CATEGORY_LABELS,
   getWidgetsByCategory,
+  type WidgetCategory,
   type WidgetDefinition,
 } from "@/widgets";
 
@@ -15,8 +15,23 @@ type Props = {
   onPick: (def: WidgetDefinition<unknown>) => void;
 };
 
+// Safely look up a translated display name for a widget. Falls back to the
+// English registry string if the id isn't in the names catalog yet.
+function widgetName(
+  t: (key: string) => string,
+  def: WidgetDefinition<unknown>,
+): string {
+  try {
+    return t(def.id);
+  } catch {
+    return def.displayName;
+  }
+}
+
 export function AddWidgetPalette({ onPick }: Props) {
   const t = useTranslations("dashboard.widget");
+  const tNames = useTranslations("widgets.names");
+  const tCats = useTranslations("widgets.categories");
   const [open, setOpen] = useState(false);
   const [categories] = useState(() => getWidgetsByCategory());
 
@@ -84,7 +99,7 @@ export function AddWidgetPalette({ onPick }: Props) {
                 return (
                   <div key={cat}>
                     <div className="mdf-micro mb-2">
-                      {CATEGORY_LABELS[cat]}
+                      {tCats(cat as WidgetCategory)}
                     </div>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       {defs.map((def) => (
@@ -102,7 +117,7 @@ export function AddWidgetPalette({ onPick }: Props) {
                         >
                           <div className="flex items-center justify-between w-full">
                             <span className="font-medium text-sm text-mdf-fg-1">
-                              {def.displayName}
+                              {widgetName(tNames, def)}
                             </span>
                             <span className="text-[11px] text-mdf-fg-3 font-mono tabular-nums">
                               {def.defaultSize.w}×{def.defaultSize.h}

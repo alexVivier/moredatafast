@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { z } from "zod";
 
@@ -26,8 +27,23 @@ type Config = { metric: HeatmapMetric };
 
 const configSchema = z.object({ metric: metricSchema.default("visitors") });
 
-const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAY_KEYS = [
+  "dayMon",
+  "dayTue",
+  "dayWed",
+  "dayThu",
+  "dayFri",
+  "daySat",
+  "daySun",
+] as const;
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
+
+const METRIC_KEY: Record<HeatmapMetric, "metricVisitors" | "metricSessions" | "metricRevenue" | "metricConversion"> = {
+  visitors: "metricVisitors",
+  sessions: "metricSessions",
+  revenue: "metricRevenue",
+  conversion_rate: "metricConversion",
+};
 
 export function TrafficHeatmap({
   siteId,
@@ -35,7 +51,10 @@ export function TrafficHeatmap({
   dateRange,
   config,
 }: WidgetContext<Config>) {
+  const t = useTranslations("widgets.heatmap");
   const metric = config.metric;
+  const dayLabels = DAY_KEYS.map((k) => t(k));
+  const metricLabel = t(METRIC_KEY[metric]);
 
   const query = useWidgetData<TimeseriesResponse>(
     siteId,
@@ -91,13 +110,13 @@ export function TrafficHeatmap({
   if (query.error) return <HeatmapError message={query.error.message} />;
   if (query.isLoading) return <HeatmapLoading />;
   if (totalPoints === 0)
-    return <HeatmapEmpty text="No hourly data for the selected range." />;
+    return <HeatmapEmpty text={t("emptyHourly")} />;
 
   return (
     <div className="flex h-full flex-col gap-2">
       <div className="flex items-baseline justify-between gap-2">
         <div className="mdf-micro">
-          {METRIC_LABEL[metric]} — hour × day of week
+          {t("labelTrafficAxis", { metric: metricLabel })}
         </div>
         <HeatmapLegend
           min={0}
@@ -117,7 +136,7 @@ export function TrafficHeatmap({
         {/* Grid: 7 day columns, each with 24 hour rows */}
         <div className="flex flex-1 flex-col gap-1 min-w-0">
           <div className="grid grid-cols-7 gap-1 text-[10px] text-mdf-fg-3 text-center">
-            {DAY_LABELS.map((d) => (
+            {dayLabels.map((d) => (
               <div key={d}>{d}</div>
             ))}
           </div>
@@ -135,7 +154,7 @@ export function TrafficHeatmap({
                       key={row}
                       className="flex-1 rounded-[2px] transition-colors"
                       style={{ background: intensityColor(t) }}
-                      title={`${DAY_LABELS[col]} ${String(row).padStart(2, "0")}h — ${formatMetric(v, metric, currency)}`}
+                      title={`${dayLabels[col]} ${String(row).padStart(2, "0")}h — ${formatMetric(v, metric, currency)}`}
                     />
                   );
                 })}

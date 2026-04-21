@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { z } from "zod";
 
@@ -12,7 +13,6 @@ import {
   HeatmapError,
   HeatmapLegend,
   HeatmapLoading,
-  METRIC_LABEL,
   type HeatmapMetric,
   formatMetric,
   intensityColor,
@@ -24,20 +24,27 @@ type Config = { metric: HeatmapMetric };
 
 const configSchema = z.object({ metric: metricSchema.default("visitors") });
 
-const MONTH_SHORT = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+const MONTH_KEYS = [
+  "monthJan",
+  "monthFeb",
+  "monthMar",
+  "monthApr",
+  "monthMay",
+  "monthJun",
+  "monthJul",
+  "monthAug",
+  "monthSep",
+  "monthOct",
+  "monthNov",
+  "monthDec",
+] as const;
+
+const METRIC_KEY: Record<HeatmapMetric, "metricVisitors" | "metricSessions" | "metricRevenue" | "metricConversion"> = {
+  visitors: "metricVisitors",
+  sessions: "metricSessions",
+  revenue: "metricRevenue",
+  conversion_rate: "metricConversion",
+};
 
 function daysInMonth(year: number, month: number): number {
   return new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
@@ -49,7 +56,10 @@ export function MonthlyCadenceHeatmap({
   dateRange,
   config,
 }: WidgetContext<Config>) {
+  const t = useTranslations("widgets.heatmap");
   const metric = config.metric;
+  const MONTH_SHORT = MONTH_KEYS.map((k) => t(k));
+  const metricLabel = t(METRIC_KEY[metric]);
 
   const query = useWidgetData<TimeseriesResponse>(
     siteId,
@@ -106,7 +116,7 @@ export function MonthlyCadenceHeatmap({
   if (query.error) return <HeatmapError message={query.error.message} />;
   if (query.isLoading) return <HeatmapLoading />;
   if (totalMonths === 0)
-    return <HeatmapEmpty text="No daily data for the selected range." />;
+    return <HeatmapEmpty text={t("emptyDaily")} />;
 
   // Pad every row to 31 columns so the grid stays rectangular even for Feb.
   const COLS = 31;
@@ -116,7 +126,7 @@ export function MonthlyCadenceHeatmap({
     <div className="flex h-full flex-col gap-2">
       <div className="flex items-baseline justify-between gap-2">
         <div className="mdf-micro">
-          {METRIC_LABEL[metric]} — day of month × month
+          {t("labelCadenceAxis", { metric: metricLabel })}
         </div>
         <HeatmapLegend
           min={0}

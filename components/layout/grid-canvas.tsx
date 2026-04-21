@@ -114,6 +114,17 @@ function parseConfig<C>(raw: string, fallback: C): C {
   }
 }
 
+function useWidgetName() {
+  const tNames = useTranslations("widgets.names");
+  return (def: { id: string; displayName: string }) => {
+    try {
+      return tNames(def.id);
+    } catch {
+      return def.displayName;
+    }
+  };
+}
+
 export function GridCanvas(props: Props) {
   const t = useTranslations("dashboard.empty");
   const [rgl, setRgl] = useState<RglModule | null>(null);
@@ -150,6 +161,7 @@ function GridCanvasInner({
   rgl,
 }: Props & { rgl: RglModule }) {
   const t = useTranslations("dashboard.empty");
+  const widgetName = useWidgetName();
   const { ResponsiveGridLayout, useContainerWidth, verticalCompactor } = rgl;
   const { width, containerRef, mounted }: UseContainerWidthResult =
     useContainerWidth({ measureBeforeMount: false });
@@ -254,7 +266,7 @@ function GridCanvasInner({
               <div key={item.id}>
                 {def ? (
                   <WidgetFrame
-                    title={def.displayName}
+                    title={widgetName(def)}
                     editMode={effectiveEditMode}
                     onRemove={
                       effectiveEditMode ? () => handleRemove(item.id) : undefined

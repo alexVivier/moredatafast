@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { z } from "zod";
 
@@ -12,7 +13,6 @@ import {
   HeatmapError,
   HeatmapLegend,
   HeatmapLoading,
-  METRIC_LABEL,
   type HeatmapMetric,
   formatMetric,
   intensityColor,
@@ -25,21 +25,28 @@ type Config = { metric: HeatmapMetric };
 
 const configSchema = z.object({ metric: metricSchema.default("visitors") });
 
-const DAY_LABELS = ["Mon", "Wed", "Fri"]; // sparse labels to avoid crowding
-const MONTH_NAMES = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+const SPARSE_DAY_KEYS = ["dayMon", "dayWed", "dayFri"] as const;
+const MONTH_KEYS = [
+  "monthJan",
+  "monthFeb",
+  "monthMar",
+  "monthApr",
+  "monthMay",
+  "monthJun",
+  "monthJul",
+  "monthAug",
+  "monthSep",
+  "monthOct",
+  "monthNov",
+  "monthDec",
+] as const;
+
+const METRIC_KEY: Record<HeatmapMetric, "metricVisitors" | "metricSessions" | "metricRevenue" | "metricConversion"> = {
+  visitors: "metricVisitors",
+  sessions: "metricSessions",
+  revenue: "metricRevenue",
+  conversion_rate: "metricConversion",
+};
 
 type DayCell = {
   ymd: string;
@@ -73,7 +80,11 @@ export function CalendarHeatmap({
   dateRange,
   config,
 }: WidgetContext<Config>) {
+  const t = useTranslations("widgets.heatmap");
   const metric = config.metric;
+  const DAY_LABELS = SPARSE_DAY_KEYS.map((k) => t(k));
+  const MONTH_NAMES = MONTH_KEYS.map((k) => t(k));
+  const metricLabel = t(METRIC_KEY[metric]);
 
   const query = useWidgetData<TimeseriesResponse>(
     siteId,
@@ -170,13 +181,13 @@ export function CalendarHeatmap({
   if (query.error) return <HeatmapError message={query.error.message} />;
   if (query.isLoading) return <HeatmapLoading />;
   if (weeks.length === 0 || max === 0)
-    return <HeatmapEmpty text="No daily data for the selected range." />;
+    return <HeatmapEmpty text={t("emptyDaily")} />;
 
   return (
     <div className="flex h-full flex-col gap-2">
       <div className="flex items-baseline justify-between gap-2">
         <div className="mdf-micro">
-          {METRIC_LABEL[metric]} — calendar view
+          {t("labelCalendarAxis", { metric: metricLabel })}
         </div>
         <HeatmapLegend
           min={0}
