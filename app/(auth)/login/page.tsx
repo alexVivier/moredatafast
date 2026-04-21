@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { authClient } from "@/lib/auth/client";
+import { ProviderIcon } from "@/components/auth/provider-icon";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -116,6 +117,7 @@ export default function LoginPage() {
             onClick={() => onOAuth("github")}
             disabled={pending}
           >
+            <ProviderIcon provider="github" />
             Continue with GitHub
           </Button>
           <Button
@@ -124,6 +126,7 @@ export default function LoginPage() {
             onClick={() => onOAuth("google")}
             disabled={pending}
           >
+            <ProviderIcon provider="google" />
             Continue with Google
           </Button>
         </div>
