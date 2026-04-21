@@ -70,7 +70,7 @@ export function DonutBreakdown({
                 nameKey="name"
                 innerRadius="55%"
                 outerRadius="85%"
-                stroke="hsl(var(--card))"
+                stroke="var(--card)"
                 strokeWidth={2}
                 paddingAngle={1}
               >
@@ -80,8 +80,8 @@ export function DonutBreakdown({
               </Pie>
               <Tooltip
                 contentStyle={{
-                  background: "hsl(var(--popover))",
-                  border: "1px solid hsl(var(--border))",
+                  background: "var(--popover)",
+                  border: "1px solid var(--border)",
                   borderRadius: 8,
                   fontSize: 12,
                 }}

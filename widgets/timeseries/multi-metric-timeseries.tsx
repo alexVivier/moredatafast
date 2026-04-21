@@ -130,7 +130,7 @@ export function MultiMetricTimeseries({
             >
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="hsl(var(--border))"
+                stroke="var(--border)"
                 opacity={0.3}
                 vertical={false}
               />
@@ -138,7 +138,7 @@ export function MultiMetricTimeseries({
                 dataKey="name"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
                 interval="preserveStartEnd"
                 minTickGap={40}
               />
@@ -147,7 +147,7 @@ export function MultiMetricTimeseries({
                   yAxisId="count"
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
                   tickFormatter={(v: number) => formatNumber(v)}
                   width={42}
                 />
@@ -158,20 +158,20 @@ export function MultiMetricTimeseries({
                   orientation="right"
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
                   tickFormatter={(v: number) => formatCurrency(v, currency)}
                   width={60}
                 />
               ) : null}
               <Tooltip
-                cursor={{ stroke: "hsl(var(--border))", strokeWidth: 1 }}
+                cursor={{ stroke: "var(--border)", strokeWidth: 1 }}
                 contentStyle={{
-                  background: "hsl(var(--popover))",
-                  border: "1px solid hsl(var(--border))",
+                  background: "var(--popover)",
+                  border: "1px solid var(--border)",
                   borderRadius: 8,
                   fontSize: 12,
                 }}
-                labelStyle={{ color: "hsl(var(--muted-foreground))" }}
+                labelStyle={{ color: "var(--muted-foreground)" }}
                 formatter={(value, name) => {
                   const m = name as MetricId;
                   const n = typeof value === "number" ? value : 0;

@@ -242,8 +242,8 @@ export function CountryMap({ siteId, config }: WidgetContext<Config>) {
             {pathD ? (
               <path
                 d={pathD}
-                fill="hsl(var(--muted))"
-                stroke="hsl(var(--border))"
+                fill="var(--muted)"
+                stroke="var(--border)"
                 strokeWidth={1}
                 strokeLinejoin="round"
               />

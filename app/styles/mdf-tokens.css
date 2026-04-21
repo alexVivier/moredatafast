@@ -1,0 +1,230 @@
+/* =========================================================================
+   More Data Fast — Design Tokens
+   Premium, editorial data-viz design system. Dark-first, light companion.
+   Source of truth: design-system/colors_and_type.css
+   ========================================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+:root {
+  /* Surfaces */
+  --mdf-bg-app:        #0B0D12;
+  --mdf-bg-surface:    #0F1218;
+  --mdf-bg-raised:     #141822;
+  --mdf-bg-input:      #0B0D12;
+  --mdf-bg-overlay:    rgba(8, 10, 14, 0.72);
+  --mdf-bg-trial:      #1A1F2B;
+
+  /* Foreground */
+  --mdf-fg-1:          #E7E9EE;
+  --mdf-fg-2:          #9097A3;
+  --mdf-fg-3:          #5C6270;
+  --mdf-fg-4:          #3A3F4B;
+  --mdf-fg-inverse:    #0B0D12;
+
+  /* Borders / hairlines */
+  --mdf-line-1:        rgba(255, 255, 255, 0.06);
+  --mdf-line-2:        rgba(255, 255, 255, 0.10);
+  --mdf-line-3:        rgba(255, 255, 255, 0.16);
+  --mdf-line-invert:   rgba(255, 255, 255, 0.92);
+
+  /* Brand */
+  --mdf-brand:         #F59B3C;
+  --mdf-brand-hover:   #FFAD57;
+  --mdf-brand-press:   #E08A2A;
+  --mdf-brand-ink:     #1A0F03;
+
+  /* Semantic */
+  --mdf-success:       #33C08A;
+  --mdf-success-dim:   #1C6A4E;
+  --mdf-warning:       #E6C84C;
+  --mdf-warning-dim:   #7A6A1E;
+  --mdf-danger:        #E5484D;
+  --mdf-danger-dim:    #7A2528;
+  --mdf-info:          #4C82F7;
+  --mdf-info-dim:      #2E4A8C;
+
+  /* Data categoricals */
+  --mdf-cat-1:         #4C82F7;
+  --mdf-cat-2:         #33C08A;
+  --mdf-cat-3:         #F59B3C;
+  --mdf-cat-4:         #C061F4;
+  --mdf-cat-5:         #E5484D;
+  --mdf-cat-6:         #E6C84C;
+
+  /* Sequential (blue ramp) */
+  --mdf-seq-1:         #1A2B4D;
+  --mdf-seq-2:         #2E5AA8;
+  --mdf-seq-3:         #4C82F7;
+  --mdf-seq-4:         #9DB8F2;
+
+  /* Chart fill gradient helper */
+  --mdf-area-fill:     linear-gradient(180deg, rgba(76, 130, 247, 0.45) 0%, rgba(76, 130, 247, 0.02) 100%);
+
+  /* Typography */
+  --mdf-font-display:  "Instrument Serif", "Fraktion Serif", "Times New Roman", serif;
+  --mdf-font-body:     "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mdf-font-mono:     "JetBrains Mono", "IBM Plex Mono", ui-monospace, Consolas, monospace;
+
+  --mdf-fs-10:  10px;
+  --mdf-fs-11:  11px;
+  --mdf-fs-12:  12px;
+  --mdf-fs-13:  13px;
+  --mdf-fs-14:  14px;
+  --mdf-fs-16:  16px;
+  --mdf-fs-20:  20px;
+  --mdf-fs-28:  28px;
+  --mdf-fs-40:  40px;
+  --mdf-fs-56:  56px;
+  --mdf-fs-80:  80px;
+
+  --mdf-lh-tight:  1.1;
+  --mdf-lh-snug:   1.3;
+  --mdf-lh-base:   1.5;
+  --mdf-lh-loose:  1.7;
+
+  --mdf-tr-tight:   -0.02em;
+  --mdf-tr-normal:   0;
+  --mdf-tr-wide:     0.04em;
+  --mdf-tr-micro:    0.08em;
+
+  --mdf-fw-regular:  400;
+  --mdf-fw-medium:   500;
+  --mdf-fw-semibold: 600;
+  --mdf-fw-bold:     700;
+
+  /* Spacing (4px grid) */
+  --mdf-space-0:   0px;
+  --mdf-space-1:   2px;
+  --mdf-space-2:   4px;
+  --mdf-space-3:   8px;
+  --mdf-space-4:   12px;
+  --mdf-space-5:   16px;
+  --mdf-space-6:   20px;
+  --mdf-space-7:   24px;
+  --mdf-space-8:   32px;
+  --mdf-space-9:   48px;
+  --mdf-space-10:  64px;
+
+  /* Radii */
+  --mdf-radius-1:    2px;
+  --mdf-radius-2:    6px;
+  --mdf-radius-3:    10px;
+  --mdf-radius-4:    14px;
+  --mdf-radius-full: 999px;
+
+  /* Shadows — popovers/modals only; product chrome stays flat */
+  --mdf-shadow-none:    none;
+  --mdf-shadow-popover: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--mdf-line-2);
+  --mdf-shadow-modal:   0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--mdf-line-2);
+
+  /* Motion */
+  --mdf-ease-out:   cubic-bezier(0.2, 0, 0.1, 1);
+  --mdf-ease-in:    cubic-bezier(0.4, 0, 1, 1);
+  --mdf-ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --mdf-dur-micro:   120ms;
+  --mdf-dur-base:    200ms;
+  --mdf-dur-slow:    400ms;
+
+  /* Layout */
+  --mdf-topbar-h:    56px;
+  --mdf-trial-h:     28px;
+  --mdf-row-h:       32px;
+  --mdf-control-h:   32px;
+  --mdf-control-sm:  28px;
+  --mdf-control-lg:  36px;
+
+  --mdf-grid-gutter: 16px;
+  --mdf-grid-row-sm: 120px;
+  --mdf-grid-row-md: 240px;
+  --mdf-grid-row-lg: 360px;
+}
+
+/* =========================================================================
+   LIGHT MODE
+   ========================================================================= */
+
+[data-theme="light"] {
+  --mdf-bg-app:       #FAFAF7;
+  --mdf-bg-surface:   #FFFFFF;
+  --mdf-bg-raised:    #F4F4F0;
+  --mdf-bg-input:     #FFFFFF;
+  --mdf-bg-overlay:   rgba(250, 250, 247, 0.72);
+  --mdf-bg-trial:     #F4F4F0;
+
+  --mdf-fg-1:         #0B0D12;
+  --mdf-fg-2:         #4A5160;
+  --mdf-fg-3:         #7B8291;
+  --mdf-fg-4:         #B4B9C2;
+  --mdf-fg-inverse:   #FFFFFF;
+
+  --mdf-line-1:       rgba(12, 14, 20, 0.08);
+  --mdf-line-2:       rgba(12, 14, 20, 0.14);
+  --mdf-line-3:       rgba(12, 14, 20, 0.22);
+
+  --mdf-success-dim:  #CDEBDB;
+  --mdf-warning-dim:  #F7ECBA;
+  --mdf-danger-dim:   #F7CACC;
+  --mdf-info-dim:     #D2DFFB;
+
+  --mdf-area-fill:    linear-gradient(180deg, rgba(76, 130, 247, 0.25) 0%, rgba(76, 130, 247, 0.02) 100%);
+
+  --mdf-shadow-popover: 0 8px 32px rgba(12, 14, 20, 0.10), 0 0 0 1px var(--mdf-line-2);
+  --mdf-shadow-modal:   0 24px 64px rgba(12, 14, 20, 0.18), 0 0 0 1px var(--mdf-line-2);
+}
+
+/* =========================================================================
+   SEMANTIC TYPOGRAPHY UTILITIES
+   ========================================================================= */
+
+.mdf-display-1 { font-family: var(--mdf-font-display); font-size: var(--mdf-fs-80); line-height: var(--mdf-lh-tight); letter-spacing: var(--mdf-tr-tight); font-weight: var(--mdf-fw-regular); color: var(--mdf-fg-1); }
+.mdf-display-2 { font-family: var(--mdf-font-display); font-size: var(--mdf-fs-56); line-height: var(--mdf-lh-tight); letter-spacing: var(--mdf-tr-tight); font-weight: var(--mdf-fw-regular); color: var(--mdf-fg-1); }
+.mdf-display-3 { font-family: var(--mdf-font-display); font-size: var(--mdf-fs-40); line-height: var(--mdf-lh-tight); letter-spacing: var(--mdf-tr-tight); font-weight: var(--mdf-fw-regular); color: var(--mdf-fg-1); }
+
+.mdf-h1 { font-family: var(--mdf-font-body); font-size: var(--mdf-fs-28); line-height: var(--mdf-lh-snug); letter-spacing: var(--mdf-tr-tight); font-weight: var(--mdf-fw-semibold); color: var(--mdf-fg-1); }
+.mdf-h2 { font-family: var(--mdf-font-body); font-size: var(--mdf-fs-20); line-height: var(--mdf-lh-snug); font-weight: var(--mdf-fw-semibold); color: var(--mdf-fg-1); }
+.mdf-h3 { font-family: var(--mdf-font-body); font-size: var(--mdf-fs-16); line-height: var(--mdf-lh-snug); font-weight: var(--mdf-fw-semibold); color: var(--mdf-fg-1); }
+
+.mdf-body { font-family: var(--mdf-font-body); font-size: var(--mdf-fs-14); line-height: var(--mdf-lh-base); font-weight: var(--mdf-fw-regular); color: var(--mdf-fg-1); }
+.mdf-body-sm { font-family: var(--mdf-font-body); font-size: var(--mdf-fs-13); line-height: var(--mdf-lh-base); font-weight: var(--mdf-fw-regular); color: var(--mdf-fg-2); }
+.mdf-caption { font-family: var(--mdf-font-body); font-size: var(--mdf-fs-12); line-height: var(--mdf-lh-base); color: var(--mdf-fg-2); }
+
+/* Uppercase micro-label — the system's main texture */
+.mdf-micro {
+  font-family: var(--mdf-font-body);
+  font-size: var(--mdf-fs-10);
+  font-weight: var(--mdf-fw-medium);
+  line-height: var(--mdf-lh-snug);
+  letter-spacing: var(--mdf-tr-micro);
+  text-transform: uppercase;
+  color: var(--mdf-fg-3);
+}
+
+/* KPI big-number */
+.mdf-kpi {
+  font-family: var(--mdf-font-display);
+  font-size: var(--mdf-fs-40);
+  line-height: var(--mdf-lh-tight);
+  letter-spacing: var(--mdf-tr-tight);
+  color: var(--mdf-fg-1);
+  font-weight: var(--mdf-fw-regular);
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+.mdf-mono {
+  font-family: var(--mdf-font-mono);
+  font-size: var(--mdf-fs-12);
+  font-variant-numeric: tabular-nums;
+  color: var(--mdf-fg-2);
+}
+
+.mdf-code {
+  font-family: var(--mdf-font-mono);
+  font-size: var(--mdf-fs-12);
+  background: var(--mdf-bg-raised);
+  border: 1px solid var(--mdf-line-1);
+  padding: 2px 6px;
+  border-radius: var(--mdf-radius-1);
+  color: var(--mdf-fg-1);
+}
