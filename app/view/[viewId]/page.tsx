@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { and, asc, eq, isNull } from "drizzle-orm";
 
@@ -43,6 +44,8 @@ export default async function ViewPage({
     );
 
   if (!view) notFound();
+
+  const t = await getTranslations("dashboard.empty");
 
   const site = view.siteId
     ? (
@@ -133,15 +136,12 @@ export default async function ViewPage({
         {isUnified && !hasSites ? (
           <Card>
             <CardHeader>
-              <CardTitle>Welcome to your DataFast dashboard</CardTitle>
-              <CardDescription>
-                Add your first site to start seeing analytics across all your
-                SaaS products.
-              </CardDescription>
+              <CardTitle>{t("welcomeTitle")}</CardTitle>
+              <CardDescription>{t("welcomeBody")}</CardDescription>
             </CardHeader>
             <CardContent>
               <Link href="/settings/sites/new">
-                <Button>+ Add your first site</Button>
+                <Button>{t("welcomeCta")}</Button>
               </Link>
             </CardContent>
           </Card>

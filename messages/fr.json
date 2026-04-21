@@ -25,6 +25,76 @@
     "name": "Nom",
     "or": "OU"
   },
+  "dashboard": {
+    "topbar": {
+      "settings": "Paramètres",
+      "workspace": "Espace",
+      "site": "Site",
+      "unified": "Unifié"
+    },
+    "userMenu": {
+      "orgSettings": "Paramètres de l'organisation",
+      "billing": "Facturation",
+      "feedback": "Envoyer un retour",
+      "theme": "Thème",
+      "language": "Langue",
+      "logout": "Se déconnecter"
+    },
+    "trial": {
+      "trialDays": "Essai gratuit : {days} jour restant",
+      "trialDaysPlural": "Essai gratuit : {days} jours restants",
+      "upgrade": "Passer au plan Pro →",
+      "manageBilling": "Gérer la facturation →",
+      "pastDue": "Le paiement de votre dernière facture Premium a échoué. Mettez à jour votre carte pour continuer à ajouter des sites et inviter vos collaborateurs.",
+      "ended": "Essai terminé. Passez à Premium pour ajouter des sites ou inviter des collaborateurs.",
+      "endedCta": "Passer Pro →"
+    },
+    "filters": {
+      "addFilter": "Filtre",
+      "clearAll": "Tout effacer",
+      "is": "est"
+    },
+    "segments": {
+      "label": "Segments",
+      "savedLabel": "Segments enregistrés",
+      "saveCurrent": "Enregistrer",
+      "noneYet": "Aucun segment enregistré. Appliquez des filtres et enregistrez-les pour les réutiliser en un clic.",
+      "noFilter": "aucun filtre appliqué",
+      "saveTitle": "Enregistrer comme segment",
+      "placeholder": "Ex. Clients mobile FR",
+      "loading": "Chargement…"
+    },
+    "widget": {
+      "dragHandle": "Déplacer",
+      "remove": "Supprimer le widget",
+      "addWidget": "Ajouter un widget",
+      "paletteTitle": "Ajouter un widget",
+      "paletteLead": "Choisissez-en un pour le poser sur votre dashboard."
+    },
+    "editMode": {
+      "done": "Terminé",
+      "editLayout": "Éditer la mise en page",
+      "saving": "Enregistrement…",
+      "saved": "Enregistré",
+      "saveFailed": "Échec de l'enregistrement"
+    },
+    "dateRange": {
+      "today": "Aujourd'hui",
+      "7d": "7 derniers jours",
+      "30d": "30 derniers jours",
+      "90d": "90 derniers jours",
+      "custom": "Personnalisé"
+    },
+    "empty": {
+      "canvas": "Canvas vide — cliquez sur + Ajouter un widget pour déposer votre premier widget.",
+      "noWidgets": "Aucun widget. Passez en mode édition pour personnaliser cette vue.",
+      "loadingGrid": "Chargement de la grille…",
+      "welcomeTitle": "Bienvenue sur votre dashboard DataFast",
+      "welcomeBody": "Ajoutez votre premier site pour commencer à voir les analytics de vos produits SaaS.",
+      "welcomeCta": "+ Ajouter votre premier site",
+      "unknownWidget": "Type de widget {type} introuvable."
+    }
+  },
   "auth": {
     "shell": {
       "tagline": "Dashboards DataFast — recomposés",

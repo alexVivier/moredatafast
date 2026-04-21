@@ -1,6 +1,7 @@
 "use client";
 
 import { Filter, Plus, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import {
 import { useFilters } from "@/lib/hooks/use-filters";
 
 export function FilterBar() {
+  const t = useTranslations("dashboard.filters");
   const { filters, count, set, clear } = useFilters();
   const [editing, setEditing] = useState<FilterKey | null>(null);
 
@@ -28,7 +30,7 @@ export function FilterBar() {
         onClick={() => setEditing(FILTER_KEYS[0])}
       >
         <Plus size={14} strokeWidth={1.5} />
-        Filter
+        {t("addFilter")}
       </Button>
 
       {entries.map(([k, values]) => (
@@ -40,7 +42,7 @@ export function FilterBar() {
         >
           <Filter size={12} strokeWidth={1.5} className="text-mdf-fg-3" />
           <span>{FILTER_LABELS[k]}</span>
-          <span className="text-muted-foreground">is</span>
+          <span className="text-muted-foreground">{t("is")}</span>
           <span
             className="max-w-[200px] truncate"
             title={values.join(", ")}
@@ -71,7 +73,7 @@ export function FilterBar() {
 
       {count > 0 ? (
         <Button variant="ghost" onClick={() => clear()}>
-          Clear all
+          {t("clearAll")}
         </Button>
       ) : null}
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { GripVertical, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
@@ -19,13 +20,14 @@ export function WidgetFrame({
   children: React.ReactNode;
   className?: string;
 }) {
+  const t = useTranslations("dashboard.widget");
   return (
     <div className={cn("mdf-widget h-full w-full", className)}>
       {editMode ? (
         <div className="mdf-widget__head">
           <span
             className="drag-handle mdf-widget__grip p-0.5"
-            aria-label="Drag"
+            aria-label={t("dragHandle")}
           >
             <GripVertical size={14} strokeWidth={1.5} />
           </span>
@@ -44,7 +46,7 @@ export function WidgetFrame({
               type="button"
               className="mdf-widget__close"
               onClick={onRemove}
-              aria-label="Remove widget"
+              aria-label={t("remove")}
             >
               <X size={14} strokeWidth={1.5} />
             </button>

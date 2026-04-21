@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Settings } from "lucide-react";
 
 import {
@@ -31,7 +32,7 @@ export type TopbarProps = {
   billing?: TrialBannerProps;
 };
 
-export function Topbar({
+export async function Topbar({
   currentViewId,
   entries,
   title,
@@ -41,6 +42,7 @@ export function Topbar({
   user,
   billing,
 }: TopbarProps) {
+  const t = await getTranslations("dashboard.topbar");
   const iconUrl = siteIconUrl(logoUrl, domain);
   const sub = subtitle ?? domain ?? null;
   return (
@@ -58,11 +60,11 @@ export function Topbar({
           <DateRangePicker />
           <Link
             href="/settings"
-            aria-label="Settings"
+            aria-label={t("settings")}
             className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-sm text-mdf-fg-2 hover:text-mdf-fg-1 hover:bg-mdf-line-1"
           >
             <Settings size={16} strokeWidth={1.5} />
-            <span className="hidden sm:inline">Settings</span>
+            <span className="hidden sm:inline">{t("settings")}</span>
           </Link>
           <UserMenu email={user.email} name={user.name} image={user.image} />
         </div>

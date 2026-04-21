@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   Compactor,
@@ -108,6 +109,7 @@ function parseConfig<C>(raw: string, fallback: C): C {
 }
 
 export function GridCanvas(props: Props) {
+  const t = useTranslations("dashboard.empty");
   const [rgl, setRgl] = useState<RglModule | null>(null);
 
   useEffect(() => {
@@ -123,7 +125,7 @@ export function GridCanvas(props: Props) {
   if (!rgl) {
     return (
       <div className="rounded-[10px] border border-mdf-line-1 bg-mdf-bg-surface p-6 text-sm text-mdf-fg-3">
-        Loading grid…
+        {t("loadingGrid")}
       </div>
     );
   }
@@ -141,6 +143,7 @@ function GridCanvasInner({
   onChange,
   rgl,
 }: Props & { rgl: RglModule }) {
+  const t = useTranslations("dashboard.empty");
   const { ResponsiveGridLayout, useContainerWidth, verticalCompactor } = rgl;
   const { width, containerRef, mounted }: UseContainerWidthResult =
     useContainerWidth({ measureBeforeMount: false });
@@ -202,9 +205,7 @@ function GridCanvasInner({
   if (items.length === 0) {
     return (
       <div className="rounded-[10px] border border-dashed border-mdf-line-3 bg-transparent p-12 text-center text-sm text-mdf-fg-3">
-        {editMode
-          ? "Empty canvas — click + Add widget above to drop your first widget."
-          : "No widgets yet. Switch to Edit mode to customize this view."}
+        {editMode ? t("canvas") : t("noWidgets")}
       </div>
     );
   }
@@ -256,9 +257,7 @@ function GridCanvasInner({
                     }
                   >
                     <div className="text-sm text-muted-foreground">
-                      Widget type{" "}
-                      <span className="font-mono">{item.widgetType}</span> is
-                      not registered.
+                      {t("unknownWidget", { type: item.widgetType })}
                     </div>
                   </WidgetFrame>
                 )}

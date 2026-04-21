@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ type Props = {
 };
 
 export function AddWidgetPalette({ onPick }: Props) {
+  const t = useTranslations("dashboard.widget");
   const [open, setOpen] = useState(false);
   const [categories] = useState(() => getWidgetsByCategory());
 
@@ -31,7 +33,7 @@ export function AddWidgetPalette({ onPick }: Props) {
     <>
       <button type="button" onClick={() => setOpen(true)} className="mdf-addbtn">
         <Plus size={14} strokeWidth={1.5} />
-        Add widget
+        {t("addWidget")}
       </button>
 
       {open ? (
@@ -56,10 +58,10 @@ export function AddWidgetPalette({ onPick }: Props) {
                     letterSpacing: "-0.01em",
                   }}
                 >
-                  Add widget
+                  {t("paletteTitle")}
                 </h2>
                 <p className="text-xs text-mdf-fg-3 mt-0.5">
-                  Pick one to drop it into your dashboard.
+                  {t("paletteLead")}
                 </p>
               </div>
               <button

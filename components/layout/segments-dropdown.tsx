@@ -1,6 +1,7 @@
 "use client";
 
 import { Bookmark, Check, Save, Trash2, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,8 @@ type StoredSegment = {
 };
 
 export function SegmentsDropdown({ siteId }: { siteId: string }) {
+  const t = useTranslations("dashboard.segments");
+  const common = useTranslations("common");
   const [open, setOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
   const [saveName, setSaveName] = useState("");
@@ -77,7 +80,7 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
         aria-expanded={open}
       >
         <Bookmark size={14} strokeWidth={1.5} />
-        Segments
+        {t("label")}
         {segments.length > 0 ? (
           <span className="rounded-full bg-mdf-line-1 px-1.5 text-[10px] font-medium text-mdf-fg-2">
             {segments.length}
@@ -94,7 +97,7 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
           />
           <div className="absolute right-0 z-50 mt-1 w-72 max-w-[calc(100vw-1.5rem)] rounded-md border border-border bg-card shadow-lg overflow-hidden">
             <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-              <span className="text-xs font-medium">Saved segments</span>
+              <span className="text-xs font-medium">{t("savedLabel")}</span>
               {canSave ? (
                 <Button
                   size="sm"
@@ -106,11 +109,11 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
                   }}
                 >
                   <Save size={14} strokeWidth={1.5} />
-                  Save current
+                  {t("saveCurrent")}
                 </Button>
               ) : (
                 <span className="text-[11px] text-muted-foreground">
-                  {count > 0 ? "—" : "no filter applied"}
+                  {count > 0 ? "—" : t("noFilter")}
                 </span>
               )}
             </div>
@@ -118,11 +121,11 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
             <div className="max-h-64 overflow-y-auto">
               {loading ? (
                 <div className="p-3 text-xs text-muted-foreground">
-                  Loading…
+                  {common("loading")}
                 </div>
               ) : segments.length === 0 ? (
                 <div className="p-3 text-xs text-muted-foreground">
-                  No saved segments yet. Apply filters and save them for one-click reuse.
+                  {t("noneYet")}
                 </div>
               ) : (
                 <ul>
@@ -167,7 +170,7 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
         >
           <div className="mt-24 w-full max-w-md rounded-lg border border-border bg-card p-4 shadow-lg">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-semibold">Save as segment</h2>
+              <h2 className="font-semibold">{t("saveTitle")}</h2>
               <Button
                 variant="ghost"
                 size="icon"
@@ -179,7 +182,7 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
             <Input
               value={saveName}
               onChange={(e) => setSaveName(e.target.value)}
-              placeholder="e.g. Mobile US customers"
+              placeholder={t("placeholder")}
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") void saveCurrent();
@@ -192,14 +195,14 @@ export function SegmentsDropdown({ siteId }: { siteId: string }) {
                 size="sm"
                 onClick={() => setSaveOpen(false)}
               >
-                Cancel
+                {common("cancel")}
               </Button>
               <Button
                 size="sm"
                 onClick={saveCurrent}
                 disabled={!saveName.trim()}
               >
-                Save
+                {common("save")}
               </Button>
             </div>
           </div>

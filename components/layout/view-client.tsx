@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { nanoid } from "nanoid";
 import Link from "next/link";
@@ -36,6 +37,7 @@ export function ViewClient({
   readHref,
   editHref,
 }: Props) {
+  const t = useTranslations("dashboard.editMode");
   const { resolved } = useDateRangeState();
 
   const [items, setItems] = useState<GridItem[]>(initialItems);
@@ -152,9 +154,9 @@ export function ViewClient({
     if (!editMode) return null;
     const labels: Record<typeof saveState, string> = {
       idle: "",
-      saving: "Saving…",
-      saved: "Saved",
-      error: "Save failed",
+      saving: t("saving"),
+      saved: t("saved"),
+      error: t("saveFailed"),
     };
     const colors: Record<typeof saveState, string> = {
       idle: "text-muted-foreground",
@@ -165,7 +167,7 @@ export function ViewClient({
     const label = labels[saveState];
     if (!label) return null;
     return <span className={`text-xs ${colors[saveState]}`}>{label}</span>;
-  }, [editMode, saveState]);
+  }, [editMode, saveState, t]);
 
   return (
     <div className="space-y-4">
@@ -176,14 +178,14 @@ export function ViewClient({
           <SegmentsDropdown siteId={siteId} />
           {editMode ? (
             <Link href={readHref} onClick={() => flushNow()}>
-              <Button variant="outline">Done</Button>
+              <Button variant="outline">{t("done")}</Button>
             </Link>
           ) : (
             // Layout editing is disabled on sub-md viewports (react-grid-layout
             // can't really handle 1-col drag + the UI crushes), so don't offer
             // the entry point there either.
             <Link href={editHref} className="hidden md:inline-block">
-              <Button variant="outline">Edit layout</Button>
+              <Button variant="outline">{t("editLayout")}</Button>
             </Link>
           )}
         </div>

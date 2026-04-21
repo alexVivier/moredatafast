@@ -25,6 +25,76 @@
     "name": "Name",
     "or": "OR"
   },
+  "dashboard": {
+    "topbar": {
+      "settings": "Settings",
+      "workspace": "Workspace",
+      "site": "Site",
+      "unified": "Unified"
+    },
+    "userMenu": {
+      "orgSettings": "Organization settings",
+      "billing": "Billing",
+      "feedback": "Send feedback",
+      "theme": "Theme",
+      "language": "Language",
+      "logout": "Log out"
+    },
+    "trial": {
+      "trialDays": "Free trial: {days} day left",
+      "trialDaysPlural": "Free trial: {days} days left",
+      "upgrade": "Upgrade now →",
+      "manageBilling": "Manage billing →",
+      "pastDue": "Payment failed on your last Premium invoice. Update your card to keep adding sites and inviting teammates.",
+      "ended": "Trial ended. Upgrade to Premium to add sites or invite teammates.",
+      "endedCta": "Upgrade →"
+    },
+    "filters": {
+      "addFilter": "Filter",
+      "clearAll": "Clear all",
+      "is": "is"
+    },
+    "segments": {
+      "label": "Segments",
+      "savedLabel": "Saved segments",
+      "saveCurrent": "Save current",
+      "noneYet": "No saved segments yet. Apply filters and save them for one-click reuse.",
+      "noFilter": "no filter applied",
+      "saveTitle": "Save as segment",
+      "placeholder": "e.g. Mobile US customers",
+      "loading": "Loading…"
+    },
+    "widget": {
+      "dragHandle": "Drag",
+      "remove": "Remove widget",
+      "addWidget": "Add widget",
+      "paletteTitle": "Add widget",
+      "paletteLead": "Pick one to drop it into your dashboard."
+    },
+    "editMode": {
+      "done": "Done",
+      "editLayout": "Edit layout",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "saveFailed": "Save failed"
+    },
+    "dateRange": {
+      "today": "Today",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "custom": "Custom"
+    },
+    "empty": {
+      "canvas": "Empty canvas — click + Add widget above to drop your first widget.",
+      "noWidgets": "No widgets yet. Switch to Edit mode to customize this view.",
+      "loadingGrid": "Loading grid…",
+      "welcomeTitle": "Welcome to your DataFast dashboard",
+      "welcomeBody": "Add your first site to start seeing analytics across all your SaaS products.",
+      "welcomeCta": "+ Add your first site",
+      "unknownWidget": "Widget type {type} not found."
+    }
+  },
   "auth": {
     "shell": {
       "tagline": "Datafast dashboards — recomposed",

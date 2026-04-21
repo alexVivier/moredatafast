@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Moon, Sun } from "lucide-react";
@@ -19,6 +20,8 @@ export function UserMenu({
   name: string | null;
   image: string | null;
 }) {
+  const t = useTranslations("dashboard.userMenu");
+  const common = useTranslations("common");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
@@ -68,13 +71,13 @@ export function UserMenu({
           </div>
           <nav className="p-1">
             <MenuItem href="/settings/organization" onClick={() => setOpen(false)}>
-              Organization settings
+              {t("orgSettings")}
             </MenuItem>
             <MenuItem
               href="/settings/organization/billing"
               onClick={() => setOpen(false)}
             >
-              Billing
+              {t("billing")}
             </MenuItem>
             <button
               type="button"
@@ -84,25 +87,25 @@ export function UserMenu({
               }}
               className="w-full text-left px-3 py-1.5 text-sm rounded-sm hover:bg-mdf-line-1 text-mdf-fg-1"
             >
-              Send feedback
+              {t("feedback")}
             </button>
             <button
               type="button"
               onClick={toggleTheme}
               className="w-full flex items-center justify-between gap-2 px-3 py-1.5 text-sm rounded-sm hover:bg-mdf-line-1 text-mdf-fg-1"
             >
-              <span>Theme</span>
+              <span>{t("theme")}</span>
               <span className="inline-flex items-center gap-1.5 text-xs text-mdf-fg-3">
                 {theme === "dark" ? (
                   <Moon size={14} strokeWidth={1.5} />
                 ) : (
                   <Sun size={14} strokeWidth={1.5} />
                 )}
-                {theme === "dark" ? "Dark" : "Light"}
+                {theme === "dark" ? common("dark") : common("light")}
               </span>
             </button>
             <div className="flex items-center justify-between gap-2 px-3 py-1.5 text-sm text-mdf-fg-1">
-              <span>Language</span>
+              <span>{t("language")}</span>
               <LocaleSwitcher />
             </div>
             <button
@@ -110,7 +113,7 @@ export function UserMenu({
               onClick={onSignOut}
               className="w-full text-left px-3 py-1.5 text-sm rounded-sm hover:bg-mdf-line-1 text-mdf-fg-1"
             >
-              Log out
+              {t("logout")}
             </button>
           </nav>
         </div>

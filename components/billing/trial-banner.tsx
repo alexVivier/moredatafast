@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 export type TrialBannerProps = {
   trialEndsAt: string | null;
@@ -11,11 +12,13 @@ export type TrialBannerProps = {
  * render when the org has a healthy Stripe subscription, to keep the chrome
  * quiet for paying customers.
  */
-export function TrialBanner({
+export async function TrialBanner({
   trialEndsAt,
   trialActive,
   subscriptionStatus,
 }: TrialBannerProps) {
+  const t = await getTranslations("dashboard.trial");
+
   if (subscriptionStatus === "active") return null;
   if (subscriptionStatus === "trialing") return null;
 
@@ -23,8 +26,8 @@ export function TrialBanner({
     return (
       <TrialStrip
         tone="warning"
-        message="Payment failed on your last Premium invoice. Update your card to keep adding sites and inviting teammates."
-        ctaLabel="Manage billing →"
+        message={t("pastDue")}
+        ctaLabel={t("manageBilling")}
       />
     );
   }
@@ -35,11 +38,12 @@ export function TrialBanner({
       0,
       Math.ceil((end.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
     );
+    const key = days === 1 ? "trialDays" : "trialDaysPlural";
     return (
       <TrialStrip
         tone="default"
-        message={`Free trial: ${days} day${days === 1 ? "" : "s"} left`}
-        ctaLabel="Upgrade now →"
+        message={t(key, { days })}
+        ctaLabel={t("upgrade")}
       />
     );
   }
@@ -47,8 +51,8 @@ export function TrialBanner({
   return (
     <TrialStrip
       tone="danger"
-      message="Trial ended. Upgrade to Premium to add sites or invite teammates."
-      ctaLabel="Upgrade →"
+      message={t("ended")}
+      ctaLabel={t("endedCta")}
     />
   );
 }

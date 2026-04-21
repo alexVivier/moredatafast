@@ -1,6 +1,8 @@
 "use client";
 
-import { useDateRangeState, DATE_RANGE_LABELS } from "@/lib/hooks/use-date-range";
+import { useTranslations } from "next-intl";
+
+import { useDateRangeState } from "@/lib/hooks/use-date-range";
 import type { DateRangePreset } from "@/lib/utils/date-range";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -8,6 +10,7 @@ import { Select } from "@/components/ui/select";
 const PRESETS: DateRangePreset[] = ["today", "7d", "30d", "90d", "custom"];
 
 export function DateRangePicker() {
+  const t = useTranslations("dashboard.dateRange");
   const { preset, custom, resolved, setPreset, setCustom } = useDateRangeState();
 
   return (
@@ -19,7 +22,7 @@ export function DateRangePicker() {
       >
         {PRESETS.map((p) => (
           <option key={p} value={p}>
-            {DATE_RANGE_LABELS[p]}
+            {t(p as "today" | "7d" | "30d" | "90d" | "custom")}
           </option>
         ))}
       </Select>
