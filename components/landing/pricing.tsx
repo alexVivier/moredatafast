@@ -1,58 +1,34 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-const INCLUDES = [
-  "All widget types",
-  "Live events & payments",
-  "Shareable views",
-  "Organizations",
-  "DataFast sync",
-  "AES-256-GCM at rest",
-  "API access",
-  "Dark & light mode",
-];
-
 export function Pricing() {
+  const t = useTranslations("landing.pricing");
   const [cycle, setCycle] = useState<"monthly" | "yearly">("monthly");
   const isYearly = cycle === "yearly";
   const amount = isYearly ? "50" : "5";
-  const per = isYearly ? "/ year" : "/ month";
-  const hint = isYearly
-    ? "billed yearly · 2 months free · vat excluded · cancel anytime"
-    : "billed monthly · vat excluded · cancel anytime";
+  const per = isYearly ? t("perYear") : t("perMonth");
+  const hint = isYearly ? t("hintYearly") : t("hintMonthly");
+  const includes = [1, 2, 3, 4, 5, 6, 7, 8] as const;
 
   return (
     <section className="lp-section" id="pricing">
       <div className="lp-container">
-        <span className="lp-section__label">Pricing</span>
-        <h2 className="lp-section__title">One price. All widgets. All sites.</h2>
-        <p className="lp-section__lead">
-          Priced like a tool, not a platform. Cancel anytime.
-        </p>
+        <span className="lp-section__label">{t("label")}</span>
+        <h2 className="lp-section__title">{t("title")}</h2>
+        <p className="lp-section__lead">{t("lead")}</p>
         <div className="lp-pricing">
           <div className="lp-pricing__copy">
-            <h3>Stop budgeting for seats you don&apos;t need.</h3>
-            <p>
-              A flat price that covers every widget, every site, every team member. We built
-              this for ourselves — the pricing reflects that.
-            </p>
+            <h3>{t("copyTitle")}</h3>
+            <p>{t("copyBody")}</p>
             <ul className="lp-pricing__bullets">
-              <li>
-                <span className="chk">✓</span>Unlimited sites, unlimited dashboards
-              </li>
-              <li>
-                <span className="chk">✓</span>Unlimited organization members
-              </li>
-              <li>
-                <span className="chk">✓</span>14-day free trial, no card needed
-              </li>
-              <li>
-                <span className="chk">✓</span>Cancel in one click from Settings
-              </li>
-              <li>
-                <span className="chk">✓</span>Built by a solo dev who answers support himself
-              </li>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <li key={i}>
+                  <span className="chk">✓</span>
+                  {t(`bullet${i}` as "bullet1")}
+                </li>
+              ))}
             </ul>
           </div>
           <div className="lp-pricing__card">
@@ -64,13 +40,13 @@ export function Pricing() {
                 marginBottom: 16,
               }}
             >
-              <div className="lp-pricing__card-label">PRO</div>
+              <div className="lp-pricing__card-label">{t("planLabel")}</div>
               <div className="lp-pricing__toggle">
                 <button type="button" data-active={!isYearly} onClick={() => setCycle("monthly")}>
-                  Monthly
+                  {t("monthly")}
                 </button>
                 <button type="button" data-active={isYearly} onClick={() => setCycle("yearly")}>
-                  Yearly <span className="lp-pricing__save">−17%</span>
+                  {t("yearly")} <span className="lp-pricing__save">{t("save")}</span>
                 </button>
               </div>
             </div>
@@ -81,12 +57,12 @@ export function Pricing() {
             </div>
             <p className="lp-pricing__hint">{hint}</p>
             <div className="lp-pricing__includes">
-              <div className="lp-pricing__includes-label">Everything included</div>
+              <div className="lp-pricing__includes-label">{t("includesLabel")}</div>
               <ul>
-                {INCLUDES.map((item) => (
-                  <li key={item}>
+                {includes.map((i) => (
+                  <li key={i}>
                     <span className="chk">✓</span>
-                    {item}
+                    {t(`incl${i}` as "incl1")}
                   </li>
                 ))}
               </ul>
@@ -96,7 +72,7 @@ export function Pricing() {
               className="lp-btn lp-btn--brand lp-btn--lg"
               style={{ width: "100%", justifyContent: "center" }}
             >
-              Start 14-day trial →
+              {t("cta")}
             </a>
           </div>
         </div>

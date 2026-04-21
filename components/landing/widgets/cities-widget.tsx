@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { WidgetShell } from "./widget-shell";
 
 const ROWS: [string, string, number][] = [
@@ -12,13 +14,14 @@ const ROWS: [string, string, number][] = [
 ];
 
 export function CitiesWidget() {
+  const t = useTranslations("landing.widgets");
   const max = Math.max(...ROWS.map((r) => r[2]));
   return (
-    <WidgetShell title="Cities">
+    <WidgetShell title={t("titleCities")}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-        <span className="lp-kpi-label">CITIES</span>
+        <span className="lp-kpi-label">{t("titleCities").toUpperCase()}</span>
         <span className="lp-kpi-label" style={{ color: "var(--mdf-fg-2)" }}>
-          top 10
+          {t("citiesTopN")}
         </span>
       </div>
       <div style={{ display: "flex", flexDirection: "column" }}>

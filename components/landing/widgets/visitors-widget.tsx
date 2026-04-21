@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 import { useCountUp } from "@/lib/hooks/use-count-up";
@@ -96,12 +97,13 @@ function AreaChartAnimated({ height = 140 }: { height?: number }) {
 }
 
 export function VisitorsWidget() {
+  const t = useTranslations("landing.widgets");
   const ref = useRef<HTMLDivElement>(null);
   const active = useInView(ref);
   const v = useCountUp(165, { duration: 1600, active });
   return (
     <div ref={ref} style={{ height: "100%" }}>
-      <WidgetShell title="Visitors over time">
+      <WidgetShell title={t("titleVisitors")}>
         <div
           style={{
             display: "flex",
@@ -110,9 +112,9 @@ export function VisitorsWidget() {
             marginBottom: 4,
           }}
         >
-          <span className="lp-kpi-label">VISITORS OVER TIME</span>
+          <span className="lp-kpi-label">{t("visitorsLabel")}</span>
           <span className="lp-kpi-label" style={{ color: "var(--mdf-fg-2)" }}>
-            DAY
+            {t("visitorsInterval")}
           </span>
         </div>
         <div

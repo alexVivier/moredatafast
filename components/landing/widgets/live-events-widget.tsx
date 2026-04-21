@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 import { useInView } from "@/lib/hooks/use-in-view";
@@ -47,6 +48,7 @@ function withTimestamps(list: Event[]): Event[] {
 }
 
 export function LiveEventsWidget() {
+  const t = useTranslations("landing.widgets");
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: false });
   const counter = useRef(5);
@@ -65,7 +67,7 @@ export function LiveEventsWidget() {
 
   return (
     <div ref={ref}>
-      <WidgetShell title="Live events feed">
+      <WidgetShell title={t("titleLiveEvents")}>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
           <span
             className="lp-kpi-label"
@@ -82,10 +84,10 @@ export function LiveEventsWidget() {
                 display: "inline-block",
               }}
             />
-            LIVE EVENTS
+            {t("liveEvents")}
           </span>
           <span className="lp-kpi-label" style={{ color: "var(--mdf-fg-2)" }}>
-            last 10 min
+            {t("liveLast")}
           </span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>

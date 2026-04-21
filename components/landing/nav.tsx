@@ -1,12 +1,16 @@
+import { useTranslations } from "next-intl";
+
 export function Nav() {
+  const t = useTranslations("landing.trial");
+  const n = useTranslations("landing.nav");
   return (
     <>
       <div className="lp-trial">
         <span>
-          Free trial: <strong style={{ color: "var(--mdf-fg-1)" }}>14 days left</strong> — no
-          credit card required.
+          {t("before")} <strong style={{ color: "var(--mdf-fg-1)" }}>{t("strong")}</strong>
+          {t("after")}
         </span>
-        <a href="#pricing">Upgrade now →</a>
+        <a href="#pricing">{t("cta")}</a>
       </div>
       <nav className="lp-nav">
         <a href="#" className="lp-nav__brand">
@@ -16,28 +20,28 @@ export function Nav() {
         </a>
         <div className="lp-nav__links">
           <a href="#features" className="lp-nav__link">
-            Widgets
+            {n("widgets")}
           </a>
           <a href="#compare" className="lp-nav__link">
-            vs DataFast
+            {n("vsDatafast")}
           </a>
           <a href="#pricing" className="lp-nav__link">
-            Pricing
+            {n("pricing")}
           </a>
           <a href="#faq" className="lp-nav__link">
-            FAQ
+            {n("faq")}
           </a>
           <a href="/changelog" className="lp-nav__link">
-            Changelog
+            {n("changelog")}
           </a>
         </div>
         <div className="lp-nav__spacer" />
         <div className="lp-nav__actions">
           <a href="/login" className="lp-btn lp-btn--ghost">
-            Sign in
+            {n("signIn")}
           </a>
           <a href="#demo" className="lp-btn lp-btn--brand">
-            See live demo →
+            {n("seeDemo")}
           </a>
         </div>
       </nav>

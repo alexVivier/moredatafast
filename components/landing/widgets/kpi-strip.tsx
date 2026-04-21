@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRef } from "react";
 
 import { useCountUp } from "@/lib/hooks/use-count-up";
@@ -13,6 +14,7 @@ function KpiCell({
   format,
   delta,
   trend,
+  vsLabel,
   active,
   isLast = false,
 }: {
@@ -21,6 +23,7 @@ function KpiCell({
   format?: (v: number) => string;
   delta: string;
   trend: "up" | "down" | "flat";
+  vsLabel: string;
   active: boolean;
   isLast?: boolean;
 }) {
@@ -40,56 +43,74 @@ function KpiCell({
         {formatted}
       </div>
       <div className="lp-kpi-delta">
-        <span className={trend}>{delta}</span> vs previous 7d
+        <span className={trend}>{delta}</span> {vsLabel}
       </div>
     </div>
   );
 }
 
 export function KpiStrip({ compact = false }: { compact?: boolean }) {
+  const t = useTranslations("landing.widgets");
   const ref = useRef<HTMLDivElement>(null);
   const active = useInView(ref);
   return (
     <div ref={ref}>
-      <WidgetShell title="Overview KPIs" hideClose>
+      <WidgetShell title={t("titleKpi")} hideClose>
         <div style={{ display: "flex", margin: "-12px -14px" }}>
-          <KpiCell label="VISITORS" target={165} delta="↑ new" trend="up" active={active} />
-          <KpiCell label="SESSIONS" target={198} delta="↑ 12%" trend="up" active={active} />
           <KpiCell
-            label="REVENUE"
+            label={t("kpiVisitors")}
+            target={165}
+            delta={t("kpiDeltaNew")}
+            trend="up"
+            vsLabel={t("kpiVsPrev")}
+            active={active}
+          />
+          <KpiCell
+            label={t("kpiSessions")}
+            target={198}
+            delta={t("kpiDeltaUp12")}
+            trend="up"
+            vsLabel={t("kpiVsPrev")}
+            active={active}
+          />
+          <KpiCell
+            label={t("kpiRevenue")}
             target={9.99}
             format={(v) => "€ " + v.toFixed(2)}
-            delta="-0%"
+            delta={t("kpiDeltaFlat")}
             trend="flat"
+            vsLabel={t("kpiVsPrev")}
             active={active}
           />
           {compact ? null : (
             <KpiCell
-              label="CONV. RATE"
+              label={t("kpiConversion")}
               target={0.6}
               format={(v) => v.toFixed(1) + "%"}
-              delta="-0%"
+              delta={t("kpiDeltaFlat")}
               trend="flat"
+              vsLabel={t("kpiVsPrev")}
               active={active}
             />
           )}
           {compact ? null : (
             <KpiCell
-              label="BOUNCE"
+              label={t("kpiBounce")}
               target={51.5}
               format={(v) => v.toFixed(1) + "%"}
-              delta="↑ new"
+              delta={t("kpiDeltaNew")}
               trend="up"
+              vsLabel={t("kpiVsPrev")}
               active={active}
             />
           )}
           <div style={{ padding: "14px 16px", flex: 1, minWidth: 0 }}>
-            <div className="lp-kpi-label">AVG DURATION</div>
+            <div className="lp-kpi-label">{t("kpiDuration")}</div>
             <div className="lp-kpi-value" style={{ fontVariantNumeric: "tabular-nums" }}>
               18m 1s
             </div>
             <div className="lp-kpi-delta">
-              <span className="up">↑ new</span> vs previous 7d
+              <span className="up">{t("kpiDeltaNew")}</span> {t("kpiVsPrev")}
             </div>
           </div>
         </div>

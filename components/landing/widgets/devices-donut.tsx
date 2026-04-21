@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 import { useInView } from "@/lib/hooks/use-in-view";
@@ -13,6 +14,7 @@ const SEGMENTS = [
 ];
 
 export function DevicesDonut() {
+  const t = useTranslations("landing.widgets");
   const ref = useRef<HTMLDivElement>(null);
   const active = useInView(ref);
   const [progress, setProgress] = useState(0);
@@ -37,7 +39,7 @@ export function DevicesDonut() {
 
   return (
     <div ref={ref}>
-      <WidgetShell title="Devices">
+      <WidgetShell title={t("titleDevices")}>
         <div
           style={{
             display: "flex",
@@ -49,8 +51,10 @@ export function DevicesDonut() {
           }}
         >
           <div style={{ textAlign: "center" }}>
-            <div className="lp-kpi-label">VISITORS</div>
-            <div style={{ fontSize: 11, color: "var(--mdf-fg-2)", marginTop: 2 }}>165 visitors</div>
+            <div className="lp-kpi-label">{t("kpiVisitors")}</div>
+            <div style={{ fontSize: 11, color: "var(--mdf-fg-2)", marginTop: 2 }}>
+              {t("devicesTotal", { count: 165 })}
+            </div>
           </div>
           <svg width="96" height="96" viewBox="0 0 96 96">
             <circle cx="48" cy="48" r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="9" />

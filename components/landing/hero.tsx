@@ -1,8 +1,11 @@
+import { useTranslations } from "next-intl";
+
 import { KpiStrip } from "./widgets/kpi-strip";
 import { VisitorsWidget } from "./widgets/visitors-widget";
 import { DevicesDonut } from "./widgets/devices-donut";
 
 export function Hero() {
+  const t = useTranslations("landing.hero");
   return (
     <section className="lp-hero">
       <div className="lp-hero__glow" />
@@ -10,37 +13,35 @@ export function Hero() {
       <div className="lp-container lp-hero__inner">
         <div>
           <div className="lp-hero__eyebrow">
-            <span className="chip">NEW</span>
-            <span>Live payments feed — track MRR the moment it hits</span>
+            <span className="chip">{t("eyebrowChip")}</span>
+            <span>{t("eyebrowText")}</span>
           </div>
           <h1 className="lp-hero__title">
-            Your DataFast numbers,
+            {t("title1")}
             <br />
-            <em>recomposed.</em>
+            <em>{t("titleEm")}</em>
           </h1>
-          <p className="lp-hero__sub">
-            More Data Fast is a dashboard layer on top of DataFast — assemble the widgets you
-            actually read. KPIs, live events, revenue, cohorts. Dense, editorial, exportable.
-            Built by one dev, for operators.
-          </p>
+          <p className="lp-hero__sub">{t("sub")}</p>
           <div className="lp-hero__actions">
             <a href="#demo" className="lp-btn lp-btn--brand lp-btn--lg">
-              See live demo →
+              {t("ctaPrimary")}
             </a>
             <a href="#pricing" className="lp-btn lp-btn--lg">
-              Start 14-day trial
+              {t("ctaSecondary")}
             </a>
           </div>
           <div className="lp-hero__meta">
             <span className="lp-hero__meta-item">
               <span className="dot" />
-              Works with DataFast out of the box
+              {t("meta1")}
             </span>
             <span className="lp-hero__meta-item">
-              <span className="check">✓</span>No credit card required
+              <span className="check">✓</span>
+              {t("meta2")}
             </span>
             <span className="lp-hero__meta-item">
-              <span className="check">✓</span>Cancel anytime
+              <span className="check">✓</span>
+              {t("meta3")}
             </span>
           </div>
         </div>

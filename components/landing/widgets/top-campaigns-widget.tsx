@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { WidgetShell } from "./widget-shell";
 
 const ROWS = [
@@ -10,12 +12,13 @@ const ROWS = [
 ];
 
 export function TopCampaignsWidget() {
+  const t = useTranslations("landing.widgets");
   return (
-    <WidgetShell title="Top campaigns">
+    <WidgetShell title={t("titleCampaigns")}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-        <span className="lp-kpi-label">TOP CAMPAIGNS</span>
+        <span className="lp-kpi-label">{t("titleCampaigns").toUpperCase()}</span>
         <span className="lp-kpi-label" style={{ color: "var(--mdf-fg-2)" }}>
-          top 10
+          {t("campaignsTopN")}
         </span>
       </div>
       <div style={{ display: "flex", flexDirection: "column" }}>
@@ -31,9 +34,9 @@ export function TopCampaignsWidget() {
             padding: "4px 0",
           }}
         >
-          <span>CAMPAIGN</span>
-          <span style={{ textAlign: "right" }}>REVENUE</span>
-          <span style={{ textAlign: "right" }}>VISITS</span>
+          <span>{t("campaignCol")}</span>
+          <span style={{ textAlign: "right" }}>{t("revenueCol")}</span>
+          <span style={{ textAlign: "right" }}>{t("visitsCol")}</span>
         </div>
         {ROWS.map((r, i) => (
           <div
