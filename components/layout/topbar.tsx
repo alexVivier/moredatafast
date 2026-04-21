@@ -1,6 +1,9 @@
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import {
+  TrialBanner,
+  type TrialBannerProps,
+} from "@/components/billing/trial-banner";
 import { DateRangePicker } from "./date-range-picker";
 import { OrganizationSwitcher } from "./organization-switcher";
 import {
@@ -8,6 +11,7 @@ import {
   type SiteSwitcherEntry,
 } from "./site-switcher";
 import { UserMenu } from "./user-menu";
+import { siteIconUrl } from "@/lib/utils/favicon";
 
 export type TopbarUser = {
   email: string;
@@ -20,8 +24,10 @@ export type TopbarProps = {
   entries: SiteSwitcherEntry[];
   title: string;
   subtitle?: string | null;
+  domain?: string | null;
   logoUrl?: string | null;
   user: TopbarUser;
+  billing?: TrialBannerProps;
 };
 
 export function Topbar({
@@ -29,16 +35,20 @@ export function Topbar({
   entries,
   title,
   subtitle,
+  domain,
   logoUrl,
   user,
+  billing,
 }: TopbarProps) {
+  const iconUrl = siteIconUrl(logoUrl, domain);
   return (
     <header className="sticky top-0 z-40 isolate border-b border-border bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/50">
+      {billing ? <TrialBanner {...billing} /> : null}
       <div className="mx-auto w-full max-w-7xl px-3 sm:px-6 py-2 sm:py-0 sm:h-14 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <div className="flex items-center gap-3 min-w-0 flex-1 min-w-[140px]">
-          {logoUrl ? (
+          {iconUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt="" className="h-6 w-6 rounded shrink-0" />
+            <img src={iconUrl} alt="" className="h-6 w-6 rounded shrink-0" />
           ) : (
             <div className="h-6 w-6 rounded bg-primary/10 shrink-0" />
           )}

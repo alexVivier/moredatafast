@@ -3,10 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { PaywallDialog } from "@/components/billing/paywall-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { authClient } from "@/lib/auth/client";
 import type { Role } from "@/lib/auth/session";
+
+function isPaywallError(message: string): boolean {
+  return /PAYWALL:|premium required/i.test(message);
+}
 
 type MemberDTO = {
   id: string;
@@ -60,6 +65,7 @@ export function OrganizationClient({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [paywallOpen, setPaywallOpen] = useState(false);
 
   async function submitInvite(e: React.FormEvent) {
     e.preventDefault();
@@ -75,7 +81,11 @@ export function OrganizationClient({
         organizationId,
       });
       if (res.error) {
-        setError(res.error.message || "Failed to send invitation");
+        if (isPaywallError(res.error.message ?? "")) {
+          setPaywallOpen(true);
+        } else {
+          setError(res.error.message || "Failed to send invitation");
+        }
         return;
       }
       setEmail("");
@@ -83,7 +93,13 @@ export function OrganizationClient({
       setSuccess(`Invitation sent to ${trimmed}`);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to send invitation");
+      const message =
+        err instanceof Error ? err.message : "Failed to send invitation";
+      if (isPaywallError(message)) {
+        setPaywallOpen(true);
+      } else {
+        setError(message);
+      }
     } finally {
       setBusy(false);
     }
@@ -174,6 +190,12 @@ export function OrganizationClient({
 
   return (
     <div className="space-y-6">
+      <PaywallDialog
+        open={paywallOpen}
+        onClose={() => setPaywallOpen(false)}
+        organizationId={organizationId}
+        reason="invite teammates"
+      />
       {error ? (
         <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {error}

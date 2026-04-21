@@ -28,7 +28,9 @@ export default async function ViewPage({
   params: Promise<{ viewId: string }>;
 }) {
   const { viewId } = await params;
-  const { session, organizationId } = await requirePageOrg(`/view/${viewId}`);
+  const { session, organizationId, billing } = await requirePageOrg(
+    `/view/${viewId}`,
+  );
 
   const [view] = await db
     .select()
@@ -117,8 +119,14 @@ export default async function ViewPage({
                 : "no sites yet"
               : null
         }
+        domain={site?.domain ?? null}
         logoUrl={site?.logoUrl}
         user={topbarUser}
+        billing={{
+          trialEndsAt: billing.trialEndsAt.toISOString(),
+          trialActive: billing.trialActive,
+          subscriptionStatus: billing.subscriptionStatus,
+        }}
       />
 
       <main className="flex-1 mx-auto w-full max-w-7xl px-3 sm:px-6 py-4 sm:py-6">

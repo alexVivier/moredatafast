@@ -17,6 +17,9 @@ export const users = pgTable("users", {
   emailVerified: boolean("email_verified").notNull().default(false),
   name: text("name"),
   image: text("image"),
+  // Populated by @better-auth/stripe when a user-scoped customer is created.
+  // We create customers at org level, so this stays NULL in practice.
+  stripeCustomerId: text("stripe_customer_id"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .default(sql`now()`),
@@ -35,6 +38,14 @@ export const organizations = pgTable(
     slug: text("slug").notNull().unique(),
     logo: text("logo"),
     metadata: text("metadata"),
+    // Populated by @better-auth/stripe when the first Checkout Session for
+    // the org is created — one Stripe customer per organization.
+    stripeCustomerId: text("stripe_customer_id"),
+    // The trial ends N days after org creation; gating service consults
+    // this *and* the subscriptions table to decide paywall.
+    trialEndsAt: timestamp("trial_ends_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now() + interval '14 days'`),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .default(sql`now()`),
@@ -258,6 +269,38 @@ export const segments = pgTable(
   }),
 );
 
+// ---- Better-Auth Stripe plugin ------------------------------------------
+// Auto-managed by @better-auth/stripe: rows are upserted from webhook events.
+// Do not write to this table manually outside of the migrator.
+export const subscriptions = pgTable(
+  "subscriptions",
+  {
+    id: text("id").primaryKey(),
+    plan: text("plan").notNull(),
+    referenceId: text("reference_id").notNull(),
+    stripeCustomerId: text("stripe_customer_id"),
+    stripeSubscriptionId: text("stripe_subscription_id"),
+    status: text("status").notNull().default("incomplete"),
+    periodStart: timestamp("period_start", { withTimezone: true }),
+    periodEnd: timestamp("period_end", { withTimezone: true }),
+    trialStart: timestamp("trial_start", { withTimezone: true }),
+    trialEnd: timestamp("trial_end", { withTimezone: true }),
+    cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+    cancelAt: timestamp("cancel_at", { withTimezone: true }),
+    canceledAt: timestamp("canceled_at", { withTimezone: true }),
+    endedAt: timestamp("ended_at", { withTimezone: true }),
+    seats: integer("seats"),
+    billingInterval: text("billing_interval"),
+    stripeScheduleId: text("stripe_schedule_id"),
+  },
+  (t) => ({
+    referenceIdx: index("idx_subscriptions_reference").on(t.referenceId),
+    customerIdx: index("idx_subscriptions_stripe_customer").on(
+      t.stripeCustomerId,
+    ),
+  }),
+);
+
 export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
 export type Account = typeof accounts.$inferSelect;
@@ -276,3 +319,5 @@ export type LayoutItem = typeof layoutItems.$inferSelect;
 export type NewLayoutItem = typeof layoutItems.$inferInsert;
 export type Segment = typeof segments.$inferSelect;
 export type NewSegment = typeof segments.$inferInsert;
+export type Subscription = typeof subscriptions.$inferSelect;
+export type NewSubscription = typeof subscriptions.$inferInsert;

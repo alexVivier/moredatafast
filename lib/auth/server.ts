@@ -1,11 +1,16 @@
 import "server-only";
 
+import { stripe as stripePlugin } from "@better-auth/stripe";
+import { and, eq } from "drizzle-orm";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { APIError } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { organization } from "better-auth/plugins";
 
 import { db, schema } from "@/db/client";
+import { requirePaidAction, PaywallError } from "@/lib/billing/gating";
+import { STRIPE_PLAN_NAME, stripe } from "@/lib/billing/stripe";
 import {
   sendInvitationEmail,
   sendResetPasswordEmail,
@@ -28,6 +33,10 @@ const authSecret =
   process.env.BETTER_AUTH_SECRET ||
   "dev-only-insecure-" + Math.random().toString(36).slice(2);
 
+const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
+const premiumMonthly = process.env.STRIPE_PRICE_PREMIUM_MONTHLY || "";
+const premiumYearly = process.env.STRIPE_PRICE_PREMIUM_YEARLY || undefined;
+
 export const auth = betterAuth({
   baseURL,
   secret: authSecret,
@@ -41,6 +50,7 @@ export const auth = betterAuth({
       organization: schema.organizations,
       member: schema.members,
       invitation: schema.invitations,
+      subscription: schema.subscriptions,
     },
   }),
   emailAndPassword: {
@@ -109,6 +119,60 @@ export const auth = betterAuth({
           organization.name,
           inviterLabel,
         );
+      },
+      organizationHooks: {
+        // Paywall invitations: block creation once the trial has elapsed
+        // without an active Stripe sub. Throwing an APIError here gives the
+        // client a proper 402 + structured body instead of a generic 500.
+        beforeCreateInvitation: async ({ invitation }) => {
+          try {
+            await requirePaidAction(invitation.organizationId);
+          } catch (err) {
+            if (err instanceof PaywallError) {
+              throw new APIError("PAYMENT_REQUIRED", {
+                message: `PAYWALL:${invitation.organizationId}`,
+                code: "PAYWALL",
+              });
+            }
+            throw err;
+          }
+        },
+      },
+    }),
+    stripePlugin({
+      stripeClient: stripe,
+      stripeWebhookSecret,
+      // Billing is org-scoped; no user-level customer objects.
+      createCustomerOnSignUp: false,
+      organization: { enabled: true },
+      subscription: {
+        enabled: true,
+        plans: [
+          {
+            name: STRIPE_PLAN_NAME,
+            priceId: premiumMonthly,
+            annualDiscountPriceId: premiumYearly,
+            freeTrial: { days: 14 },
+          },
+        ],
+        // Only owners/admins may operate the subscription. Anyone in the org
+        // may merely *list* it (needed to decide whether to render the
+        // paywall banner).
+        authorizeReference: async ({ user, referenceId, action }) => {
+          const [member] = await db
+            .select({ role: schema.members.role })
+            .from(schema.members)
+            .where(
+              and(
+                eq(schema.members.userId, user.id),
+                eq(schema.members.organizationId, referenceId),
+              ),
+            )
+            .limit(1);
+          if (!member) return false;
+          if (action === "list-subscription") return true;
+          return member.role === "owner" || member.role === "admin";
+        },
       },
     }),
     nextCookies(),

@@ -71,6 +71,18 @@ export function UserMenu({
                 Organization settings
               </Button>
             </Link>
+            <Link
+              href="/settings/organization/billing"
+              onClick={() => setOpen(false)}
+            >
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+              >
+                Billing
+              </Button>
+            </Link>
             <Button
               variant="ghost"
               size="sm"

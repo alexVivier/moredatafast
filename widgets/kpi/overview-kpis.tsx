@@ -105,7 +105,7 @@ export function OverviewKpis({
   }
 
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+    <div className="grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-3 lg:grid-cols-6">
       {METRICS.map((metric) => {
         const value = row?.[metric.key] ?? 0;
         const prevValue = prevRow?.[metric.key] ?? 0;
@@ -122,21 +122,21 @@ export function OverviewKpis({
                 : "bad";
 
         return (
-          <Card key={metric.key} className="min-h-[120px]">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-xs font-medium uppercase tracking-wider">
+          <Card key={metric.key} className="min-h-[88px] sm:min-h-[120px]">
+            <CardHeader className="p-3 pb-1 sm:p-4 sm:pb-2">
+              <CardDescription className="text-[10px] sm:text-xs font-medium uppercase tracking-wider truncate">
                 {metric.label}
               </CardDescription>
             </CardHeader>
-            <CardContent className="pt-0">
-              <div className="text-2xl font-semibold tabular-nums">
+            <CardContent className="p-3 pt-0 sm:p-4 sm:pt-0">
+              <div className="text-lg sm:text-2xl font-semibold tabular-nums truncate">
                 {isLoading ? (
-                  <span className="inline-block h-7 w-20 animate-pulse rounded bg-muted/60" />
+                  <span className="inline-block h-6 w-16 animate-pulse rounded bg-muted/60" />
                 ) : (
                   formatValue(metric, value, resolvedCurrency)
                 )}
               </div>
-              <div className="mt-1 flex items-center gap-1 text-xs">
+              <div className="mt-0.5 sm:mt-1 flex flex-wrap items-center gap-x-1 text-[10px] sm:text-xs">
                 {isLoading ? (
                   <span className="inline-block h-3 w-10 animate-pulse rounded bg-muted/40" />
                 ) : (
@@ -177,6 +177,7 @@ register<OverviewKpisConfig>({
   category: "kpi",
   defaultSize: { w: 12, h: 3 },
   minSize: { w: 6, h: 3 },
+  mobileSize: { h: 5 },
   configSchema: z.object({}).passthrough() as unknown as z.ZodType<OverviewKpisConfig>,
   defaultConfig: {},
   Component: OverviewKpis,

@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { requirePageOrg } from "@/lib/auth/session";
+import { siteIconUrl } from "@/lib/utils/favicon";
 import { DeleteSiteButton } from "./delete-site-button";
 
 export const dynamic = "force-dynamic";
@@ -84,13 +85,14 @@ export default async function SettingsPage() {
         <div className="grid gap-3">
           {sites.map((s) => {
             const viewId = viewsBySite.get(s.id);
+            const iconUrl = siteIconUrl(s.logoUrl, s.domain);
             return (
               <Card key={s.id}>
                 <CardContent className="flex flex-wrap items-center gap-3 sm:gap-4 pt-4">
-                  {s.logoUrl ? (
+                  {iconUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={s.logoUrl}
+                      src={iconUrl}
                       alt=""
                       className="h-10 w-10 rounded bg-muted object-contain shrink-0"
                     />

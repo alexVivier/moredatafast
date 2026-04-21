@@ -76,7 +76,8 @@ function itemsToStackedLayout(
   let cursorY = 0;
   return ordered.map((item) => {
     const def = getWidget(item.widgetType);
-    const h = item.h;
+    const mobileH = def?.mobileSize?.h;
+    const h = mobileH != null ? Math.max(item.h, mobileH) : item.h;
     const minH = def?.minSize?.h;
     const maxH = def?.maxSize?.h;
     const row: LayoutItem = {

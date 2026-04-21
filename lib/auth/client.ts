@@ -1,5 +1,6 @@
 "use client";
 
+import { stripeClient } from "@better-auth/stripe/client";
 import { organizationClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 
@@ -9,7 +10,7 @@ export const authClient = createAuthClient({
     (typeof window !== "undefined"
       ? window.location.origin
       : "http://localhost:3000"),
-  plugins: [organizationClient()],
+  plugins: [organizationClient(), stripeClient({ subscription: true })],
 });
 
 export const {
@@ -24,4 +25,5 @@ export const {
   organization,
   useActiveOrganization,
   useListOrganizations,
+  subscription,
 } = authClient;

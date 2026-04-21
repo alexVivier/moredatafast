@@ -26,6 +26,10 @@ export type WidgetDefinition<C = unknown> = {
   defaultSize: { w: number; h: number };
   minSize?: { w: number; h: number };
   maxSize?: { w: number; h: number };
+  // Height (in grid rows) to use on narrow stacked layouts (sm/xs/xxs).
+  // Widgets that wrap vertically on mobile (e.g. KPI grids) need more height
+  // than their desktop size would imply.
+  mobileSize?: { h: number };
   configSchema: ZodType<C>;
   defaultConfig: C;
   Component: ComponentType<WidgetContext<C>>;

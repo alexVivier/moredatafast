@@ -8,6 +8,8 @@ import { encrypt } from "@/lib/crypto/keyring";
 import { fetchDataFast, DataFastError } from "@/lib/datafast/client";
 import type { MetadataRow } from "@/lib/datafast/types";
 import { OrgAuthError, requireOrgMember } from "@/lib/auth/session";
+import { PaywallError, requirePaidAction } from "@/lib/billing/gating";
+import { faviconUrlForDomain } from "@/lib/utils/favicon";
 
 const createSiteSchema = z.object({
   apiKey: z.string().trim().min(8, "API key is too short"),
@@ -46,8 +48,12 @@ export async function POST(request: Request) {
   try {
     // Any admin or owner can add a site.
     ({ organizationId } = await requireOrgMember(request.headers, "admin"));
+    // Paywall: block once the trial has elapsed and there's no active sub.
+    // Existing sites keep working — this only gates the *creation* path.
+    await requirePaidAction(organizationId);
   } catch (err) {
     if (err instanceof OrgAuthError) return err.toResponse();
+    if (err instanceof PaywallError) return err.toResponse();
     throw err;
   }
 
@@ -110,6 +116,9 @@ export async function POST(request: Request) {
       .where(eq(schema.sites.organizationId, organizationId))
   ).length;
 
+  const resolvedLogo =
+    metadata.logo ?? faviconUrlForDomain(metadata.domain) ?? null;
+
   await db.insert(schema.sites).values({
     id: siteId,
     organizationId,
@@ -118,7 +127,7 @@ export async function POST(request: Request) {
     apiKeyEncrypted: encryptedKey,
     timezone: metadata.timezone || "UTC",
     currency: metadata.currency || "USD",
-    logoUrl: metadata.logo ?? null,
+    logoUrl: resolvedLogo,
     sortOrder: siteCount,
   });
 
@@ -139,7 +148,7 @@ export async function POST(request: Request) {
       domain: metadata.domain,
       timezone: metadata.timezone,
       currency: metadata.currency,
-      logoUrl: metadata.logo,
+      logoUrl: resolvedLogo,
     },
     viewId,
   });

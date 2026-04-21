@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 
 import { db, schema } from "@/db/client";
+import { getBillingStatus, type BillingStatus } from "@/lib/billing/gating";
 
 import { auth, type AuthSession } from "./server";
 
@@ -138,12 +139,15 @@ export async function requireOrgMember(
 
 /**
  * RSC/server-page variant: redirects to /login or /settings/organization on
- * error rather than throwing a JSON response.
+ * error rather than throwing a JSON response. Also loads billing status so
+ * pages can render the trial banner without an extra round-trip.
  */
 export async function requirePageOrg(
   nextPath?: string,
   requiredRole: Role = "member",
-): Promise<OrgContext & { session: AuthSession }> {
+): Promise<
+  OrgContext & { session: AuthSession; billing: BillingStatus }
+> {
   const session = await getSession();
   if (!session) {
     const q = nextPath ? `?next=${encodeURIComponent(nextPath)}` : "";
@@ -152,5 +156,6 @@ export async function requirePageOrg(
   const ctx = await loadOrgContext(session);
   if (!ctx) redirect("/settings/organization");
   if (!hasAtLeastRole(ctx.role, requiredRole)) redirect("/");
-  return { ...ctx, session };
+  const billing = await getBillingStatus(ctx.organizationId);
+  return { ...ctx, session, billing };
 }

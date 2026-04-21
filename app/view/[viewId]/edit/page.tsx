@@ -19,7 +19,7 @@ export default async function EditViewPage({
   params: Promise<{ viewId: string }>;
 }) {
   const { viewId } = await params;
-  const { session, organizationId } = await requirePageOrg(
+  const { session, organizationId, billing } = await requirePageOrg(
     `/view/${viewId}/edit`,
   );
 
@@ -108,8 +108,14 @@ export default async function EditViewPage({
             ? `${site.domain} · editing layout`
             : `${allSites.length} site${allSites.length === 1 ? "" : "s"} · editing layout`
         }
+        domain={site?.domain ?? null}
         logoUrl={site?.logoUrl}
         user={topbarUser}
+        billing={{
+          trialEndsAt: billing.trialEndsAt.toISOString(),
+          trialActive: billing.trialActive,
+          subscriptionStatus: billing.subscriptionStatus,
+        }}
       />
 
       <main className="flex-1 mx-auto w-full max-w-7xl px-3 sm:px-6 py-4 sm:py-6">
