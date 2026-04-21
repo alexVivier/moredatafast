@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Bug, Check, Lightbulb } from "lucide-react";
 
@@ -13,6 +14,7 @@ type Props = {
 };
 
 export function FeedbackDialog({ open, onClose }: Props) {
+  const t = useTranslations("dialogs.feedback");
   const [type, setType] = useState<FeedbackType>("suggestion");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -44,13 +46,13 @@ export function FeedbackDialog({ open, onClose }: Props) {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body?.error || `Request failed (${res.status})`);
+        setError(body?.error || t("errRequest", { status: res.status }));
         return;
       }
       setSent(true);
       setTimeout(() => onClose(), 1500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Network error");
+      setError(err instanceof Error ? err.message : t("errNetwork"));
     } finally {
       setSubmitting(false);
     }
@@ -83,10 +85,10 @@ export function FeedbackDialog({ open, onClose }: Props) {
                 letterSpacing: "-0.01em",
               }}
             >
-              Thanks
+              {t("thanks")}
             </h2>
             <p className="mt-1 text-sm text-mdf-fg-3">
-              Your {type === "bug" ? "bug report" : "suggestion"} was sent.
+              {type === "bug" ? t("sentBug") : t("sentSuggestion")}
             </p>
           </div>
         ) : (
@@ -101,11 +103,9 @@ export function FeedbackDialog({ open, onClose }: Props) {
                   letterSpacing: "-0.01em",
                 }}
               >
-                Send feedback
+                {t("title")}
               </h2>
-              <p className="mt-1 text-sm text-mdf-fg-3">
-                Bug, missing feature, anything broken — we read every message.
-              </p>
+              <p className="mt-1 text-sm text-mdf-fg-3">{t("lead")}</p>
             </div>
 
             <div className="mb-3 flex rounded-md border border-mdf-line-2 p-0.5">
@@ -113,13 +113,13 @@ export function FeedbackDialog({ open, onClose }: Props) {
                 active={type === "suggestion"}
                 onClick={() => setType("suggestion")}
                 icon={<Lightbulb size={14} strokeWidth={1.5} />}
-                label="Suggestion"
+                label={t("suggestion")}
               />
               <SegmentedButton
                 active={type === "bug"}
                 onClick={() => setType("bug")}
                 icon={<Bug size={14} strokeWidth={1.5} />}
-                label="Bug"
+                label={t("bug")}
               />
             </div>
 
@@ -129,8 +129,8 @@ export function FeedbackDialog({ open, onClose }: Props) {
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder={
                   type === "bug"
-                    ? "What did you expect? What happened instead? Steps to reproduce help a lot."
-                    : "What would make DataFast better for you?"
+                    ? t("placeholderBug")
+                    : t("placeholderSuggestion")
                 }
                 rows={6}
                 maxLength={2000}
@@ -147,7 +147,8 @@ export function FeedbackDialog({ open, onClose }: Props) {
               <div
                 className="mb-3 rounded-md px-3 py-2 text-xs text-mdf-danger border border-mdf-line-1"
                 style={{
-                  background: "color-mix(in srgb, var(--mdf-danger) 10%, transparent)",
+                  background:
+                    "color-mix(in srgb, var(--mdf-danger) 10%, transparent)",
                 }}
               >
                 {error}
@@ -162,13 +163,13 @@ export function FeedbackDialog({ open, onClose }: Props) {
                 onClick={onClose}
                 disabled={submitting}
               >
-                Cancel
+                {t("sendingCancel")}
               </Button>
               <Button
                 type="submit"
                 disabled={submitting || message.trim().length < 5}
               >
-                {submitting ? "Sending…" : "Send feedback"}
+                {submitting ? t("submitting") : t("submit")}
               </Button>
             </div>
           </form>

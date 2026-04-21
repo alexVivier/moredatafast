@@ -25,6 +25,87 @@
     "name": "Nom",
     "or": "OU"
   },
+  "dialogs": {
+    "paywall": {
+      "title": "Premium requis",
+      "body": "Votre essai gratuit est terminé. Passez Premium pour {reason}. Les données existantes continuent de fonctionner.",
+      "monthly": "Mensuel",
+      "yearly": "Annuel",
+      "notNow": "Plus tard",
+      "upgrade": "Passer Premium",
+      "redirecting": "Redirection…",
+      "errCheckout": "Échec du démarrage du paiement"
+    },
+    "feedback": {
+      "title": "Envoyer un retour",
+      "lead": "Bug, fonctionnalité manquante, quoi que ce soit qui ne marche pas — on lit chaque message.",
+      "suggestion": "Suggestion",
+      "bug": "Bug",
+      "placeholderBug": "Qu'attendiez-vous ? Qu'est-il arrivé à la place ? Les étapes pour reproduire aident beaucoup.",
+      "placeholderSuggestion": "Qu'est-ce qui rendrait DataFast meilleur pour vous ?",
+      "sendingCancel": "Annuler",
+      "submit": "Envoyer le retour",
+      "submitting": "Envoi…",
+      "thanks": "Merci",
+      "sentBug": "Votre rapport de bug a été envoyé.",
+      "sentSuggestion": "Votre suggestion a été envoyée.",
+      "errNetwork": "Erreur réseau",
+      "errRequest": "Échec de la requête ({status})"
+    },
+    "visitor": {
+      "visitor": "Visiteur",
+      "close": "Fermer",
+      "noData": "Pas de données pour ce visiteur.",
+      "sectionIdentity": "Identité",
+      "sectionActivity": "Activité",
+      "sectionPrediction": "Prédiction de conversion",
+      "sectionGoals": "Objectifs atteints ({count})",
+      "sectionPages": "Pages visitées ({count})",
+      "kvLocation": "Localisation",
+      "kvBrowser": "Navigateur",
+      "kvOs": "OS",
+      "kvDevice": "Appareil",
+      "kvViewport": "Viewport",
+      "kvSourceParams": "Paramètres source",
+      "kvVisits": "Visites",
+      "kvPageViews": "Pages vues",
+      "kvCurrentUrl": "URL actuelle",
+      "kvTimeSinceFirst": "Temps depuis première visite",
+      "kvFirstVisit": "Première visite",
+      "kvScore": "Score",
+      "kvConvRate": "Taux conv.",
+      "kvExpectedValue": "Valeur estimée",
+      "kvConfidence": "Confiance"
+    },
+    "deleteSite": {
+      "confirm": "Retirer « {name} » ? Ses vues, mises en page et segments seront supprimés. Action irréversible.",
+      "remove": "Retirer",
+      "removing": "…",
+      "errDelete": "Échec de la suppression du site"
+    },
+    "share": {
+      "title": "Partager cette vue",
+      "lead": "N'importe qui avec le lien peut consulter le dashboard en lecture seule. Révocable à tout moment.",
+      "loading": "Chargement…",
+      "activeLink": "{count} lien actif",
+      "activeLinkPlural": "{count} liens actifs",
+      "create": "Créer un lien",
+      "creating": "Création…",
+      "confirmRevoke": "Révoquer ce lien de partage ? Il cessera de fonctionner immédiatement.",
+      "copyLink": "Copier le lien",
+      "revokeLink": "Révoquer le lien",
+      "emptyState": "Pas encore de lien de partage. Créez-en un pour donner un accès en lecture seule.",
+      "createdOn": "Créé le {date}",
+      "lastOpened": "dernière ouverture le {date}",
+      "neverOpened": "jamais ouvert",
+      "close": "Fermer",
+      "errLoad": "Échec du chargement",
+      "errCreate": "Échec de la création du lien",
+      "errLoadStatus": "Échec du chargement ({status})",
+      "errFailed": "Échec ({status})",
+      "shareCta": "Partager"
+    }
+  },
   "settings": {
     "header": {
       "back": "← Retour"

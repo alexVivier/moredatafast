@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Copy, Share2, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ type Props = {
 };
 
 export function ShareDialog({ open, onClose, viewId }: Props) {
+  const t = useTranslations("dialogs.share");
   const [shares, setShares] = useState<Share[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,15 +35,15 @@ export function ShareDialog({ open, onClose, viewId }: Props) {
     setError(null);
     try {
       const res = await fetch(`/api/views/${viewId}/shares`);
-      if (!res.ok) throw new Error(`Failed to load (${res.status})`);
+      if (!res.ok) throw new Error(t("errLoadStatus", { status: res.status }));
       const body = (await res.json()) as { shares: Share[] };
       setShares(body.shares ?? []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load");
+      setError(err instanceof Error ? err.message : t("errLoad"));
     } finally {
       setLoading(false);
     }
-  }, [viewId]);
+  }, [viewId, t]);
 
   useEffect(() => {
     if (open) void refresh();
@@ -60,21 +62,19 @@ export function ShareDialog({ open, onClose, viewId }: Props) {
         error?: string;
       };
       if (!res.ok) {
-        setError(body.error || `Failed (${res.status})`);
+        setError(body.error || t("errFailed", { status: res.status }));
         return;
       }
       await refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create link");
+      setError(err instanceof Error ? err.message : t("errCreate"));
     } finally {
       setBusy(false);
     }
   }
 
   async function revoke(shareId: string) {
-    if (!window.confirm("Revoke this share link? It will stop working immediately.")) {
-      return;
-    }
+    if (!window.confirm(t("confirmRevoke"))) return;
     setBusy(true);
     setError(null);
     try {
@@ -83,7 +83,7 @@ export function ShareDialog({ open, onClose, viewId }: Props) {
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(body.error || `Failed (${res.status})`);
+        setError(body.error || t("errFailed", { status: res.status }));
         return;
       }
       await refresh();
@@ -127,12 +127,9 @@ export function ShareDialog({ open, onClose, viewId }: Props) {
                 letterSpacing: "-0.01em",
               }}
             >
-              Share this view
+              {t("title")}
             </h2>
-            <p className="mt-1 text-sm text-mdf-fg-3">
-              Anyone with the link can view the dashboard read-only. Revoke at
-              any time.
-            </p>
+            <p className="mt-1 text-sm text-mdf-fg-3">{t("lead")}</p>
           </div>
           <Share2 size={18} strokeWidth={1.5} className="text-mdf-fg-3" />
         </div>
@@ -152,11 +149,13 @@ export function ShareDialog({ open, onClose, viewId }: Props) {
         <div className="mb-3 flex items-center justify-between">
           <div className="text-xs text-mdf-fg-3">
             {loading
-              ? "Loading…"
-              : `${shares.length} active link${shares.length === 1 ? "" : "s"}`}
+              ? t("loading")
+              : t(shares.length === 1 ? "activeLink" : "activeLinkPlural", {
+                  count: shares.length,
+                })}
           </div>
           <Button size="sm" onClick={create} disabled={busy}>
-            {busy ? "Creating…" : "Create link"}
+            {busy ? t("creating") : t("create")}
           </Button>
         </div>
 
@@ -179,10 +178,14 @@ export function ShareDialog({ open, onClose, viewId }: Props) {
                     type="button"
                     onClick={() => copyUrl(s.token)}
                     className="mdf-widget__close"
-                    aria-label="Copy link"
+                    aria-label={t("copyLink")}
                   >
                     {copied === s.token ? (
-                      <Check size={14} strokeWidth={1.5} className="text-mdf-success" />
+                      <Check
+                        size={14}
+                        strokeWidth={1.5}
+                        className="text-mdf-success"
+                      />
                     ) : (
                       <Copy size={14} strokeWidth={1.5} />
                     )}
@@ -191,30 +194,35 @@ export function ShareDialog({ open, onClose, viewId }: Props) {
                     type="button"
                     onClick={() => revoke(s.id)}
                     className="mdf-widget__close"
-                    aria-label="Revoke link"
+                    aria-label={t("revokeLink")}
                   >
                     <Trash2 size={14} strokeWidth={1.5} />
                   </button>
                 </div>
                 <div className="mt-1 text-[10px] text-mdf-fg-4">
-                  Created {new Date(s.createdAt).toLocaleDateString()}
+                  {t("createdOn", {
+                    date: new Date(s.createdAt).toLocaleDateString(),
+                  })}
+                  {" · "}
                   {s.lastAccessedAt
-                    ? ` · last opened ${new Date(s.lastAccessedAt).toLocaleDateString()}`
-                    : " · never opened"}
+                    ? t("lastOpened", {
+                        date: new Date(s.lastAccessedAt).toLocaleDateString(),
+                      })
+                    : t("neverOpened")}
                 </div>
               </div>
             );
           })}
           {shares.length === 0 && !loading ? (
             <div className="rounded-md border border-dashed border-mdf-line-2 p-4 text-center text-xs text-mdf-fg-3">
-              No share links yet. Create one to give someone read-only access.
+              {t("emptyState")}
             </div>
           ) : null}
         </div>
 
         <div className="mt-4 flex justify-end">
           <Button variant="ghost" size="sm" onClick={onClose}>
-            Close
+            {t("close")}
           </Button>
         </div>
       </div>

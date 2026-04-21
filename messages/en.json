@@ -25,6 +25,87 @@
     "name": "Name",
     "or": "OR"
   },
+  "dialogs": {
+    "paywall": {
+      "title": "Premium required",
+      "body": "Your free trial has ended. Upgrade to Premium to {reason}. Existing data keeps working regardless.",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "notNow": "Not now",
+      "upgrade": "Upgrade to Premium",
+      "redirecting": "Redirecting…",
+      "errCheckout": "Failed to start checkout"
+    },
+    "feedback": {
+      "title": "Send feedback",
+      "lead": "Bug, missing feature, anything broken — we read every message.",
+      "suggestion": "Suggestion",
+      "bug": "Bug",
+      "placeholderBug": "What did you expect? What happened instead? Steps to reproduce help a lot.",
+      "placeholderSuggestion": "What would make DataFast better for you?",
+      "sendingCancel": "Cancel",
+      "submit": "Send feedback",
+      "submitting": "Sending…",
+      "thanks": "Thanks",
+      "sentBug": "Your bug report was sent.",
+      "sentSuggestion": "Your suggestion was sent.",
+      "errNetwork": "Network error",
+      "errRequest": "Request failed ({status})"
+    },
+    "share": {
+      "title": "Share this view",
+      "lead": "Anyone with the link can view the dashboard read-only. Revoke at any time.",
+      "loading": "Loading…",
+      "activeLink": "{count} active link",
+      "activeLinkPlural": "{count} active links",
+      "create": "Create link",
+      "creating": "Creating…",
+      "confirmRevoke": "Revoke this share link? It will stop working immediately.",
+      "copyLink": "Copy link",
+      "revokeLink": "Revoke link",
+      "emptyState": "No share links yet. Create one to give someone read-only access.",
+      "createdOn": "Created {date}",
+      "lastOpened": "last opened {date}",
+      "neverOpened": "never opened",
+      "close": "Close",
+      "errLoad": "Failed to load",
+      "errCreate": "Failed to create link",
+      "errLoadStatus": "Failed to load ({status})",
+      "errFailed": "Failed ({status})",
+      "shareCta": "Share"
+    },
+    "visitor": {
+      "visitor": "Visitor",
+      "close": "Close",
+      "noData": "No data for this visitor.",
+      "sectionIdentity": "Identity",
+      "sectionActivity": "Activity",
+      "sectionPrediction": "Conversion prediction",
+      "sectionGoals": "Completed goals ({count})",
+      "sectionPages": "Visited pages ({count})",
+      "kvLocation": "Location",
+      "kvBrowser": "Browser",
+      "kvOs": "OS",
+      "kvDevice": "Device",
+      "kvViewport": "Viewport",
+      "kvSourceParams": "Source params",
+      "kvVisits": "Visits",
+      "kvPageViews": "Page views",
+      "kvCurrentUrl": "Current URL",
+      "kvTimeSinceFirst": "Time since first visit",
+      "kvFirstVisit": "First visit",
+      "kvScore": "Score",
+      "kvConvRate": "Conv. rate",
+      "kvExpectedValue": "Expected $",
+      "kvConfidence": "Confidence"
+    },
+    "deleteSite": {
+      "confirm": "Remove \"{name}\"? Its views, layouts and segments will be deleted. This cannot be undone.",
+      "remove": "Remove",
+      "removing": "…",
+      "errDelete": "Failed to delete site"
+    }
+  },
   "settings": {
     "header": {
       "back": "← Back"

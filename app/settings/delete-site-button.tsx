@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -12,22 +13,18 @@ export function DeleteSiteButton({
   siteId: string;
   siteName: string;
 }) {
+  const t = useTranslations("dialogs.deleteSite");
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function onDelete() {
-    if (
-      !window.confirm(
-        `Remove "${siteName}"? Its views, layouts and segments will be deleted. This cannot be undone.`
-      )
-    )
-      return;
+    if (!window.confirm(t("confirm", { name: siteName }))) return;
     setIsDeleting(true);
     try {
       const res = await fetch(`/api/sites/${siteId}`, { method: "DELETE" });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        window.alert(body.error || "Failed to delete site");
+        window.alert(body.error || t("errDelete"));
         return;
       }
       router.refresh();
@@ -44,7 +41,7 @@ export function DeleteSiteButton({
       disabled={isDeleting}
       className="text-destructive hover:text-destructive"
     >
-      {isDeleting ? "…" : "Remove"}
+      {isDeleting ? t("removing") : t("remove")}
     </Button>
   );
 }

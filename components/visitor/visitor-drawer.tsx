@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -91,6 +92,7 @@ function VisitorDrawerBody({
   visitorId: string;
   onClose: () => void;
 }) {
+  const t = useTranslations("dialogs.visitor");
   const query = useWidgetData<VisitorData>(siteId, `visitors/${visitorId}`);
   const body = query.data?.data;
 
@@ -98,14 +100,14 @@ function VisitorDrawerBody({
     <div className="flex flex-col">
       <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-border bg-card/95 backdrop-blur px-4 py-3">
         <div className="min-w-0">
-          <div className="text-xs text-muted-foreground">Visitor</div>
+          <div className="text-xs text-muted-foreground">{t("visitor")}</div>
           <div className="font-mono text-sm truncate">{visitorId}</div>
         </div>
         <Button
           variant="ghost"
           size="icon"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t("close")}
         >
           <X size={14} strokeWidth={1.5} />
         </Button>
@@ -121,14 +123,12 @@ function VisitorDrawerBody({
         ) : query.error ? (
           <div className="text-sm text-destructive">{query.error.message}</div>
         ) : !body ? (
-          <div className="text-sm text-muted-foreground">
-            No data for this visitor.
-          </div>
+          <div className="text-sm text-muted-foreground">{t("noData")}</div>
         ) : (
           <>
-            <Section title="Identity">
+            <Section title={t("sectionIdentity")}>
               <KV
-                k="Location"
+                k={t("kvLocation")}
                 v={
                   [body.identity.city, body.identity.region, body.identity.country]
                     .filter(Boolean)
@@ -136,15 +136,15 @@ function VisitorDrawerBody({
                 }
               />
               <KV
-                k="Browser"
+                k={t("kvBrowser")}
                 v={`${body.identity.browser?.name ?? "?"} ${body.identity.browser?.version ?? ""}`.trim()}
               />
               <KV
-                k="OS"
+                k={t("kvOs")}
                 v={`${body.identity.os?.name ?? "?"} ${body.identity.os?.version ?? ""}`.trim()}
               />
               <KV
-                k="Device"
+                k={t("kvDevice")}
                 v={
                   [
                     body.identity.device?.type,
@@ -157,14 +157,14 @@ function VisitorDrawerBody({
               />
               {body.identity.viewport?.width ? (
                 <KV
-                  k="Viewport"
+                  k={t("kvViewport")}
                   v={`${body.identity.viewport.width}×${body.identity.viewport.height}`}
                 />
               ) : null}
               {body.identity.params ? (
                 <div>
                   <div className="text-xs text-muted-foreground mb-1">
-                    Source params
+                    {t("kvSourceParams")}
                   </div>
                   <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs font-mono">
                     {Object.entries(body.identity.params).map(([k, v]) =>
@@ -180,23 +180,23 @@ function VisitorDrawerBody({
               ) : null}
             </Section>
 
-            <Section title="Activity">
-              <KV k="Visits" v={formatNumber(body.activity.visitCount)} />
+            <Section title={t("sectionActivity")}>
+              <KV k={t("kvVisits")} v={formatNumber(body.activity.visitCount)} />
               <KV
-                k="Page views"
+                k={t("kvPageViews")}
                 v={formatNumber(body.activity.pageViewCount)}
               />
               <KV
-                k="Current URL"
+                k={t("kvCurrentUrl")}
                 v={body.activity.currentUrl || "—"}
                 mono
               />
               <KV
-                k="Time since first visit"
+                k={t("kvTimeSinceFirst")}
                 v={formatDurationMs(body.activity.timeSinceFirstVisit)}
               />
               <KV
-                k="First visit"
+                k={t("kvFirstVisit")}
                 v={
                   body.activity.firstVisitAt
                     ? new Date(body.activity.firstVisitAt).toLocaleString()
@@ -206,9 +206,11 @@ function VisitorDrawerBody({
             </Section>
 
             {body.prediction ? (
-              <Section title="Conversion prediction">
+              <Section title={t("sectionPrediction")}>
                 <div className="mb-1 flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Score</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t("kvScore")}
+                  </span>
                   <span className="text-sm tabular-nums font-medium">
                     {body.prediction.score}/100
                   </span>
@@ -228,19 +230,25 @@ function VisitorDrawerBody({
                 </div>
                 <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                   <div>
-                    <div className="text-muted-foreground">Conv. rate</div>
+                    <div className="text-muted-foreground">
+                      {t("kvConvRate")}
+                    </div>
                     <div className="tabular-nums">
                       {formatPercent(body.prediction.conversionRate, 2)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">Expected $</div>
+                    <div className="text-muted-foreground">
+                      {t("kvExpectedValue")}
+                    </div>
                     <div className="tabular-nums">
                       ${body.prediction.expectedValue.toFixed(2)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">Confidence</div>
+                    <div className="text-muted-foreground">
+                      {t("kvConfidence")}
+                    </div>
                     <div className="tabular-nums">
                       {formatPercent(body.prediction.confidence, 0)}
                     </div>
@@ -251,7 +259,11 @@ function VisitorDrawerBody({
 
             {body.activity.completedCustomGoals &&
             body.activity.completedCustomGoals.length > 0 ? (
-              <Section title={`Completed goals (${body.activity.completedCustomGoals.length})`}>
+              <Section
+                title={t("sectionGoals", {
+                  count: body.activity.completedCustomGoals.length,
+                })}
+              >
                 <ul className="space-y-1">
                   {body.activity.completedCustomGoals.map((g, i) => (
                     <li key={i} className="flex items-center justify-between gap-2 text-xs">
@@ -267,7 +279,11 @@ function VisitorDrawerBody({
 
             {body.activity.visitedPages &&
             body.activity.visitedPages.length > 0 ? (
-              <Section title={`Visited pages (${body.activity.visitedPages.length})`}>
+              <Section
+                title={t("sectionPages", {
+                  count: body.activity.visitedPages.length,
+                })}
+              >
                 <ul className="space-y-1 max-h-64 overflow-y-auto">
                   {body.activity.visitedPages.map((p, i) => (
                     <li

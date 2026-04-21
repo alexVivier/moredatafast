@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -9,9 +10,8 @@ type Props = {
   open: boolean;
   onClose: () => void;
   organizationId: string;
-  /** Short reason copy injected into the title ("add more sites", "invite teammates"…). */
+  /** Short reason copy injected into the title (already localised upstream). */
   reason: string;
-  /** Pre-formatted prices passed from the server. */
   monthlyPriceLabel?: string | null;
   yearlyPriceLabel?: string | null;
   yearlySavingsPercent?: number | null;
@@ -26,6 +26,7 @@ export function PaywallDialog({
   yearlyPriceLabel,
   yearlySavingsPercent,
 }: Props) {
+  const t = useTranslations("dialogs.paywall");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [interval, setInterval] = useState<"month" | "year">("month");
@@ -48,12 +49,10 @@ export function PaywallDialog({
         cancelUrl: `${origin}/settings/organization/billing?canceled=1`,
       });
       if (res.error) {
-        setError(res.error.message || "Failed to start checkout");
+        setError(res.error.message || t("errCheckout"));
       }
-      // Success case: Stripe redirects the browser to its Checkout. Nothing
-      // further to do here.
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to start checkout");
+      setError(err instanceof Error ? err.message : t("errCheckout"));
     } finally {
       setBusy(false);
     }
@@ -70,10 +69,9 @@ export function PaywallDialog({
     >
       <div className="mt-4 sm:mt-24 mx-3 sm:mx-0 w-full max-w-[calc(100vw-1.5rem)] sm:max-w-md rounded-lg border border-border bg-card text-card-foreground shadow-lg p-5">
         <div className="mb-4">
-          <h2 className="text-lg font-semibold">Premium required</h2>
+          <h2 className="text-lg font-semibold">{t("title")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Your free trial has ended. Upgrade to Premium to {reason}. Existing
-            data keeps working regardless.
+            {t("body", { reason })}
           </p>
         </div>
 
@@ -87,7 +85,7 @@ export function PaywallDialog({
                 : "text-muted-foreground hover:bg-accent/50"
             }`}
           >
-            <div className="font-semibold">Monthly</div>
+            <div className="font-semibold">{t("monthly")}</div>
             {monthlyPriceLabel ? (
               <div className="mt-0.5 text-[10px] opacity-80">
                 {monthlyPriceLabel}
@@ -105,7 +103,7 @@ export function PaywallDialog({
               }`}
             >
               <div className="flex items-center justify-center gap-1.5 font-semibold">
-                Yearly
+                {t("yearly")}
                 {yearlySavingsPercent && yearlySavingsPercent > 0 ? (
                   <span className="rounded bg-emerald-500/20 px-1 py-0.5 text-[9px] text-emerald-600 dark:text-emerald-400">
                     -{yearlySavingsPercent}%
@@ -127,10 +125,10 @@ export function PaywallDialog({
 
         <div className="flex items-center justify-end gap-2">
           <Button variant="ghost" size="sm" onClick={onClose} disabled={busy}>
-            Not now
+            {t("notNow")}
           </Button>
           <Button onClick={upgrade} disabled={busy}>
-            {busy ? "Redirecting…" : "Upgrade to Premium"}
+            {busy ? t("redirecting") : t("upgrade")}
           </Button>
         </div>
       </div>

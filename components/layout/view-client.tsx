@@ -40,6 +40,7 @@ export function ViewClient({
   editHref,
 }: Props) {
   const t = useTranslations("dashboard.editMode");
+  const tShare = useTranslations("dialogs.share");
   const { resolved } = useDateRangeState();
 
   const [items, setItems] = useState<GridItem[]>(initialItems);
@@ -239,7 +240,7 @@ export function ViewClient({
               onClick={() => setShareOpen(true)}
               className="hidden md:inline-flex"
             >
-              Share
+              {tShare("shareCta")}
             </Button>
           ) : null}
           {editMode ? (
