@@ -5,6 +5,11 @@ import { AppProviders } from "@/components/providers/app-providers";
 export const metadata: Metadata = {
   title: "DataFast Dashboard",
   description: "Unified multi-SaaS analytics dashboard powered by DataFast",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+  },
 };
 
 export const viewport: Viewport = {

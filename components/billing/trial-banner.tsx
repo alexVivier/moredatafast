@@ -16,31 +16,19 @@ export function TrialBanner({
   trialActive,
   subscriptionStatus,
 }: TrialBannerProps) {
-  // Healthy states → no banner.
   if (subscriptionStatus === "active") return null;
   if (subscriptionStatus === "trialing") return null;
 
-  // Past-due or unpaid → urgent nudge to fix the card.
   if (subscriptionStatus === "past_due" || subscriptionStatus === "unpaid") {
     return (
-      <div className="w-full border-b border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs sm:px-6">
-          <span>
-            Payment failed on your last Premium invoice. Update your card to
-            keep adding sites and inviting teammates.
-          </span>
-          <Link
-            href="/settings/organization/billing"
-            className="font-medium underline hover:opacity-80"
-          >
-            Manage billing →
-          </Link>
-        </div>
-      </div>
+      <TrialStrip
+        tone="warning"
+        message="Payment failed on your last Premium invoice. Update your card to keep adding sites and inviting teammates."
+        ctaLabel="Manage billing →"
+      />
     );
   }
 
-  // Trial running: show a countdown.
   if (trialActive && trialEndsAt) {
     const end = new Date(trialEndsAt);
     const days = Math.max(
@@ -48,34 +36,50 @@ export function TrialBanner({
       Math.ceil((end.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
     );
     return (
-      <div className="w-full border-b border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs sm:px-6">
-          <span>
-            Free trial: {days} day{days === 1 ? "" : "s"} left
-          </span>
-          <Link
-            href="/settings/organization/billing"
-            className="font-medium underline hover:opacity-80"
-          >
-            Upgrade now →
-          </Link>
-        </div>
-      </div>
+      <TrialStrip
+        tone="default"
+        message={`Free trial: ${days} day${days === 1 ? "" : "s"} left`}
+        ctaLabel="Upgrade now →"
+      />
     );
   }
 
-  // Trial elapsed, no active sub → hard nudge.
   return (
-    <div className="w-full border-b border-destructive/40 bg-destructive/10 text-destructive">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs sm:px-6">
-        <span>
-          Trial ended. Upgrade to Premium to add sites or invite teammates.
-        </span>
+    <TrialStrip
+      tone="danger"
+      message="Trial ended. Upgrade to Premium to add sites or invite teammates."
+      ctaLabel="Upgrade →"
+    />
+  );
+}
+
+function TrialStrip({
+  tone,
+  message,
+  ctaLabel,
+}: {
+  tone: "default" | "warning" | "danger";
+  message: string;
+  ctaLabel: string;
+}) {
+  const messageColor =
+    tone === "warning"
+      ? "text-mdf-warning"
+      : tone === "danger"
+        ? "text-mdf-danger"
+        : "text-mdf-fg-2";
+  return (
+    <div
+      className="w-full bg-mdf-bg-trial border-b border-mdf-line-1"
+      style={{ minHeight: "var(--mdf-trial-h)" }}
+    >
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-3 sm:px-5 h-full py-1.5 sm:py-0 text-xs">
+        <span className={messageColor}>{message}</span>
         <Link
           href="/settings/organization/billing"
-          className="font-medium underline hover:opacity-80"
+          className="text-mdf-brand hover:text-mdf-brand-hover font-medium"
         >
-          Upgrade →
+          {ctaLabel}
         </Link>
       </div>
     </div>

@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 import { authClient } from "@/lib/auth/client";
-import { Button } from "@/components/ui/button";
 
 export function UserMenu({
   email,
@@ -39,61 +39,68 @@ export function UserMenu({
 
   return (
     <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 rounded-md border border-transparent hover:border-border px-2 py-1.5 text-sm"
-      >
+      <button type="button" onClick={() => setOpen((v) => !v)} className="mdf-picker">
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={image} alt="" className="h-6 w-6 rounded-full" />
+          <img src={image} alt="" className="h-[18px] w-[18px] rounded-full" />
         ) : (
-          <div className="h-6 w-6 rounded-full bg-primary/10 text-xs font-medium flex items-center justify-center">
+          <span
+            className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-full text-[10px] font-semibold text-white"
+            style={{ background: "var(--mdf-info)" }}
+          >
             {initial}
-          </div>
+          </span>
         )}
         <span className="hidden sm:inline max-w-[140px] truncate">{label}</span>
+        <ChevronDown size={14} strokeWidth={1.5} className="text-mdf-fg-3" aria-hidden />
       </button>
 
       {open ? (
-        <div className="absolute right-0 top-full mt-1 w-56 max-w-[calc(100vw-1.5rem)] rounded-md border border-border bg-popover shadow-md z-50">
-          <div className="px-3 py-2 border-b border-border">
-            <div className="text-xs font-medium truncate">{name || "—"}</div>
-            <div className="text-xs text-muted-foreground truncate">{email}</div>
+        <div className="absolute right-0 top-full z-50 mt-1 w-56 max-w-[calc(100vw-1.5rem)] rounded-md border border-mdf-line-2 bg-mdf-bg-raised shadow-[var(--mdf-shadow-popover)]">
+          <div className="px-3 py-2 border-b border-mdf-line-1">
+            <div className="text-xs font-medium text-mdf-fg-1 truncate">{name || "—"}</div>
+            <div className="text-xs text-mdf-fg-3 truncate">{email}</div>
           </div>
-          <div className="p-1">
-            <Link href="/settings/organization" onClick={() => setOpen(false)}>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start"
-              >
-                Organization settings
-              </Button>
-            </Link>
-            <Link
+          <nav className="p-1">
+            <MenuItem href="/settings/organization" onClick={() => setOpen(false)}>
+              Organization settings
+            </MenuItem>
+            <MenuItem
               href="/settings/organization/billing"
               onClick={() => setOpen(false)}
             >
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start"
-              >
-                Billing
-              </Button>
-            </Link>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start"
+              Billing
+            </MenuItem>
+            <button
+              type="button"
               onClick={onSignOut}
+              className="w-full text-left px-3 py-1.5 text-sm rounded-sm hover:bg-mdf-line-1 text-mdf-fg-1"
             >
               Log out
-            </Button>
-          </div>
+            </button>
+          </nav>
         </div>
       ) : null}
     </div>
+  );
+}
+
+function MenuItem({
+  href,
+  onClick,
+  children,
+}: {
+  href: string;
+  onClick?: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="block px-3 py-1.5 text-sm rounded-sm hover:bg-mdf-line-1 text-mdf-fg-1"
+    >
+      {children}
+    </Link>
   );
 }

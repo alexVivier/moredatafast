@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { ChevronDown, Layers } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -90,43 +91,23 @@ export function OrganizationSwitcher() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         disabled={busy}
-        className="flex items-center gap-2 rounded-md border border-border bg-background px-2.5 py-1.5 text-sm hover:bg-accent/50 disabled:opacity-60"
+        className="mdf-picker disabled:opacity-60"
       >
-        <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-primary/10 text-[10px] font-semibold uppercase">
-          {activeLabel.slice(0, 1) || "?"}
-        </span>
+        <Layers size={14} strokeWidth={1.5} className="text-mdf-fg-2" aria-hidden />
         <span className="hidden max-w-[140px] truncate sm:inline">
           {activeLabel}
         </span>
-        <svg
-          width="10"
-          height="10"
-          viewBox="0 0 12 12"
-          fill="none"
-          aria-hidden
-        >
-          <path
-            d="M3 4.5L6 7.5L9 4.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <ChevronDown size={14} strokeWidth={1.5} className="text-mdf-fg-3" aria-hidden />
       </button>
 
       {open ? (
-        <div className="absolute right-0 top-full z-50 mt-1 w-64 max-w-[calc(100vw-1.5rem)] rounded-md border border-border bg-popover shadow-md">
-          <div className="px-3 py-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-            Organizations
-          </div>
+        <div className="absolute right-0 top-full z-50 mt-1 w-64 max-w-[calc(100vw-1.5rem)] rounded-md border border-mdf-line-2 bg-mdf-bg-raised shadow-[var(--mdf-shadow-popover)]">
+          <div className="mdf-micro px-3 py-2">Organizations</div>
           <div className="max-h-64 overflow-y-auto">
             {orgsPending ? (
-              <div className="px-3 py-2 text-xs text-muted-foreground">
-                Loading…
-              </div>
+              <div className="px-3 py-2 text-xs text-mdf-fg-3">Loading…</div>
             ) : !orgs || orgs.length === 0 ? (
-              <div className="px-3 py-2 text-xs text-muted-foreground">
+              <div className="px-3 py-2 text-xs text-mdf-fg-3">
                 No organizations yet
               </div>
             ) : (
@@ -138,35 +119,18 @@ export function OrganizationSwitcher() {
                     type="button"
                     onClick={() => handleSetActive(org.id)}
                     disabled={busy}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 disabled:opacity-60"
+                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-left hover:bg-mdf-line-1 disabled:opacity-60"
                   >
-                    <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-primary/10 text-[10px] font-semibold uppercase shrink-0">
-                      {org.name.slice(0, 1)}
-                    </span>
-                    <span className="flex-1 truncate text-left">{org.name}</span>
+                    <span className="flex-1 truncate">{org.name}</span>
                     {isActive ? (
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        aria-hidden
-                      >
-                        <path
-                          d="M3 8L6.5 11.5L13 5"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
+                      <span className="text-mdf-brand" aria-hidden>●</span>
                     ) : null}
                   </button>
                 );
               })
             )}
           </div>
-          <div className="border-t border-border p-1">
+          <div className="border-t border-mdf-line-1 p-1">
             <Button
               variant="ghost"
               size="sm"

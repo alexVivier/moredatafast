@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 64" width="240" height="64">
+  <defs>
+    <linearGradient id="mdf-diamond-wm-l" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFAD57"></stop>
+      <stop offset="100%" stop-color="#E08A2A"></stop>
+    </linearGradient>
+  </defs>
+  <g transform="translate(4 12)">
+    <rect x="4" y="4" width="32" height="32" rx="7" ry="7" transform="rotate(45 20 20)" fill="url(#mdf-diamond-wm-l)"></rect>
+    <path d="M20 0 L40 20 L20 40 L0 20 Z" fill="none" stroke="rgba(12,14,20,0.18)" stroke-width="1"></path>
+    <g fill="#1A0F03" transform="translate(20 20) rotate(45) scale(0.65)">
+      <rect x="-10" y="2" width="5" height="8" rx="1"></rect>
+      <rect x="-3" y="-3" width="5" height="13" rx="1"></rect>
+      <rect x="4" y="-8" width="5" height="18" rx="1"></rect>
+    </g>
+  </g>
+  <text x="56" y="38" font-family="Instrument Serif, Times New Roman, serif" font-size="26" fill="#0B0D12" letter-spacing="-0.5">
+    More Data Fast
+  </text>
+</svg>
