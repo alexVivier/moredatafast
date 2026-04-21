@@ -224,10 +224,25 @@
   }
   .mdf-widget__close:hover { color: var(--mdf-fg-1); background: var(--mdf-line-1); }
   .mdf-widget__body { padding: 14px 16px; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  /* KPI strips span edge-to-edge — drop the body padding when one is inside. */
+  .mdf-widget__body:has(> .mdf-kpistrip) { padding: 0; }
 
   /* KPI strip */
-  .mdf-kpistrip { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; }
-  .mdf-kpistrip__cell { padding: 14px 18px; border-right: 1px solid var(--mdf-line-1); }
+  .mdf-kpistrip {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0;
+    height: 100%;
+    align-items: stretch;
+  }
+  .mdf-kpistrip__cell {
+    padding: 14px 18px;
+    border-right: 1px solid var(--mdf-line-2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+  }
   .mdf-kpistrip__cell:last-child { border-right: 0; }
   .mdf-kpi__label { font-size: var(--mdf-fs-10); letter-spacing: var(--mdf-tr-micro); text-transform: uppercase; color: var(--mdf-fg-3); font-weight: var(--mdf-fw-medium); margin-bottom: 6px; }
   .mdf-kpi__value { font-family: var(--mdf-font-display); font-size: var(--mdf-fs-40); line-height: 1; letter-spacing: var(--mdf-tr-tight); color: var(--mdf-fg-1); font-variant-numeric: tabular-nums; }

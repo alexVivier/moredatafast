@@ -125,7 +125,7 @@ export function TopMetricTable<Row>({
                         style={{
                           width: `${bar}%`,
                           background:
-                            "color-mix(in srgb, var(--mdf-cat-1) 18%, transparent)",
+                            "color-mix(in srgb, var(--mdf-cat-1) 11%, transparent)",
                         }}
                         aria-hidden
                       />

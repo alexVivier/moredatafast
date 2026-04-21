@@ -77,7 +77,14 @@ export function DonutBreakdown({
                 iconType="circle"
                 verticalAlign="bottom"
                 height={28}
-                wrapperStyle={{ fontSize: 11, color: "var(--mdf-fg-3)" }}
+                wrapperStyle={{
+                  fontSize: 10,
+                  color: "var(--mdf-fg-3)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  fontWeight: 500,
+                }}
+                iconSize={8}
               />
             </PieChart>
           </ResponsiveContainer>

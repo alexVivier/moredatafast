@@ -83,7 +83,7 @@ export function OverviewKpis({
   }
 
   return (
-    <div className="mdf-kpistrip grid-cols-2 sm:grid-cols-3 lg:grid-cols-6" style={{ margin: "-14px -16px" }}>
+    <div className="mdf-kpistrip h-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
       {METRICS.map((metric) => {
         const value = row?.[metric.key] ?? 0;
         const prevValue = prevRow?.[metric.key] ?? 0;
