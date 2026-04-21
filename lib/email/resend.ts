@@ -2,6 +2,8 @@ import "server-only";
 
 import { Resend } from "resend";
 
+import { emailT, resolveEmailLocale } from "./i18n";
+
 function getResend(): Resend | null {
   const key = process.env.RESEND_API_KEY;
   if (!key) return null;
@@ -37,15 +39,20 @@ const buttonStyle = `
   font-weight: 500;
 `;
 
-export async function sendVerificationEmail(to: string, verifyUrl: string) {
-  const subject = "Verify your DataFast Dashboard email";
+export async function sendVerificationEmail(
+  to: string,
+  verifyUrl: string,
+  localeOverride?: string | null,
+) {
+  const locale = await resolveEmailLocale(localeOverride);
+  const subject = emailT(locale, "emails.verify.subject");
   const html = `<div style="${baseStyle}">
-  <h2 style="margin:0 0 16px 0;">Welcome to DataFast Dashboard</h2>
-  <p>Confirm your email address to finish setting up your account.</p>
-  <p><a href="${verifyUrl}" style="${buttonStyle}">Verify email</a></p>
-  <p style="color:#6b7280;font-size:12px;">Or paste this link into your browser:<br/>${verifyUrl}</p>
+  <h2 style="margin:0 0 16px 0;">${emailT(locale, "emails.verify.title")}</h2>
+  <p>${emailT(locale, "emails.verify.body")}</p>
+  <p><a href="${verifyUrl}" style="${buttonStyle}">${emailT(locale, "emails.verify.cta")}</a></p>
+  <p style="color:#6b7280;font-size:12px;">${emailT(locale, "emails.verify.fallbackLabel")}<br/>${verifyUrl}</p>
 </div>`;
-  const text = `Welcome to DataFast Dashboard.\n\nVerify your email: ${verifyUrl}`;
+  const text = emailT(locale, "emails.verify.textBody", { url: verifyUrl });
 
   const resend = getResend();
   if (!resend) {
@@ -69,18 +76,26 @@ export async function sendInvitationEmail(
   inviteUrl: string,
   organizationName: string,
   inviterLabel: string,
+  localeOverride?: string | null,
 ) {
+  const locale = await resolveEmailLocale(localeOverride);
   const safeOrg = escapeHtml(organizationName);
   const safeInviter = escapeHtml(inviterLabel);
-  const subject = `Join ${organizationName} on DataFast`;
+  const subject = emailT(locale, "emails.invite.subject", {
+    org: organizationName,
+  });
   const html = `<div style="${baseStyle}">
-  <h2 style="margin:0 0 16px 0;">You've been invited to join ${safeOrg}</h2>
-  <p>${safeInviter} invited you to collaborate on their DataFast dashboard.</p>
-  <p><a href="${inviteUrl}" style="${buttonStyle}">Accept invitation</a></p>
-  <p style="color:#6b7280;font-size:12px;">Expires in 48 hours. If you weren't expecting this, you can ignore it safely.</p>
-  <p style="color:#6b7280;font-size:12px;">Or paste this link into your browser:<br/>${inviteUrl}</p>
+  <h2 style="margin:0 0 16px 0;">${emailT(locale, "emails.invite.title", { org: safeOrg })}</h2>
+  <p>${emailT(locale, "emails.invite.body", { inviter: safeInviter })}</p>
+  <p><a href="${inviteUrl}" style="${buttonStyle}">${emailT(locale, "emails.invite.cta")}</a></p>
+  <p style="color:#6b7280;font-size:12px;">${emailT(locale, "emails.invite.expires")}</p>
+  <p style="color:#6b7280;font-size:12px;">${emailT(locale, "emails.invite.fallbackLabel")}<br/>${inviteUrl}</p>
 </div>`;
-  const text = `${inviterLabel} invited you to join ${organizationName} on DataFast.\n\nAccept: ${inviteUrl}\n\nExpires in 48 hours.`;
+  const text = emailT(locale, "emails.invite.textBody", {
+    inviter: inviterLabel,
+    org: organizationName,
+    url: inviteUrl,
+  });
 
   const resend = getResend();
   if (!resend) {
@@ -90,16 +105,21 @@ export async function sendInvitationEmail(
   await resend.emails.send({ from: getFrom(), to, subject, html, text });
 }
 
-export async function sendResetPasswordEmail(to: string, resetUrl: string) {
-  const subject = "Reset your DataFast Dashboard password";
+export async function sendResetPasswordEmail(
+  to: string,
+  resetUrl: string,
+  localeOverride?: string | null,
+) {
+  const locale = await resolveEmailLocale(localeOverride);
+  const subject = emailT(locale, "emails.reset.subject");
   const html = `<div style="${baseStyle}">
-  <h2 style="margin:0 0 16px 0;">Password reset</h2>
-  <p>Someone (hopefully you) requested to reset the password for your account.</p>
-  <p><a href="${resetUrl}" style="${buttonStyle}">Reset password</a></p>
-  <p style="color:#6b7280;font-size:12px;">If you didn't request this, you can ignore the message. The link expires in 1 hour.</p>
-  <p style="color:#6b7280;font-size:12px;">Or paste this link into your browser:<br/>${resetUrl}</p>
+  <h2 style="margin:0 0 16px 0;">${emailT(locale, "emails.reset.title")}</h2>
+  <p>${emailT(locale, "emails.reset.body")}</p>
+  <p><a href="${resetUrl}" style="${buttonStyle}">${emailT(locale, "emails.reset.cta")}</a></p>
+  <p style="color:#6b7280;font-size:12px;">${emailT(locale, "emails.reset.hint")}</p>
+  <p style="color:#6b7280;font-size:12px;">${emailT(locale, "emails.reset.fallbackLabel")}<br/>${resetUrl}</p>
 </div>`;
-  const text = `Reset your DataFast Dashboard password: ${resetUrl}\n\nIf you didn't request this, ignore this email.`;
+  const text = emailT(locale, "emails.reset.textBody", { url: resetUrl });
 
   const resend = getResend();
   if (!resend) {

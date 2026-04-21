@@ -25,6 +25,34 @@
     "name": "Name",
     "or": "OR"
   },
+  "emails": {
+    "verify": {
+      "subject": "Verify your DataFast Dashboard email",
+      "title": "Welcome to DataFast Dashboard",
+      "body": "Confirm your email address to finish setting up your account.",
+      "cta": "Verify email",
+      "fallbackLabel": "Or paste this link into your browser:",
+      "textBody": "Welcome to DataFast Dashboard.\n\nVerify your email: {url}"
+    },
+    "invite": {
+      "subject": "Join {org} on DataFast",
+      "title": "You've been invited to join {org}",
+      "body": "{inviter} invited you to collaborate on their DataFast dashboard.",
+      "cta": "Accept invitation",
+      "expires": "Expires in 48 hours. If you weren't expecting this, you can ignore it safely.",
+      "fallbackLabel": "Or paste this link into your browser:",
+      "textBody": "{inviter} invited you to join {org} on DataFast.\n\nAccept: {url}\n\nExpires in 48 hours."
+    },
+    "reset": {
+      "subject": "Reset your DataFast Dashboard password",
+      "title": "Password reset",
+      "body": "Someone (hopefully you) requested to reset the password for your account.",
+      "cta": "Reset password",
+      "hint": "If you didn't request this, you can ignore the message. The link expires in 1 hour.",
+      "fallbackLabel": "Or paste this link into your browser:",
+      "textBody": "Reset your DataFast Dashboard password: {url}\n\nIf you didn't request this, ignore this email."
+    }
+  },
   "dialogs": {
     "paywall": {
       "title": "Premium required",

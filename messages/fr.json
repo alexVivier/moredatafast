@@ -25,6 +25,34 @@
     "name": "Nom",
     "or": "OU"
   },
+  "emails": {
+    "verify": {
+      "subject": "Vérifiez votre e-mail DataFast Dashboard",
+      "title": "Bienvenue sur DataFast Dashboard",
+      "body": "Confirmez votre adresse e-mail pour terminer la configuration de votre compte.",
+      "cta": "Vérifier l'e-mail",
+      "fallbackLabel": "Ou collez ce lien dans votre navigateur :",
+      "textBody": "Bienvenue sur DataFast Dashboard.\n\nVérifiez votre e-mail : {url}"
+    },
+    "invite": {
+      "subject": "Rejoindre {org} sur DataFast",
+      "title": "Vous êtes invité à rejoindre {org}",
+      "body": "{inviter} vous invite à collaborer sur son dashboard DataFast.",
+      "cta": "Accepter l'invitation",
+      "expires": "Expire dans 48 heures. Si vous n'attendiez pas ce message, vous pouvez l'ignorer sans risque.",
+      "fallbackLabel": "Ou collez ce lien dans votre navigateur :",
+      "textBody": "{inviter} vous invite à rejoindre {org} sur DataFast.\n\nAccepter : {url}\n\nExpire dans 48 heures."
+    },
+    "reset": {
+      "subject": "Réinitialisez votre mot de passe DataFast Dashboard",
+      "title": "Réinitialisation du mot de passe",
+      "body": "Quelqu'un (probablement vous) a demandé la réinitialisation du mot de passe de votre compte.",
+      "cta": "Réinitialiser le mot de passe",
+      "hint": "Si vous n'êtes pas à l'origine de cette demande, ignorez ce message. Le lien expire dans 1 heure.",
+      "fallbackLabel": "Ou collez ce lien dans votre navigateur :",
+      "textBody": "Réinitialisez votre mot de passe DataFast Dashboard : {url}\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail."
+    }
+  },
   "dialogs": {
     "paywall": {
       "title": "Premium requis",
