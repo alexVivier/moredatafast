@@ -3,14 +3,8 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
+import { AuthTitle } from "@/components/auth/auth-parts";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 export default function VerifyEmailPage() {
   const params = useSearchParams();
@@ -18,40 +12,36 @@ export default function VerifyEmailPage() {
 
   if (error) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Verification failed</CardTitle>
-          <CardDescription>
-            The link is invalid or has expired ({error}). Request a new one by
-            signing up again or trying to log in.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/login">
-            <Button variant="outline" className="w-full">
-              Back to sign in
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Check your email</CardTitle>
-        <CardDescription>
-          Click the verification link we just sent to finish signing in.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+      <>
+        <AuthTitle
+          title="Verification failed"
+          description={
+            <>
+              The link is invalid or has expired ({error}). Request a new one by signing up
+              again or trying to log in.
+            </>
+          }
+        />
         <Link href="/login">
           <Button variant="outline" className="w-full">
             Back to sign in
           </Button>
         </Link>
-      </CardContent>
-    </Card>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <AuthTitle
+        title="Check your email"
+        description="Click the verification link we just sent to finish signing in."
+      />
+      <Link href="/login">
+        <Button variant="outline" className="w-full">
+          Back to sign in
+        </Button>
+      </Link>
+    </>
   );
 }

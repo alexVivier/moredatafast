@@ -5,14 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { authClient } from "@/lib/auth/client";
+import { AuthError, AuthTitle } from "@/components/auth/auth-parts";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -46,54 +40,46 @@ export default function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Invalid reset link</CardTitle>
-          <CardDescription>
-            This page must be opened from the email link we sent you. Request a
-            new one.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/forgot-password">
-            <Button variant="outline" className="w-full">
-              Request new link
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+      <>
+        <AuthTitle
+          title="Invalid reset link"
+          description="This page must be opened from the email link we sent you. Request a new one."
+        />
+        <Link href="/forgot-password">
+          <Button variant="outline" className="w-full">
+            Request new link
+          </Button>
+        </Link>
+      </>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Set a new password</CardTitle>
-        <CardDescription>Pick at least 8 characters.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={onSubmit} className="space-y-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="password">New password</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={pending}
-            />
-          </div>
-          {error ? (
-            <p className="text-xs text-destructive">{error}</p>
-          ) : null}
-          <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? "Resetting…" : "Reset password"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+    <>
+      <AuthTitle
+        title="Set a new password"
+        description="Pick at least 8 characters."
+      />
+
+      <form onSubmit={onSubmit} className="space-y-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="password">New password</Label>
+          <Input
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            required
+            minLength={8}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={pending}
+          />
+        </div>
+        {error ? <AuthError message={error} /> : null}
+        <Button type="submit" className="w-full" disabled={pending}>
+          {pending ? "Resetting…" : "Reset password"}
+        </Button>
+      </form>
+    </>
   );
 }
