@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 
 export function AuthShell({ children }: { children: ReactNode }) {
+  const t = useTranslations("auth.shell");
   return (
     <div className="min-h-screen flex flex-col bg-mdf-bg-app text-mdf-fg-1">
       <main className="flex-1 flex items-center justify-center px-4 py-10 sm:py-16 relative">
@@ -36,7 +40,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
             >
               More Data Fast
             </span>
-            <span className="mdf-micro">Datafast dashboards — recomposed</span>
+            <span className="mdf-micro">{t("tagline")}</span>
           </Link>
 
           <div className="rounded-[10px] border border-mdf-line-1 bg-mdf-bg-surface p-6 sm:p-7">
@@ -44,7 +48,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
           </div>
 
           <p className="mt-6 text-center text-[11px] text-mdf-fg-3 font-mono tracking-wider">
-            © 2026 more data fast
+            {t("copyright")}
           </p>
         </div>
       </main>

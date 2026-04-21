@@ -25,6 +25,69 @@
     "name": "Name",
     "or": "OR"
   },
+  "auth": {
+    "shell": {
+      "tagline": "Datafast dashboards — recomposed",
+      "copyright": "© 2026 more data fast"
+    },
+    "login": {
+      "title": "Sign in",
+      "description": "Welcome back — sign in to continue.",
+      "forgot": "Forgot?",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "oauthGithub": "Continue with GitHub",
+      "oauthGoogle": "Continue with Google",
+      "errorInvalid": "Invalid email or password",
+      "footNoAccount": "No account?",
+      "footCreate": "Create one"
+    },
+    "signup": {
+      "title": "Create your account",
+      "description": "Start tracking your SaaS analytics in one place.",
+      "submit": "Sign up",
+      "submitting": "Creating…",
+      "passwordHint": "At least 8 characters.",
+      "errorCreate": "Could not create account",
+      "footHasAccount": "Already have an account?",
+      "footSignIn": "Sign in",
+      "sentTitle": "Check your email",
+      "sentBeforeEmail": "We sent a verification link to ",
+      "sentAfterEmail": ". Click it to activate your account, then sign in.",
+      "sentBack": "Back to sign in"
+    },
+    "forgot": {
+      "title": "Forgot your password?",
+      "description": "Enter your email and we'll send you a reset link.",
+      "submit": "Send reset link",
+      "submitting": "Sending…",
+      "rememberBefore": "Remembered it?",
+      "rememberLink": "Back to sign in",
+      "sentTitle": "Check your inbox",
+      "sentBeforeEmail": "If an account exists for ",
+      "sentAfterEmail": ", we've sent a reset link. It expires in 1 hour.",
+      "sentBack": "Back to sign in"
+    },
+    "reset": {
+      "title": "Set a new password",
+      "description": "Pick at least 8 characters.",
+      "newPasswordLabel": "New password",
+      "submit": "Reset password",
+      "submitting": "Resetting…",
+      "errorFail": "Could not reset password",
+      "invalidTitle": "Invalid reset link",
+      "invalidDescription": "This page must be opened from the email link we sent you. Request a new one.",
+      "invalidCta": "Request new link"
+    },
+    "verify": {
+      "title": "Check your email",
+      "description": "Click the verification link we just sent to finish signing in.",
+      "back": "Back to sign in",
+      "failedTitle": "Verification failed",
+      "failedDescriptionBefore": "The link is invalid or has expired (",
+      "failedDescriptionAfter": "). Request a new one by signing up again or trying to log in."
+    }
+  },
   "landing": {
     "trial": {
       "before": "Free trial:",

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -17,6 +18,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
+  const t = useTranslations("auth.login");
+  const common = useTranslations("common");
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get("next") || "/";
@@ -37,7 +40,7 @@ export default function LoginPage() {
         callbackURL: next,
       });
       if (err) {
-        setError(err.message || "Invalid email or password");
+        setError(err.message || t("errorInvalid"));
         return;
       }
       router.replace(next);
@@ -54,11 +57,11 @@ export default function LoginPage() {
 
   return (
     <>
-      <AuthTitle title="Sign in" description="Welcome back — sign in to continue." />
+      <AuthTitle title={t("title")} description={t("description")} />
 
       <form onSubmit={onSubmit} className="space-y-3">
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{common("email")}</Label>
           <Input
             id="email"
             type="email"
@@ -71,12 +74,12 @@ export default function LoginPage() {
         </div>
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{common("password")}</Label>
             <Link
               href="/forgot-password"
               className="text-xs text-mdf-fg-3 hover:text-mdf-fg-1"
             >
-              Forgot?
+              {t("forgot")}
             </Link>
           </div>
           <Input
@@ -91,11 +94,11 @@ export default function LoginPage() {
         </div>
         {error ? <AuthError message={error} /> : null}
         <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? "Signing in…" : "Sign in"}
+          {pending ? t("submitting") : t("submit")}
         </Button>
       </form>
 
-      <AuthDivider />
+      <AuthDivider label={common("or")} />
 
       <div className="grid gap-2">
         <Button
@@ -105,7 +108,7 @@ export default function LoginPage() {
           disabled={pending}
         >
           <ProviderIcon provider="github" />
-          Continue with GitHub
+          {t("oauthGithub")}
         </Button>
         <Button
           type="button"
@@ -114,17 +117,17 @@ export default function LoginPage() {
           disabled={pending}
         >
           <ProviderIcon provider="google" />
-          Continue with Google
+          {t("oauthGoogle")}
         </Button>
       </div>
 
       <AuthFootNote>
-        No account?{" "}
+        {t("footNoAccount")}{" "}
         <Link
           href={next === "/" ? "/signup" : `/signup?next=${encodeURIComponent(next)}`}
           className="text-mdf-fg-1 underline underline-offset-2 hover:text-mdf-brand"
         >
-          Create one
+          {t("footCreate")}
         </Link>
       </AuthFootNote>
     </>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -17,6 +18,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function SignupPage() {
+  const t = useTranslations("auth.signup");
+  const tLogin = useTranslations("auth.login");
+  const common = useTranslations("common");
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get("next") || "/";
@@ -40,7 +44,7 @@ export default function SignupPage() {
         callbackURL: next,
       });
       if (err) {
-        setError(err.message || "Could not create account");
+        setError(err.message || t("errorCreate"));
         return;
       }
       setSent(true);
@@ -58,12 +62,12 @@ export default function SignupPage() {
     return (
       <>
         <AuthTitle
-          title="Check your email"
+          title={t("sentTitle")}
           description={
             <>
-              We sent a verification link to{" "}
-              <strong className="text-mdf-fg-1">{email}</strong>. Click it to activate your
-              account, then sign in.
+              {t("sentBeforeEmail")}
+              <strong className="text-mdf-fg-1">{email}</strong>
+              {t("sentAfterEmail")}
             </>
           }
         />
@@ -72,7 +76,7 @@ export default function SignupPage() {
           className="w-full"
           onClick={() => router.push("/login")}
         >
-          Back to sign in
+          {t("sentBack")}
         </Button>
       </>
     );
@@ -80,14 +84,11 @@ export default function SignupPage() {
 
   return (
     <>
-      <AuthTitle
-        title="Create your account"
-        description="Start tracking your SaaS analytics in one place."
-      />
+      <AuthTitle title={t("title")} description={t("description")} />
 
       <form onSubmit={onSubmit} className="space-y-3">
         <div className="space-y-1.5">
-          <Label htmlFor="name">Name</Label>
+          <Label htmlFor="name">{common("name")}</Label>
           <Input
             id="name"
             type="text"
@@ -99,7 +100,7 @@ export default function SignupPage() {
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{common("email")}</Label>
           <Input
             id="email"
             type="email"
@@ -111,7 +112,7 @@ export default function SignupPage() {
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{common("password")}</Label>
           <Input
             id="password"
             type="password"
@@ -122,15 +123,15 @@ export default function SignupPage() {
             onChange={(e) => setPassword(e.target.value)}
             disabled={pending}
           />
-          <p className="text-[11px] text-mdf-fg-3">At least 8 characters.</p>
+          <p className="text-[11px] text-mdf-fg-3">{t("passwordHint")}</p>
         </div>
         {error ? <AuthError message={error} /> : null}
         <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? "Creating…" : "Sign up"}
+          {pending ? t("submitting") : t("submit")}
         </Button>
       </form>
 
-      <AuthDivider />
+      <AuthDivider label={common("or")} />
 
       <div className="grid gap-2">
         <Button
@@ -140,7 +141,7 @@ export default function SignupPage() {
           disabled={pending}
         >
           <ProviderIcon provider="github" />
-          Continue with GitHub
+          {tLogin("oauthGithub")}
         </Button>
         <Button
           type="button"
@@ -149,17 +150,17 @@ export default function SignupPage() {
           disabled={pending}
         >
           <ProviderIcon provider="google" />
-          Continue with Google
+          {tLogin("oauthGoogle")}
         </Button>
       </div>
 
       <AuthFootNote>
-        Already have an account?{" "}
+        {t("footHasAccount")}{" "}
         <Link
           href={next === "/" ? "/login" : `/login?next=${encodeURIComponent(next)}`}
           className="text-mdf-fg-1 underline underline-offset-2 hover:text-mdf-brand"
         >
-          Sign in
+          {t("footSignIn")}
         </Link>
       </AuthFootNote>
     </>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { authClient } from "@/lib/auth/client";
@@ -10,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations("auth.forgot");
+  const common = useTranslations("common");
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [pending, setPending] = useState(false);
@@ -32,17 +35,18 @@ export default function ForgotPasswordPage() {
     return (
       <>
         <AuthTitle
-          title="Check your inbox"
+          title={t("sentTitle")}
           description={
             <>
-              If an account exists for <strong className="text-mdf-fg-1">{email}</strong>,
-              we&apos;ve sent a reset link. It expires in 1 hour.
+              {t("sentBeforeEmail")}
+              <strong className="text-mdf-fg-1">{email}</strong>
+              {t("sentAfterEmail")}
             </>
           }
         />
         <Link href="/login">
           <Button variant="outline" className="w-full">
-            Back to sign in
+            {t("sentBack")}
           </Button>
         </Link>
       </>
@@ -51,14 +55,11 @@ export default function ForgotPasswordPage() {
 
   return (
     <>
-      <AuthTitle
-        title="Forgot your password?"
-        description="Enter your email and we'll send you a reset link."
-      />
+      <AuthTitle title={t("title")} description={t("description")} />
 
       <form onSubmit={onSubmit} className="space-y-3">
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{common("email")}</Label>
           <Input
             id="email"
             type="email"
@@ -70,17 +71,17 @@ export default function ForgotPasswordPage() {
           />
         </div>
         <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? "Sending…" : "Send reset link"}
+          {pending ? t("submitting") : t("submit")}
         </Button>
       </form>
 
       <p className="mt-5 text-center text-xs text-mdf-fg-3">
-        Remembered it?{" "}
+        {t("rememberBefore")}{" "}
         <Link
           href="/login"
           className="text-mdf-fg-1 underline underline-offset-2 hover:text-mdf-brand"
         >
-          Back to sign in
+          {t("rememberLink")}
         </Link>
       </p>
     </>

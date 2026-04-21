@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -11,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function ResetPasswordPage() {
+  const t = useTranslations("auth.reset");
   const router = useRouter();
   const params = useSearchParams();
   const token = params.get("token") || "";
@@ -29,7 +31,7 @@ export default function ResetPasswordPage() {
         token,
       });
       if (err) {
-        setError(err.message || "Could not reset password");
+        setError(err.message || t("errorFail"));
         return;
       }
       router.replace("/login");
@@ -42,12 +44,12 @@ export default function ResetPasswordPage() {
     return (
       <>
         <AuthTitle
-          title="Invalid reset link"
-          description="This page must be opened from the email link we sent you. Request a new one."
+          title={t("invalidTitle")}
+          description={t("invalidDescription")}
         />
         <Link href="/forgot-password">
           <Button variant="outline" className="w-full">
-            Request new link
+            {t("invalidCta")}
           </Button>
         </Link>
       </>
@@ -56,14 +58,11 @@ export default function ResetPasswordPage() {
 
   return (
     <>
-      <AuthTitle
-        title="Set a new password"
-        description="Pick at least 8 characters."
-      />
+      <AuthTitle title={t("title")} description={t("description")} />
 
       <form onSubmit={onSubmit} className="space-y-3">
         <div className="space-y-1.5">
-          <Label htmlFor="password">New password</Label>
+          <Label htmlFor="password">{t("newPasswordLabel")}</Label>
           <Input
             id="password"
             type="password"
@@ -77,7 +76,7 @@ export default function ResetPasswordPage() {
         </div>
         {error ? <AuthError message={error} /> : null}
         <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? "Resetting…" : "Reset password"}
+          {pending ? t("submitting") : t("submit")}
         </Button>
       </form>
     </>

@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 
 import { AuthTitle } from "@/components/auth/auth-parts";
 import { Button } from "@/components/ui/button";
 
 export default function VerifyEmailPage() {
+  const t = useTranslations("auth.verify");
   const params = useSearchParams();
   const error = params.get("error");
 
@@ -14,17 +16,18 @@ export default function VerifyEmailPage() {
     return (
       <>
         <AuthTitle
-          title="Verification failed"
+          title={t("failedTitle")}
           description={
             <>
-              The link is invalid or has expired ({error}). Request a new one by signing up
-              again or trying to log in.
+              {t("failedDescriptionBefore")}
+              {error}
+              {t("failedDescriptionAfter")}
             </>
           }
         />
         <Link href="/login">
           <Button variant="outline" className="w-full">
-            Back to sign in
+            {t("back")}
           </Button>
         </Link>
       </>
@@ -33,13 +36,10 @@ export default function VerifyEmailPage() {
 
   return (
     <>
-      <AuthTitle
-        title="Check your email"
-        description="Click the verification link we just sent to finish signing in."
-      />
+      <AuthTitle title={t("title")} description={t("description")} />
       <Link href="/login">
         <Button variant="outline" className="w-full">
-          Back to sign in
+          {t("back")}
         </Button>
       </Link>
     </>

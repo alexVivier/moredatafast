@@ -25,6 +25,69 @@
     "name": "Nom",
     "or": "OU"
   },
+  "auth": {
+    "shell": {
+      "tagline": "Dashboards DataFast — recomposés",
+      "copyright": "© 2026 more data fast"
+    },
+    "login": {
+      "title": "Se connecter",
+      "description": "Heureux de vous revoir — connectez-vous pour continuer.",
+      "forgot": "Oublié ?",
+      "submit": "Se connecter",
+      "submitting": "Connexion…",
+      "oauthGithub": "Continuer avec GitHub",
+      "oauthGoogle": "Continuer avec Google",
+      "errorInvalid": "E-mail ou mot de passe incorrect",
+      "footNoAccount": "Pas encore de compte ?",
+      "footCreate": "En créer un"
+    },
+    "signup": {
+      "title": "Créez votre compte",
+      "description": "Commencez à suivre vos analytics SaaS en un seul endroit.",
+      "submit": "S'inscrire",
+      "submitting": "Création…",
+      "passwordHint": "Minimum 8 caractères.",
+      "errorCreate": "Impossible de créer le compte",
+      "footHasAccount": "Vous avez déjà un compte ?",
+      "footSignIn": "Se connecter",
+      "sentTitle": "Vérifiez votre e-mail",
+      "sentBeforeEmail": "Nous avons envoyé un lien de vérification à ",
+      "sentAfterEmail": ". Cliquez dessus pour activer votre compte, puis connectez-vous.",
+      "sentBack": "Retour à la connexion"
+    },
+    "forgot": {
+      "title": "Mot de passe oublié ?",
+      "description": "Saisissez votre e-mail et nous vous enverrons un lien de réinitialisation.",
+      "submit": "Envoyer le lien",
+      "submitting": "Envoi…",
+      "rememberBefore": "Ça vous revient ?",
+      "rememberLink": "Retour à la connexion",
+      "sentTitle": "Vérifiez votre boîte de réception",
+      "sentBeforeEmail": "Si un compte existe pour ",
+      "sentAfterEmail": ", nous avons envoyé un lien de réinitialisation. Il expire dans 1 heure.",
+      "sentBack": "Retour à la connexion"
+    },
+    "reset": {
+      "title": "Définir un nouveau mot de passe",
+      "description": "Choisissez au moins 8 caractères.",
+      "newPasswordLabel": "Nouveau mot de passe",
+      "submit": "Réinitialiser le mot de passe",
+      "submitting": "Réinitialisation…",
+      "errorFail": "Impossible de réinitialiser le mot de passe",
+      "invalidTitle": "Lien de réinitialisation invalide",
+      "invalidDescription": "Cette page doit être ouverte depuis le lien de l'e-mail qu'on vous a envoyé. Demandez-en un nouveau.",
+      "invalidCta": "Demander un nouveau lien"
+    },
+    "verify": {
+      "title": "Vérifiez votre e-mail",
+      "description": "Cliquez sur le lien de vérification que nous venons d'envoyer pour finaliser la connexion.",
+      "back": "Retour à la connexion",
+      "failedTitle": "Échec de la vérification",
+      "failedDescriptionBefore": "Le lien est invalide ou a expiré (",
+      "failedDescriptionAfter": "). Demandez-en un nouveau en vous inscrivant à nouveau ou en essayant de vous connecter."
+    }
+  },
   "landing": {
     "trial": {
       "before": "Essai gratuit :",

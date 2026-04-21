@@ -40,36 +40,84 @@ export function ViewClient({
 
   const [items, setItems] = useState<GridItem[]>(initialItems);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingItems = useRef<GridItem[] | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">(
     "idle"
   );
 
+  // Only reset local state to server state when the viewId actually changes.
+  // Guarding on initialItems alone caused unrelated parent re-renders to wipe
+  // in-progress edits when Next handed down a fresh array reference.
+  const lastResetKey = useRef<string>("");
   useEffect(() => {
-    setItems(initialItems);
-  }, [initialItems]);
+    const key = `${viewId}:${editMode}`;
+    if (lastResetKey.current !== key) {
+      lastResetKey.current = key;
+      setItems(initialItems);
+    }
+  }, [viewId, editMode, initialItems]);
+
+  const doSave = useCallback(
+    async (next: GridItem[], opts?: { keepalive?: boolean }) => {
+      setSaveState("saving");
+      try {
+        const res = await fetch(`/api/views/${viewId}/layout`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items: next }),
+          keepalive: opts?.keepalive,
+        });
+        if (!res.ok) throw new Error(await res.text());
+        pendingItems.current = null;
+        setSaveState("saved");
+        window.setTimeout(() => setSaveState("idle"), 1500);
+      } catch {
+        setSaveState("error");
+      }
+    },
+    [viewId]
+  );
 
   const persist = useCallback(
     (next: GridItem[]) => {
       if (!editMode) return;
+      pendingItems.current = next;
       if (saveTimer.current) clearTimeout(saveTimer.current);
       setSaveState("saving");
-      saveTimer.current = setTimeout(async () => {
-        try {
-          const res = await fetch(`/api/views/${viewId}/layout`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ items: next }),
-          });
-          if (!res.ok) throw new Error(await res.text());
-          setSaveState("saved");
-          window.setTimeout(() => setSaveState("idle"), 1500);
-        } catch {
-          setSaveState("error");
-        }
+      saveTimer.current = setTimeout(() => {
+        saveTimer.current = null;
+        void doSave(next);
       }, 500);
     },
-    [editMode, viewId]
+    [editMode, doSave]
   );
+
+  // Flush any debounced save synchronously. Used on navigation, tab hide,
+  // and reload. `keepalive: true` tells the browser to complete the request
+  // even if the page is unloading.
+  const flushNow = useCallback(() => {
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
+    const pending = pendingItems.current;
+    if (pending) {
+      pendingItems.current = null;
+      void doSave(pending, { keepalive: true });
+    }
+  }, [doSave]);
+
+  useEffect(() => {
+    if (!editMode) return;
+    const onHide = () => flushNow();
+    window.addEventListener("pagehide", onHide);
+    window.addEventListener("beforeunload", onHide);
+    return () => {
+      window.removeEventListener("pagehide", onHide);
+      window.removeEventListener("beforeunload", onHide);
+      flushNow();
+    };
+  }, [editMode, flushNow]);
 
   const handleChange = useCallback(
     (next: GridItem[]) => {
@@ -127,7 +175,7 @@ export function ViewClient({
         <div className="flex items-center gap-2 shrink-0">
           <SegmentsDropdown siteId={siteId} />
           {editMode ? (
-            <Link href={readHref}>
+            <Link href={readHref} onClick={() => flushNow()}>
               <Button variant="outline">Done</Button>
             </Link>
           ) : (
