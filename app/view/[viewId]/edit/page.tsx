@@ -125,7 +125,6 @@ export default async function EditViewPage({
           currency={currency}
           initialItems={items}
           editMode={true}
-          readHref={`/view/${view.id}`}
           editHref={`/view/${view.id}/edit`}
         />
       </main>

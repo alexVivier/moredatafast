@@ -508,7 +508,9 @@
       "editLayout": "Éditer la mise en page",
       "saving": "Enregistrement…",
       "saved": "Enregistré",
-      "saveFailed": "Échec de l'enregistrement"
+      "saveFailed": "Échec de l'enregistrement",
+      "unsaved": "Modifications non enregistrées",
+      "unloadConfirm": "Des modifications ne sont pas enregistrées. Quitter quand même ?"
     },
     "dateRange": {
       "today": "Aujourd'hui",

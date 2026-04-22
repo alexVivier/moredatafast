@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { nanoid } from "nanoid";
 import Link from "next/link";
 
@@ -14,8 +14,6 @@ import { Button } from "@/components/ui/button";
 import { useDateRangeState } from "@/lib/hooks/use-date-range";
 import { downloadCsv, rowsToCsv } from "@/lib/utils/csv";
 import type { WidgetDefinition } from "@/widgets";
-// Server action: saves the layout and redirects to /view/:id atomically so
-// the read page is guaranteed to render with the freshly-written DB rows.
 import { saveLayoutAndFinish } from "@/app/view/[viewId]/edit/actions";
 
 type Props = {
@@ -24,13 +22,33 @@ type Props = {
   currency: string;
   initialItems: GridItem[];
   editMode: boolean;
-  readHref: string;
   editHref: string;
 };
 
 function nextPosition(items: GridItem[]): { x: number; y: number } {
   const maxY = items.reduce((acc, it) => Math.max(acc, it.y + it.h), 0);
   return { x: 0, y: maxY };
+}
+
+function isSameLayout(a: GridItem[], b: GridItem[]): boolean {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    const x = a[i];
+    const y = b[i];
+    if (
+      x.id !== y.id ||
+      x.widgetType !== y.widgetType ||
+      x.x !== y.x ||
+      x.y !== y.y ||
+      x.w !== y.w ||
+      x.h !== y.h ||
+      x.configJson !== y.configJson
+    ) {
+      return false;
+    }
+  }
+  return true;
 }
 
 export function ViewClient({
@@ -45,127 +63,67 @@ export function ViewClient({
   const tShare = useTranslations("dialogs.share");
   const { resolved } = useDateRangeState();
 
+  // `items` is the in-edit working copy. `baseline` tracks the last layout we
+  // know is persisted server-side, so we can derive `isDirty` without calling
+  // deep-compare on every render via a memo.
   const [items, setItems] = useState<GridItem[]>(initialItems);
-  const itemsRef = useRef<GridItem[]>(initialItems);
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pendingItems = useRef<GridItem[] | null>(null);
-  const inflightSave = useRef<Promise<void> | null>(null);
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">(
-    "idle"
+  const [baseline, setBaseline] = useState<GridItem[]>(initialItems);
+
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "error">(
+    "idle",
   );
+  const [navigating, setNavigating] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
 
-  // Keep a ref in sync with the latest items so flushAndWait can persist the
-  // authoritative current state without chasing stale closures.
-  useEffect(() => {
-    itemsRef.current = items;
-  }, [items]);
-
-  // Only reset local state to server state when the viewId actually changes.
-  // Guarding on initialItems alone caused unrelated parent re-renders to wipe
-  // in-progress edits when Next handed down a fresh array reference.
+  // Only reset local state to server state when the viewId or edit mode
+  // actually changes. Guarding on initialItems alone caused unrelated parent
+  // re-renders to wipe in-progress edits when Next handed down a fresh array
+  // reference.
   const lastResetKey = useRef<string>("");
   useEffect(() => {
     const key = `${viewId}:${editMode}`;
     if (lastResetKey.current !== key) {
       lastResetKey.current = key;
       setItems(initialItems);
+      setBaseline(initialItems);
+      setSaveState("idle");
     }
   }, [viewId, editMode, initialItems]);
 
-  const doSave = useCallback(
-    async (next: GridItem[], opts?: { keepalive?: boolean }) => {
-      setSaveState("saving");
-      try {
-        const res = await fetch(`/api/views/${viewId}/layout`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ items: next }),
-          keepalive: opts?.keepalive,
-        });
-        if (!res.ok) throw new Error(await res.text());
-        // Only clear pending if nothing newer was queued while this save was
-        // in flight. Unconditionally wiping wipes edits the user made mid-
-        // request, which then makes Done's flushAndWait skip saving them.
-        if (pendingItems.current === next) pendingItems.current = null;
-        setSaveState("saved");
-        window.setTimeout(() => setSaveState("idle"), 1500);
-      } catch {
-        setSaveState("error");
-      }
-    },
-    [viewId]
-  );
+  const isDirty = !isSameLayout(items, baseline);
 
-  // Tracks the in-flight save so flushAndWait can serialize on top of it
-  // rather than firing a concurrent PUT that might land out of order.
-  const trackSave = useCallback(
-    (next: GridItem[], opts?: { keepalive?: boolean }): Promise<void> => {
-      const p = doSave(next, opts);
-      inflightSave.current = p;
-      p.finally(() => {
-        if (inflightSave.current === p) inflightSave.current = null;
-      });
-      return p;
-    },
-    [doSave]
-  );
+  const handleChange = useCallback((next: GridItem[]) => {
+    setItems(next);
+  }, []);
 
-  const persist = useCallback(
-    (next: GridItem[]) => {
-      if (!editMode) return;
-      pendingItems.current = next;
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-      setSaveState("saving");
-      saveTimer.current = setTimeout(() => {
-        saveTimer.current = null;
-        void trackSave(next);
-      }, 500);
-    },
-    [editMode, trackSave]
-  );
+  const handlePick = useCallback((def: WidgetDefinition<unknown>) => {
+    setItems((prev) => {
+      const { x, y } = nextPosition(prev);
+      const fresh: GridItem = {
+        id: nanoid(12),
+        widgetType: def.id,
+        x,
+        y,
+        w: def.defaultSize.w,
+        h: def.defaultSize.h,
+        configJson: JSON.stringify(def.defaultConfig ?? {}),
+      };
+      return [...prev, fresh];
+    });
+  }, []);
 
-  // Fire-and-forget flush. Used on pagehide / beforeunload where we can't
-  // await anything — `keepalive: true` tells the browser to finish the
-  // request even if the page is unloading.
-  const flushNow = useCallback(() => {
-    if (saveTimer.current) {
-      clearTimeout(saveTimer.current);
-      saveTimer.current = null;
-    }
-    const pending = pendingItems.current;
-    if (pending) {
-      pendingItems.current = null;
-      void trackSave(pending, { keepalive: true });
-    }
-  }, [trackSave]);
-
-  const [navigating, setNavigating] = useState(false);
   const handleDone = useCallback(async () => {
+    if (navigating) return;
     setNavigating(true);
-    // Cancel any debounced or in-flight fetch-based save — the server
-    // action below is now the authoritative write. Having the old PUT land
-    // afterward with stale `next` would rewind the user's edits.
-    if (saveTimer.current) {
-      clearTimeout(saveTimer.current);
-      saveTimer.current = null;
-    }
-    pendingItems.current = null;
-    if (inflightSave.current) {
-      try {
-        await inflightSave.current;
-      } catch {}
-    }
+    setSaveState("saving");
     try {
-      // saveLayoutAndFinish writes the DB, revalidates both edit and read
-      // paths, and server-redirects to /view/:id. The redirect() throws,
+      // saveLayoutAndFinish writes the DB, revalidates the read path, and
+      // server-redirects to /view/:id. The redirect() throws NEXT_REDIRECT
       // which Next catches to perform the navigation — so code after the
-      // call is only reached on save failure.
-      await saveLayoutAndFinish(viewId, itemsRef.current);
+      // await is only reached on save failure.
+      await saveLayoutAndFinish(viewId, items);
     } catch (err) {
-      // NEXT_REDIRECT is how next/navigation signals the redirect. Let it
-      // bubble so Next can actually navigate.
       if (
         err &&
         typeof err === "object" &&
@@ -178,27 +136,20 @@ export function ViewClient({
       setSaveState("error");
       setNavigating(false);
     }
-  }, [viewId]);
+  }, [viewId, items, navigating]);
 
+  // Warn before the user closes the tab or hits back with unsaved edits.
+  // Arm only while editing AND dirty AND not in the middle of a save-then-
+  // redirect flow, so a successful Done doesn't trigger the prompt.
   useEffect(() => {
-    if (!editMode) return;
-    const onHide = () => flushNow();
-    window.addEventListener("pagehide", onHide);
-    window.addEventListener("beforeunload", onHide);
-    return () => {
-      window.removeEventListener("pagehide", onHide);
-      window.removeEventListener("beforeunload", onHide);
-      flushNow();
+    if (!editMode || !isDirty || navigating) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
     };
-  }, [editMode, flushNow]);
-
-  const handleChange = useCallback(
-    (next: GridItem[]) => {
-      setItems(next);
-      persist(next);
-    },
-    [persist]
-  );
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [editMode, isDirty, navigating]);
 
   const exportCsv = useCallback(async () => {
     setExporting(true);
@@ -244,45 +195,22 @@ export function ViewClient({
     }
   }, [siteId, resolved.startAt, resolved.endAt]);
 
-  const handlePick = useCallback(
-    (def: WidgetDefinition<unknown>) => {
-      setItems((prev) => {
-        const { x, y } = nextPosition(prev);
-        const fresh: GridItem = {
-          id: nanoid(12),
-          widgetType: def.id,
-          x,
-          y,
-          w: def.defaultSize.w,
-          h: def.defaultSize.h,
-          configJson: JSON.stringify(def.defaultConfig ?? {}),
-        };
-        const next = [...prev, fresh];
-        persist(next);
-        return next;
-      });
-    },
-    [persist]
-  );
-
-  const saveIndicator = useMemo(() => {
+  const saveIndicator = (() => {
     if (!editMode) return null;
-    const labels: Record<typeof saveState, string> = {
-      idle: "",
-      saving: t("saving"),
-      saved: t("saved"),
-      error: t("saveFailed"),
-    };
-    const colors: Record<typeof saveState, string> = {
-      idle: "text-muted-foreground",
-      saving: "text-muted-foreground",
-      saved: "text-emerald-500",
-      error: "text-destructive",
-    };
-    const label = labels[saveState];
+    let label: string | null = null;
+    let colorClass = "text-muted-foreground";
+    if (saveState === "saving" || navigating) {
+      label = t("saving");
+    } else if (saveState === "error") {
+      label = t("saveFailed");
+      colorClass = "text-destructive";
+    } else if (isDirty) {
+      label = t("unsaved");
+      colorClass = "text-amber-500";
+    }
     if (!label) return null;
-    return <span className={`text-xs ${colors[saveState]}`}>{label}</span>;
-  }, [editMode, saveState, t]);
+    return <span className={`text-xs ${colorClass}`}>{label}</span>;
+  })();
 
   return (
     <div className="space-y-4">
@@ -310,12 +238,8 @@ export function ViewClient({
             </Button>
           ) : null}
           {editMode ? (
-            <Button
-              variant="outline"
-              onClick={handleDone}
-              disabled={navigating || saveState === "saving"}
-            >
-              {navigating || saveState === "saving" ? t("saving") : t("done")}
+            <Button variant="outline" onClick={handleDone} disabled={navigating}>
+              {navigating ? t("saving") : t("done")}
             </Button>
           ) : (
             // Layout editing is disabled on sub-md viewports (react-grid-layout

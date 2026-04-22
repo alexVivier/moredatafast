@@ -152,7 +152,6 @@ export default async function ViewPage({
             currency={currency}
             initialItems={items}
             editMode={false}
-            readHref={`/view/${view.id}`}
             editHref={`/view/${view.id}/edit`}
           />
         ) : null}
