@@ -187,6 +187,38 @@ Post-MVP: stream those backups to DO Spaces with `rclone`.
 
 ---
 
+## 8.bis Webhook dispatcher cron
+
+Paid users can register webhooks at `settings/sites/<id>/webhooks` that fire
+on `payment.received`, `event.custom`, and `report.daily`. The dispatcher
+polls DataFast once a minute from the droplet's own crontab — no external
+scheduler, no queue.
+
+1. Add `CRON_SECRET` to `/opt/datafast/.env.production` (see
+   `.env.production.example`). Generate with `openssl rand -base64 32` and
+   restart the app: `docker compose --env-file .env.production up -d app`.
+
+2. Install the crontab entry on the droplet, as the `deploy` user:
+
+   ```bash
+   SECRET=$(grep ^CRON_SECRET /opt/datafast/.env.production | cut -d= -f2-)
+   ( crontab -l 2>/dev/null; \
+     echo "* * * * * curl -fsS --max-time 50 -H 'Authorization: Bearer $SECRET' http://127.0.0.1:3000/api/cron/webhooks > /dev/null 2>&1" \
+   ) | crontab -
+   ```
+
+   We hit `127.0.0.1:3000` because the `app` container publishes nothing
+   directly (Caddy proxies it on 443). If you prefer an external scheduler
+   (e.g. GitHub Actions, Upstash QStash), just curl
+   `https://dash.example.com/api/cron/webhooks` with the same header.
+
+3. Verify deliveries land: subscribe to Premium, add a webhook pointing at a
+   bin like `https://webhook.site`, and watch the Deliveries panel in the UI.
+
+The endpoint refuses requests without a valid `CRON_SECRET`. A 401 in the
+crontab logs means the header is malformed or the env var is out of sync
+with the container — restart after editing `.env.production`.
+
 ## 9. Rotating the encryption key
 
 If `DASHBOARD_ENCRYPTION_KEY` is compromised or you want to rotate:

@@ -116,6 +116,11 @@ export default async function SettingsPage() {
                     </Link>
                   ) : null}
                   {canManageSites ? (
+                    <Link href={`/settings/sites/${s.id}/webhooks`}>
+                      <Button variant="ghost" size="sm">{t("webhooks")}</Button>
+                    </Link>
+                  ) : null}
+                  {canManageSites ? (
                     <DeleteSiteButton siteId={s.id} siteName={s.name} />
                   ) : null}
                 </CardContent>

@@ -36,6 +36,13 @@
       "when": 1779166800000,
       "tag": "0004_add_view_layout_seeded",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1779253200000,
+      "tag": "0005_add_webhooks",
+      "breakpoints": true
     }
   ]
 }

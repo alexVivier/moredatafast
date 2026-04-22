@@ -121,3 +121,33 @@ export async function requirePaidAction(
     throw new PaywallError(organizationId);
   }
 }
+
+/**
+ * Stricter variant — only a real Stripe subscription (active or trialing,
+ * i.e. card on file) gates in. The 14-day DB trial clock does NOT grant
+ * access. Used for premium-only features like webhooks where the whole
+ * point is to drive upgrades.
+ */
+export async function hasPaidSubscription(
+  organizationId: string,
+): Promise<boolean> {
+  const [sub] = await db
+    .select({ status: schema.subscriptions.status })
+    .from(schema.subscriptions)
+    .where(
+      and(
+        eq(schema.subscriptions.referenceId, organizationId),
+        inArray(schema.subscriptions.status, ACTIVE_STATUSES as unknown as string[]),
+      ),
+    )
+    .limit(1);
+  return !!sub;
+}
+
+export async function requirePaidSubscription(
+  organizationId: string,
+): Promise<void> {
+  if (!(await hasPaidSubscription(organizationId))) {
+    throw new PaywallError(organizationId);
+  }
+}

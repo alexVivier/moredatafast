@@ -347,5 +347,112 @@ export type LayoutItem = typeof layoutItems.$inferSelect;
 export type NewLayoutItem = typeof layoutItems.$inferInsert;
 export type Segment = typeof segments.$inferSelect;
 export type NewSegment = typeof segments.$inferInsert;
+// ---- Webhooks (paid tier) -----------------------------------------------
+// Per-site endpoints that get called when matching DataFast events are
+// observed by the poller. Secrets are encrypted with the same keyring used
+// for site API keys; signatures are HMAC-SHA256 of the raw payload.
+export const webhooks = pgTable(
+  "webhooks",
+  {
+    id: text("id").primaryKey(),
+    siteId: text("site_id")
+      .notNull()
+      .references(() => sites.id, { onDelete: "cascade" }),
+    // Denormalized so the poller + gating don't have to join through sites.
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    url: text("url").notNull(),
+    // JSON array of event type strings (e.g. ["payment.received","event.custom"]).
+    // Stored as text to keep the schema dialect-portable; parsed at the edges.
+    events: text("events").notNull().default("[]"),
+    secretEncrypted: text("secret_encrypted").notNull(),
+    enabled: boolean("enabled").notNull().default(true),
+    // Auto-disable kicks in after N consecutive failed deliveries.
+    failureCount: integer("failure_count").notNull().default(0),
+    disabledAt: timestamp("disabled_at", { withTimezone: true }),
+    disabledReason: text("disabled_reason"),
+    lastFiredAt: timestamp("last_fired_at", { withTimezone: true }),
+    lastSuccessAt: timestamp("last_success_at", { withTimezone: true }),
+    lastError: text("last_error"),
+    createdBy: text("created_by")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+  },
+  (t) => ({
+    siteIdx: index("idx_webhooks_site").on(t.siteId),
+    orgIdx: index("idx_webhooks_org").on(t.organizationId),
+    enabledIdx: index("idx_webhooks_enabled").on(t.enabled),
+  }),
+);
+
+// Append-only delivery log. Used by the UI to show recent attempts and by
+// the dispatcher to decide whether to auto-disable.
+export const webhookDeliveries = pgTable(
+  "webhook_deliveries",
+  {
+    id: text("id").primaryKey(),
+    webhookId: text("webhook_id")
+      .notNull()
+      .references(() => webhooks.id, { onDelete: "cascade" }),
+    event: text("event").notNull(),
+    // "success" (2xx) | "failed" (non-2xx or network) | "pending" (in-flight).
+    status: text("status").notNull(),
+    statusCode: integer("status_code"),
+    // Raw JSON body sent, stored for the UI redelivery button.
+    requestBody: text("request_body").notNull(),
+    // Response body, truncated to ~2KB by the dispatcher before storage.
+    responseBody: text("response_body"),
+    durationMs: integer("duration_ms"),
+    error: text("error"),
+    attemptedAt: timestamp("attempted_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+  },
+  (t) => ({
+    webhookIdx: index("idx_deliveries_webhook").on(t.webhookId),
+    webhookTimeIdx: index("idx_deliveries_webhook_time").on(
+      t.webhookId,
+      t.attemptedAt,
+    ),
+  }),
+);
+
+// Per-(site, eventType) cursor for the poller. `lastEventId` holds the
+// DataFast `_id` of the most recent item already dispatched (for realtime
+// event types); `lastSeenAt` holds an ISO timestamp (for date-bucketed
+// event types like report.daily).
+export const webhookCursors = pgTable(
+  "webhook_cursors",
+  {
+    id: text("id").primaryKey(),
+    siteId: text("site_id")
+      .notNull()
+      .references(() => sites.id, { onDelete: "cascade" }),
+    eventType: text("event_type").notNull(),
+    lastEventId: text("last_event_id"),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+  },
+  (t) => ({
+    siteEventUnique: uniqueIndex("unique_cursor_site_event").on(
+      t.siteId,
+      t.eventType,
+    ),
+  }),
+);
+
 export type Subscription = typeof subscriptions.$inferSelect;
 export type NewSubscription = typeof subscriptions.$inferInsert;
+export type Webhook = typeof webhooks.$inferSelect;
+export type NewWebhook = typeof webhooks.$inferInsert;
+export type WebhookDelivery = typeof webhookDeliveries.$inferSelect;
+export type NewWebhookDelivery = typeof webhookDeliveries.$inferInsert;
+export type WebhookCursor = typeof webhookCursors.$inferSelect;
+export type NewWebhookCursor = typeof webhookCursors.$inferInsert;
