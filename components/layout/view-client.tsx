@@ -169,10 +169,11 @@ export function ViewClient({
     setNavigating(true);
     try {
       await flushAndWait();
-      router.push(readHref);
-      // Invalidate the RSC cache so the read page re-fetches the freshly
-      // saved layout rather than serving a prefetched old payload.
+      // Invalidate the Router Cache BEFORE navigating. If we push first,
+      // Next can serve a prefetched RSC payload for /view/:id that predates
+      // our save, which renders the old layout and looks like a reset.
       router.refresh();
+      router.push(readHref);
     } finally {
       setNavigating(false);
     }
