@@ -6,7 +6,6 @@ import type {
   Compactor,
   Layout,
   LayoutItem,
-  ResponsiveLayouts,
   UseContainerWidthResult,
 } from "react-grid-layout";
 
@@ -172,16 +171,23 @@ function GridCanvasInner({
   const isMobileBreakpoint = width > 0 && width < BREAKPOINTS.md;
   const effectiveEditMode = editMode && !isMobileBreakpoint;
 
-  // We only persist authoritative desktop positions. On every layout change,
-  // ResponsiveGridLayout hands us the full per-breakpoint map; we read
-  // `layouts.lg` (always reflects what we passed in for desktop, plus any
-  // user drag/resize on desktop) and ignore anything else. This is robust
-  // against the race where width hasn't caught up to a breakpoint switch.
+  // Persist edits from the active desktop breakpoint. The user may be at
+  // `lg` (≥1200) or `md` (≥996) — both are 12-col and equivalent for our
+  // layout model, but react-grid-layout only mutates the breakpoint they are
+  // actually interacting with, so reading `allLayouts.lg` misses edits made
+  // on `md` (which is most laptop widths). Reading `currentLayout` (the
+  // active breakpoint) captures both. Mobile/stacked breakpoints are guarded
+  // so a drag there can never overwrite desktop positions.
   const handleLayoutChange = useCallback(
-    (_currentLayout: Layout, allLayouts: ResponsiveLayouts<string>) => {
-      const lgLayout = allLayouts.lg;
-      if (!lgLayout || lgLayout.length === 0) return;
-      const byId = new Map(lgLayout.map((l) => [l.i, l]));
+    (currentLayout: Layout) => {
+      if (isMobileBreakpoint) {
+        console.log(
+          "[dash-save/grid] layoutChange ignored (mobile bp)",
+        );
+        return;
+      }
+      if (!currentLayout || currentLayout.length === 0) return;
+      const byId = new Map(currentLayout.map((l) => [l.i, l]));
       let changed = false;
       const next = items.map((item) => {
         const l = byId.get(item.id);
@@ -197,9 +203,12 @@ function GridCanvasInner({
         changed = true;
         return { ...item, x: l.x, y: l.y, w: l.w, h: l.h };
       });
+      console.log(
+        `[dash-save/grid] layoutChange changed=${changed} width=${width} mobile=${isMobileBreakpoint}`,
+      );
       if (changed) onChange(next);
     },
-    [items, onChange]
+    [items, onChange, isMobileBreakpoint, width]
   );
 
   const handleRemove = useCallback(
