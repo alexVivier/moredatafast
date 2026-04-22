@@ -46,13 +46,21 @@ export function ViewClient({
   const { resolved } = useDateRangeState();
 
   const [items, setItems] = useState<GridItem[]>(initialItems);
+  const itemsRef = useRef<GridItem[]>(initialItems);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingItems = useRef<GridItem[] | null>(null);
+  const inflightSave = useRef<Promise<void> | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">(
     "idle"
   );
   const [shareOpen, setShareOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
+
+  // Keep a ref in sync with the latest items so flushAndWait can persist the
+  // authoritative current state without chasing stale closures.
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   // Only reset local state to server state when the viewId actually changes.
   // Guarding on initialItems alone caused unrelated parent re-renders to wipe
@@ -77,7 +85,10 @@ export function ViewClient({
           keepalive: opts?.keepalive,
         });
         if (!res.ok) throw new Error(await res.text());
-        pendingItems.current = null;
+        // Only clear pending if nothing newer was queued while this save was
+        // in flight. Unconditionally wiping wipes edits the user made mid-
+        // request, which then makes Done's flushAndWait skip saving them.
+        if (pendingItems.current === next) pendingItems.current = null;
         setSaveState("saved");
         window.setTimeout(() => setSaveState("idle"), 1500);
       } catch {
@@ -85,6 +96,20 @@ export function ViewClient({
       }
     },
     [viewId]
+  );
+
+  // Tracks the in-flight save so flushAndWait can serialize on top of it
+  // rather than firing a concurrent PUT that might land out of order.
+  const trackSave = useCallback(
+    (next: GridItem[], opts?: { keepalive?: boolean }): Promise<void> => {
+      const p = doSave(next, opts);
+      inflightSave.current = p;
+      p.finally(() => {
+        if (inflightSave.current === p) inflightSave.current = null;
+      });
+      return p;
+    },
+    [doSave]
   );
 
   const persist = useCallback(
@@ -95,10 +120,10 @@ export function ViewClient({
       setSaveState("saving");
       saveTimer.current = setTimeout(() => {
         saveTimer.current = null;
-        void doSave(next);
+        void trackSave(next);
       }, 500);
     },
-    [editMode, doSave]
+    [editMode, trackSave]
   );
 
   // Fire-and-forget flush. Used on pagehide / beforeunload where we can't
@@ -112,9 +137,9 @@ export function ViewClient({
     const pending = pendingItems.current;
     if (pending) {
       pendingItems.current = null;
-      void doSave(pending, { keepalive: true });
+      void trackSave(pending, { keepalive: true });
     }
-  }, [doSave]);
+  }, [trackSave]);
 
   // Awaitable flush for interactive transitions (Done button). We MUST wait
   // for the save to land before navigating, otherwise the read page SSRs
@@ -124,11 +149,20 @@ export function ViewClient({
       clearTimeout(saveTimer.current);
       saveTimer.current = null;
     }
-    const pending = pendingItems.current;
-    if (!pending) return;
+    // Wait for any save already in flight so our Done save layers on top of
+    // a known DB state rather than racing a concurrent PUT that could
+    // overwrite it with older items.
+    if (inflightSave.current) {
+      try {
+        await inflightSave.current;
+      } catch {}
+    }
+    // Always persist the current items as the authoritative truth on Done.
+    // Relying on pendingItems alone is fragile: a save that finished mid-
+    // drag could have cleared pending even though items2 is the real latest.
     pendingItems.current = null;
-    await doSave(pending);
-  }, [doSave]);
+    await trackSave(itemsRef.current);
+  }, [trackSave]);
 
   const [navigating, setNavigating] = useState(false);
   const handleDone = useCallback(async () => {
