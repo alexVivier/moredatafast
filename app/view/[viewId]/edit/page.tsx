@@ -85,6 +85,9 @@ export default async function EditViewPage({
   const items = (await getViewLayout(view.id, {
     seedDefault: true,
   })) as unknown as GridItem[];
+  console.log(
+    `[dash-save/page-edit] ${new Date().toISOString().slice(11, 23)} ssr viewId=${view.id} itemsCount=${items.length} ids=${JSON.stringify(items.map((i) => i.id))}`,
+  );
 
   const currency = isUnified
     ? effectiveCurrency(allSites)

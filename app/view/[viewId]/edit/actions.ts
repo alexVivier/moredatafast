@@ -9,6 +9,11 @@ import { db, schema } from "@/db/client";
 import { OrgAuthError, requireOrgMember } from "@/lib/auth/session";
 import { headers } from "next/headers";
 
+const LOG = "[dash-save/action]";
+function stamp() {
+  return new Date().toISOString().slice(11, 23);
+}
+
 const itemSchema = z.object({
   id: z.string().min(1).max(24),
   widgetType: z.string().min(1).max(64),
@@ -36,10 +41,32 @@ export async function saveLayoutAndFinish(
   viewId: string,
   rawItems: unknown,
 ): Promise<void> {
+  console.log(
+    `${LOG} ${stamp()} enter viewId=${viewId} rawItemsCount=${Array.isArray(rawItems) ? rawItems.length : "n/a"}`,
+  );
+  if (Array.isArray(rawItems)) {
+    console.log(
+      `${LOG} ${stamp()} raw items:`,
+      rawItems.map((it: unknown) => {
+        const r = it as Record<string, unknown>;
+        return {
+          id: r.id,
+          type: r.widgetType,
+          x: r.x,
+          y: r.y,
+          w: r.w,
+          h: r.h,
+        };
+      }),
+    );
+  }
+
   let organizationId: string;
   try {
     ({ organizationId } = await requireOrgMember(await headers()));
+    console.log(`${LOG} ${stamp()} auth-ok organizationId=${organizationId}`);
   } catch (err) {
+    console.log(`${LOG} ${stamp()} auth-failed`, err);
     if (err instanceof OrgAuthError) {
       throw new Error("Not authorized");
     }
@@ -55,43 +82,86 @@ export async function saveLayoutAndFinish(
         eq(schema.views.organizationId, organizationId),
       ),
     );
-  if (!view) throw new Error("View not found");
+  if (!view) {
+    console.log(
+      `${LOG} ${stamp()} view-not-found viewId=${viewId} orgId=${organizationId}`,
+    );
+    throw new Error("View not found");
+  }
+  console.log(`${LOG} ${stamp()} view-found viewId=${viewId}`);
 
   const parsed = bodySchema.safeParse({ items: rawItems });
   if (!parsed.success) {
+    console.log(
+      `${LOG} ${stamp()} validation-failed`,
+      parsed.error.issues,
+    );
     throw new Error(
       parsed.error.issues.map((i) => i.message).join("; "),
     );
   }
+  console.log(
+    `${LOG} ${stamp()} validation-ok itemsCount=${parsed.data.items.length}`,
+  );
 
-  await db.transaction(async (tx) => {
-    await tx
-      .delete(schema.layoutItems)
-      .where(eq(schema.layoutItems.viewId, viewId));
-    for (const item of parsed.data.items) {
-      await tx.insert(schema.layoutItems).values({
-        id: item.id,
-        viewId,
-        widgetType: item.widgetType,
-        x: item.x,
-        y: item.y,
-        w: item.w,
-        h: item.h,
-        configJson: item.configJson,
-      });
-    }
-    await tx
-      .update(schema.views)
-      .set({ layoutSeededAt: new Date() })
-      .where(
-        and(
-          eq(schema.views.id, viewId),
-          isNull(schema.views.layoutSeededAt),
-        ),
+  try {
+    await db.transaction(async (tx) => {
+      console.log(`${LOG} ${stamp()} tx-begin`);
+      const deleted = await tx
+        .delete(schema.layoutItems)
+        .where(eq(schema.layoutItems.viewId, viewId))
+        .returning({ id: schema.layoutItems.id });
+      console.log(`${LOG} ${stamp()} tx-deleted rows=${deleted.length}`);
+
+      for (const item of parsed.data.items) {
+        await tx.insert(schema.layoutItems).values({
+          id: item.id,
+          viewId,
+          widgetType: item.widgetType,
+          x: item.x,
+          y: item.y,
+          w: item.w,
+          h: item.h,
+          configJson: item.configJson,
+        });
+      }
+      console.log(
+        `${LOG} ${stamp()} tx-inserted rows=${parsed.data.items.length}`,
       );
-  });
 
+      const seeded = await tx
+        .update(schema.views)
+        .set({ layoutSeededAt: new Date() })
+        .where(
+          and(
+            eq(schema.views.id, viewId),
+            isNull(schema.views.layoutSeededAt),
+          ),
+        )
+        .returning({ id: schema.views.id });
+      console.log(
+        `${LOG} ${stamp()} tx-seeded-flag-set rows=${seeded.length}`,
+      );
+      console.log(`${LOG} ${stamp()} tx-commit`);
+    });
+  } catch (err) {
+    console.log(`${LOG} ${stamp()} tx-failed`, err);
+    throw err;
+  }
+
+  // Post-write read to confirm the DB actually has what we just wrote.
+  const verify = await db
+    .select({ id: schema.layoutItems.id })
+    .from(schema.layoutItems)
+    .where(eq(schema.layoutItems.viewId, viewId));
+  console.log(
+    `${LOG} ${stamp()} post-write-verify rowCount=${verify.length} ids=${JSON.stringify(verify.map((v) => v.id))}`,
+  );
+
+  console.log(`${LOG} ${stamp()} revalidatePath /view/${viewId}`);
   revalidatePath(`/view/${viewId}`);
+  console.log(`${LOG} ${stamp()} revalidatePath /view/${viewId}/edit`);
   revalidatePath(`/view/${viewId}/edit`);
+  console.log(`${LOG} ${stamp()} redirect → /view/${viewId}`);
   redirect(`/view/${viewId}`);
 }

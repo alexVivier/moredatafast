@@ -5,6 +5,11 @@ import { nanoid } from "nanoid";
 
 import { db, schema } from "@/db/client";
 
+const LOG = "[dash-save/loader]";
+function stamp() {
+  return new Date().toISOString().slice(11, 23);
+}
+
 export type LayoutRow = typeof schema.layoutItems.$inferSelect;
 
 /**
@@ -18,11 +23,17 @@ export async function getViewLayout(
   viewId: string,
   options: { seedDefault?: boolean } = {}
 ): Promise<LayoutRow[]> {
+  console.log(
+    `${LOG} ${stamp()} fetch viewId=${viewId} seedDefault=${!!options.seedDefault}`,
+  );
   const existing = await db
     .select()
     .from(schema.layoutItems)
     .where(eq(schema.layoutItems.viewId, viewId))
     .orderBy(asc(schema.layoutItems.y), asc(schema.layoutItems.x));
+  console.log(
+    `${LOG} ${stamp()} fetched viewId=${viewId} count=${existing.length} ids=${JSON.stringify(existing.map((r) => r.id))}`,
+  );
 
   if (existing.length > 0 || !options.seedDefault) return existing;
 
@@ -38,8 +49,12 @@ export async function getViewLayout(
       ),
     )
     .returning({ id: schema.views.id });
+  console.log(
+    `${LOG} ${stamp()} seed-claim viewId=${viewId} claimed=${claimed.length}`,
+  );
 
   if (claimed.length === 0) return existing;
+  console.log(`${LOG} ${stamp()} seeding defaults for viewId=${viewId}`);
 
   const defaults: Omit<LayoutRow, "id">[] = [
     {

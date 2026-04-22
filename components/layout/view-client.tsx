@@ -16,6 +16,21 @@ import { downloadCsv, rowsToCsv } from "@/lib/utils/csv";
 import type { WidgetDefinition } from "@/widgets";
 import { saveLayoutAndFinish } from "@/app/view/[viewId]/edit/actions";
 
+const LOG = "[dash-save/client]";
+function stamp() {
+  return new Date().toISOString().slice(11, 23);
+}
+function summarizeItems(items: GridItem[]) {
+  return items.map((it) => ({
+    id: it.id,
+    type: it.widgetType,
+    x: it.x,
+    y: it.y,
+    w: it.w,
+    h: it.h,
+  }));
+}
+
 type Props = {
   viewId: string;
   siteId: string;
@@ -84,6 +99,10 @@ export function ViewClient({
   useEffect(() => {
     const key = `${viewId}:${editMode}`;
     if (lastResetKey.current !== key) {
+      console.log(
+        `${LOG} ${stamp()} reset-state viewId=${viewId} editMode=${editMode} initialItems=${initialItems.length}`,
+        summarizeItems(initialItems),
+      );
       lastResetKey.current = key;
       setItems(initialItems);
       setBaseline(initialItems);
@@ -91,13 +110,29 @@ export function ViewClient({
     }
   }, [viewId, editMode, initialItems]);
 
+  useEffect(() => {
+    console.log(
+      `${LOG} ${stamp()} mount viewId=${viewId} editMode=${editMode} initialItems=${initialItems.length}`,
+    );
+    return () => {
+      console.log(
+        `${LOG} ${stamp()} unmount viewId=${viewId} editMode=${editMode}`,
+      );
+    };
+  }, [viewId, editMode, initialItems.length]);
+
   const isDirty = !isSameLayout(items, baseline);
 
   const handleChange = useCallback((next: GridItem[]) => {
+    console.log(
+      `${LOG} ${stamp()} onChange count=${next.length}`,
+      summarizeItems(next),
+    );
     setItems(next);
   }, []);
 
   const handlePick = useCallback((def: WidgetDefinition<unknown>) => {
+    console.log(`${LOG} ${stamp()} pick widget type=${def.id}`);
     setItems((prev) => {
       const { x, y } = nextPosition(prev);
       const fresh: GridItem = {
@@ -109,47 +144,83 @@ export function ViewClient({
         h: def.defaultSize.h,
         configJson: JSON.stringify(def.defaultConfig ?? {}),
       };
-      return [...prev, fresh];
+      const next = [...prev, fresh];
+      console.log(
+        `${LOG} ${stamp()} pick-result count=${next.length}`,
+        summarizeItems(next),
+      );
+      return next;
     });
   }, []);
 
   const handleDone = useCallback(async () => {
-    if (navigating) return;
+    if (navigating) {
+      console.log(`${LOG} ${stamp()} done clicked while already navigating — ignored`);
+      return;
+    }
+    console.log(
+      `${LOG} ${stamp()} done click viewId=${viewId} items=${items.length} isDirty=${isDirty}`,
+      summarizeItems(items),
+    );
     setNavigating(true);
     setSaveState("saving");
     try {
-      // saveLayoutAndFinish writes the DB, revalidates the read path, and
-      // server-redirects to /view/:id. The redirect() throws NEXT_REDIRECT
-      // which Next catches to perform the navigation — so code after the
-      // await is only reached on save failure.
-      await saveLayoutAndFinish(viewId, items);
+      console.log(`${LOG} ${stamp()} calling saveLayoutAndFinish...`);
+      const result = await saveLayoutAndFinish(viewId, items);
+      console.log(
+        `${LOG} ${stamp()} saveLayoutAndFinish returned WITHOUT throwing — this means redirect did not fire`,
+        result,
+      );
+      // If we reach here, the server action returned without redirecting.
+      // That indicates the write succeeded but redirect() didn't run, OR
+      // Next swallowed it. Either way, no navigation happened — surface as
+      // error so the user doesn't think their work is lost.
+      setSaveState("error");
+      setNavigating(false);
     } catch (err) {
-      if (
+      const isRedirect =
         err &&
         typeof err === "object" &&
         "digest" in err &&
         typeof (err as { digest: unknown }).digest === "string" &&
-        (err as { digest: string }).digest.startsWith("NEXT_REDIRECT")
-      ) {
+        (err as { digest: string }).digest.startsWith("NEXT_REDIRECT");
+      console.log(
+        `${LOG} ${stamp()} saveLayoutAndFinish threw — isRedirect=${isRedirect}`,
+        err,
+      );
+      if (isRedirect) {
         throw err;
       }
       setSaveState("error");
       setNavigating(false);
     }
-  }, [viewId, items, navigating]);
+  }, [viewId, items, navigating, isDirty]);
 
   // Warn before the user closes the tab or hits back with unsaved edits.
   // Arm only while editing AND dirty AND not in the middle of a save-then-
   // redirect flow, so a successful Done doesn't trigger the prompt.
   useEffect(() => {
     if (!editMode || !isDirty || navigating) return;
+    console.log(
+      `${LOG} ${stamp()} arming beforeunload guard (editMode=${editMode} isDirty=${isDirty} navigating=${navigating})`,
+    );
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      console.log(`${LOG} ${stamp()} beforeunload fired with unsaved changes`);
       e.preventDefault();
       e.returnValue = "";
     };
     window.addEventListener("beforeunload", onBeforeUnload);
-    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      console.log(`${LOG} ${stamp()} disarming beforeunload guard`);
+      window.removeEventListener("beforeunload", onBeforeUnload);
+    };
   }, [editMode, isDirty, navigating]);
+
+  useEffect(() => {
+    console.log(
+      `${LOG} ${stamp()} isDirty=${isDirty} items=${items.length} baseline=${baseline.length} saveState=${saveState} navigating=${navigating}`,
+    );
+  }, [isDirty, items.length, baseline.length, saveState, navigating]);
 
   const exportCsv = useCallback(async () => {
     setExporting(true);
