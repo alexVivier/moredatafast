@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { nanoid } from "nanoid";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { GridCanvas, type GridItem } from "./grid-canvas";
 import { AddWidgetPalette } from "./add-widget-palette";
@@ -15,6 +14,9 @@ import { Button } from "@/components/ui/button";
 import { useDateRangeState } from "@/lib/hooks/use-date-range";
 import { downloadCsv, rowsToCsv } from "@/lib/utils/csv";
 import type { WidgetDefinition } from "@/widgets";
+// Server action: saves the layout and redirects to /view/:id atomically so
+// the read page is guaranteed to render with the freshly-written DB rows.
+import { saveLayoutAndFinish } from "@/app/view/[viewId]/edit/actions";
 
 type Props = {
   viewId: string;
@@ -37,12 +39,10 @@ export function ViewClient({
   currency,
   initialItems,
   editMode,
-  readHref,
   editHref,
 }: Props) {
   const t = useTranslations("dashboard.editMode");
   const tShare = useTranslations("dialogs.share");
-  const router = useRouter();
   const { resolved } = useDateRangeState();
 
   const [items, setItems] = useState<GridItem[]>(initialItems);
@@ -141,43 +141,44 @@ export function ViewClient({
     }
   }, [trackSave]);
 
-  // Awaitable flush for interactive transitions (Done button). We MUST wait
-  // for the save to land before navigating, otherwise the read page SSRs
-  // from stale DB rows and the user sees their edits reset.
-  const flushAndWait = useCallback(async () => {
+  const [navigating, setNavigating] = useState(false);
+  const handleDone = useCallback(async () => {
+    setNavigating(true);
+    // Cancel any debounced or in-flight fetch-based save — the server
+    // action below is now the authoritative write. Having the old PUT land
+    // afterward with stale `next` would rewind the user's edits.
     if (saveTimer.current) {
       clearTimeout(saveTimer.current);
       saveTimer.current = null;
     }
-    // Wait for any save already in flight so our Done save layers on top of
-    // a known DB state rather than racing a concurrent PUT that could
-    // overwrite it with older items.
+    pendingItems.current = null;
     if (inflightSave.current) {
       try {
         await inflightSave.current;
       } catch {}
     }
-    // Always persist the current items as the authoritative truth on Done.
-    // Relying on pendingItems alone is fragile: a save that finished mid-
-    // drag could have cleared pending even though items2 is the real latest.
-    pendingItems.current = null;
-    await trackSave(itemsRef.current);
-  }, [trackSave]);
-
-  const [navigating, setNavigating] = useState(false);
-  const handleDone = useCallback(async () => {
-    setNavigating(true);
     try {
-      await flushAndWait();
-      // Invalidate the Router Cache BEFORE navigating. If we push first,
-      // Next can serve a prefetched RSC payload for /view/:id that predates
-      // our save, which renders the old layout and looks like a reset.
-      router.refresh();
-      router.push(readHref);
-    } finally {
+      // saveLayoutAndFinish writes the DB, revalidates both edit and read
+      // paths, and server-redirects to /view/:id. The redirect() throws,
+      // which Next catches to perform the navigation — so code after the
+      // call is only reached on save failure.
+      await saveLayoutAndFinish(viewId, itemsRef.current);
+    } catch (err) {
+      // NEXT_REDIRECT is how next/navigation signals the redirect. Let it
+      // bubble so Next can actually navigate.
+      if (
+        err &&
+        typeof err === "object" &&
+        "digest" in err &&
+        typeof (err as { digest: unknown }).digest === "string" &&
+        (err as { digest: string }).digest.startsWith("NEXT_REDIRECT")
+      ) {
+        throw err;
+      }
+      setSaveState("error");
       setNavigating(false);
     }
-  }, [flushAndWait, router, readHref]);
+  }, [viewId]);
 
   useEffect(() => {
     if (!editMode) return;
