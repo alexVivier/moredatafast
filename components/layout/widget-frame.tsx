@@ -3,6 +3,7 @@
 import { GripVertical, Pin, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { cn } from "@/lib/utils";
 import { DATE_RANGE_LABELS } from "@/lib/utils/date-range";
 import type { WidgetMeta } from "@/widgets/_meta";
@@ -36,16 +37,20 @@ export function WidgetFrame({
   onSetDateOverride,
 }: WidgetFrameProps) {
   const t = useTranslations("dashboard.widget");
+  const confirm = useConfirm();
   const dateOverrideLabel = dateOverride
     ? DATE_RANGE_LABELS[dateOverride.preset]
     : null;
 
-  function handleRemove() {
+  async function handleRemove() {
     if (!onRemove) return;
     if (pinned) {
-      const ok = window.confirm(
-        "This widget is pinned. Remove it anyway?",
-      );
+      const ok = await confirm({
+        title: t("confirmRemovePinnedTitle"),
+        description: t("confirmRemovePinned"),
+        confirmLabel: t("remove"),
+        tone: "danger",
+      });
       if (!ok) return;
     }
     onRemove();

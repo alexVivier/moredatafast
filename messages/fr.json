@@ -23,7 +23,9 @@
     "email": "E-mail",
     "password": "Mot de passe",
     "name": "Nom",
-    "or": "OU"
+    "or": "OU",
+    "error": "Erreur",
+    "ok": "OK"
   },
   "emails": {
     "verify": {
@@ -188,6 +190,7 @@
       "confirmRemove": "Retirer {email} de {org} ? L'accès sera coupé immédiatement.",
       "confirmLeave": "Quitter {org} ? Vous perdrez l'accès à ses sites et dashboards.",
       "confirmDelete": "Tapez le slug de l'organisation pour confirmer la suppression (action irréversible) :",
+      "confirmDeletePlaceholder": "Slug de l'organisation",
       "leaveTitle": "Quitter l'organisation",
       "leaveBody": "Vous perdrez l'accès à tous les sites et dashboards de {org}.",
       "leaveCta": "Quitter",
@@ -501,7 +504,9 @@
       "remove": "Supprimer le widget",
       "addWidget": "Ajouter un widget",
       "paletteTitle": "Ajouter un widget",
-      "paletteLead": "Choisissez-en un pour le poser sur votre dashboard."
+      "paletteLead": "Choisissez-en un pour le poser sur votre dashboard.",
+      "confirmRemovePinnedTitle": "Widget épinglé",
+      "confirmRemovePinned": "Ce widget est épinglé. Le supprimer quand même ?"
     },
     "editMode": {
       "done": "Terminé",

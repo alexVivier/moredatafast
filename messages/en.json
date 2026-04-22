@@ -23,7 +23,9 @@
     "email": "Email",
     "password": "Password",
     "name": "Name",
-    "or": "OR"
+    "or": "OR",
+    "error": "Error",
+    "ok": "OK"
   },
   "emails": {
     "verify": {
@@ -188,6 +190,7 @@
       "confirmRemove": "Remove {email} from {org}? They will lose access immediately.",
       "confirmLeave": "Leave {org}? You'll lose access to its sites and dashboards.",
       "confirmDelete": "Type the org slug to confirm deletion (this cannot be undone):",
+      "confirmDeletePlaceholder": "Organization slug",
       "leaveTitle": "Leave organization",
       "leaveBody": "You will lose access to all sites and dashboards in {org}.",
       "leaveCta": "Leave",
@@ -501,7 +504,9 @@
       "remove": "Remove widget",
       "addWidget": "Add widget",
       "paletteTitle": "Add widget",
-      "paletteLead": "Pick one to drop it into your dashboard."
+      "paletteLead": "Pick one to drop it into your dashboard.",
+      "confirmRemovePinnedTitle": "Pinned widget",
+      "confirmRemovePinned": "This widget is pinned. Remove it anyway?"
     },
     "editMode": {
       "done": "Done",

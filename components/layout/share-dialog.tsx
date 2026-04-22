@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 type Share = {
   id: string;
@@ -22,6 +23,7 @@ type Props = {
 
 export function ShareDialog({ open, onClose, viewId }: Props) {
   const t = useTranslations("dialogs.share");
+  const confirm = useConfirm();
   const [shares, setShares] = useState<Share[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +76,13 @@ export function ShareDialog({ open, onClose, viewId }: Props) {
   }
 
   async function revoke(shareId: string) {
-    if (!window.confirm(t("confirmRevoke"))) return;
+    const ok = await confirm({
+      title: t("revokeLink"),
+      description: t("confirmRevoke"),
+      confirmLabel: t("revokeLink"),
+      tone: "danger",
+    });
+    if (!ok) return;
     setBusy(true);
     setError(null);
     try {

@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { authClient } from "@/lib/auth/client";
 
 type Props = {
@@ -29,6 +30,7 @@ export function BillingClient({
 }: Props) {
   const t = useTranslations("settings.billing");
   const router = useRouter();
+  const confirm = useConfirm();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [interval, setInterval] = useState<"month" | "year">("month");
@@ -81,7 +83,13 @@ export function BillingClient({
   }
 
   async function cancel() {
-    if (!window.confirm(t("confirmCancel"))) return;
+    const ok = await confirm({
+      title: t("cancelTitle"),
+      description: t("confirmCancel"),
+      confirmLabel: t("cancelCta"),
+      tone: "danger",
+    });
+    if (!ok) return;
     setBusy(true);
     setError(null);
     try {

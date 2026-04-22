@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { authClient } from "@/lib/auth/client";
 
 export function AcceptInviteActions({
@@ -14,6 +15,7 @@ export function AcceptInviteActions({
 }) {
   const t = useTranslations("settings.acceptInvite");
   const router = useRouter();
+  const confirm = useConfirm();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,7 +38,13 @@ export function AcceptInviteActions({
   }
 
   async function reject() {
-    if (!window.confirm(t("confirmDecline"))) return;
+    const ok = await confirm({
+      title: t("decline"),
+      description: t("confirmDecline"),
+      confirmLabel: t("decline"),
+      tone: "danger",
+    });
+    if (!ok) return;
     setError(null);
     setBusy(true);
     try {

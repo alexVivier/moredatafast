@@ -9,6 +9,7 @@ type ButtonVariant =
   | "outline"
   | "ghost"
   | "destructive"
+  | "destructive-solid"
   | "brand";
 type ButtonSize = "sm" | "md" | "lg" | "icon";
 
@@ -34,16 +35,19 @@ const variantClasses: Record<ButtonVariant, string> = {
   // Red text, transparent; hover faint red bg
   destructive:
     "bg-transparent text-mdf-danger border border-transparent hover:bg-[color-mix(in_srgb,var(--mdf-danger)_8%,transparent)]",
+  // Solid red CTA — confirm-to-destroy actions in dialogs
+  "destructive-solid":
+    "bg-mdf-danger text-white border border-mdf-danger hover:bg-[color-mix(in_srgb,var(--mdf-danger)_90%,black)] hover:border-[color-mix(in_srgb,var(--mdf-danger)_90%,black)]",
   // Orange — trial / upgrade only
   brand:
     "bg-mdf-brand text-mdf-brand-ink border border-mdf-brand font-medium hover:bg-mdf-brand-hover hover:border-mdf-brand-hover",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "h-7 px-2.5 text-xs rounded-md",
-  md: "h-8 px-3 text-sm rounded-md",
-  lg: "h-9 px-4 text-sm rounded-md",
-  icon: "h-8 w-8 rounded-md",
+  sm: "h-8 px-3 text-xs rounded-md",
+  md: "h-9 px-3.5 text-sm rounded-md",
+  lg: "h-11 px-5 text-sm rounded-md",
+  icon: "h-9 w-9 rounded-md",
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(

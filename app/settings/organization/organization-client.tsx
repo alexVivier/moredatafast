@@ -7,6 +7,10 @@ import { useState } from "react";
 import { PaywallDialog } from "@/components/billing/paywall-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  useConfirm,
+  usePrompt,
+} from "@/components/ui/confirm-dialog";
 import { authClient } from "@/lib/auth/client";
 import type { Role } from "@/lib/auth/session";
 
@@ -68,6 +72,8 @@ export function OrganizationClient({
 }: Props) {
   const t = useTranslations("settings.organization");
   const router = useRouter();
+  const confirm = useConfirm();
+  const prompt = usePrompt();
   const [email, setEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<Role>("member");
   const [busy, setBusy] = useState(false);
@@ -130,12 +136,16 @@ export function OrganizationClient({
   }
 
   async function removeMember(memberId: string, memberEmail: string) {
-    if (
-      !window.confirm(
-        t("confirmRemove", { email: memberEmail, org: organizationName }),
-      )
-    )
-      return;
+    const ok = await confirm({
+      title: t("remove"),
+      description: t("confirmRemove", {
+        email: memberEmail,
+        org: organizationName,
+      }),
+      confirmLabel: t("remove"),
+      tone: "danger",
+    });
+    if (!ok) return;
     setError(null);
     setBusy(true);
     try {
@@ -154,7 +164,13 @@ export function OrganizationClient({
   }
 
   async function leaveOrg() {
-    if (!window.confirm(t("confirmLeave", { org: organizationName }))) return;
+    const ok = await confirm({
+      title: t("leaveTitle"),
+      description: t("confirmLeave", { org: organizationName }),
+      confirmLabel: t("leaveCta"),
+      tone: "danger",
+    });
+    if (!ok) return;
     setError(null);
     setBusy(true);
     try {
@@ -171,7 +187,13 @@ export function OrganizationClient({
   }
 
   async function deleteOrg() {
-    const typed = window.prompt(t("confirmDelete"));
+    const typed = await prompt({
+      title: t("deleteTitle"),
+      description: t("confirmDelete"),
+      placeholder: t("confirmDeletePlaceholder"),
+      confirmLabel: t("deleteCta"),
+      tone: "danger",
+    });
     if (!typed) return;
     setError(null);
     setBusy(true);

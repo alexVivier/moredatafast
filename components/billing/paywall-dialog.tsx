@@ -60,29 +60,42 @@ export function PaywallDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-background/80 backdrop-blur-sm animate-in fade-in"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-mdf-bg-overlay backdrop-blur-sm animate-in fade-in"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
       role="dialog"
       aria-modal="true"
     >
-      <div className="mt-4 sm:mt-24 mx-3 sm:mx-0 w-full max-w-[calc(100vw-1.5rem)] sm:max-w-md rounded-lg border border-border bg-card text-card-foreground shadow-lg p-5">
+      <div
+        className="mt-4 sm:mt-24 mx-3 sm:mx-0 w-full max-w-[calc(100vw-1.5rem)] sm:max-w-md rounded-[14px] border border-mdf-line-2 bg-mdf-bg-raised text-mdf-fg-1 p-5"
+        style={{ boxShadow: "var(--mdf-shadow-modal)" }}
+      >
         <div className="mb-4">
-          <h2 className="text-lg font-semibold">{t("title")}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h2
+            className="text-mdf-fg-1"
+            style={{
+              fontFamily: "var(--mdf-font-display)",
+              fontSize: "20px",
+              lineHeight: 1.1,
+              letterSpacing: "-0.01em",
+            }}
+          >
+            {t("title")}
+          </h2>
+          <p className="mt-2 text-sm text-mdf-fg-2 leading-relaxed">
             {t("body", { reason })}
           </p>
         </div>
 
-        <div className="mb-4 flex rounded-md border border-border p-0.5">
+        <div className="mb-4 flex gap-1 rounded-md border border-mdf-line-2 p-0.5">
           <button
             type="button"
             onClick={() => setInterval("month")}
-            className={`flex-1 rounded px-3 py-2 text-xs font-medium transition ${
+            className={`flex-1 rounded-sm px-3 py-2 text-xs font-medium transition ${
               interval === "month"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-accent/50"
+                ? "bg-mdf-fg-1 text-mdf-fg-inverse"
+                : "text-mdf-fg-2 hover:bg-mdf-line-1 hover:text-mdf-fg-1"
             }`}
           >
             <div className="font-semibold">{t("monthly")}</div>
@@ -96,16 +109,22 @@ export function PaywallDialog({
             <button
               type="button"
               onClick={() => setInterval("year")}
-              className={`flex-1 rounded px-3 py-2 text-xs font-medium transition ${
+              className={`flex-1 rounded-sm px-3 py-2 text-xs font-medium transition ${
                 interval === "year"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent/50"
+                  ? "bg-mdf-fg-1 text-mdf-fg-inverse"
+                  : "text-mdf-fg-2 hover:bg-mdf-line-1 hover:text-mdf-fg-1"
               }`}
             >
               <div className="flex items-center justify-center gap-1.5 font-semibold">
                 {t("yearly")}
                 {yearlySavingsPercent && yearlySavingsPercent > 0 ? (
-                  <span className="rounded bg-emerald-500/20 px-1 py-0.5 text-[9px] text-emerald-600 dark:text-emerald-400">
+                  <span
+                    className="rounded px-1 py-0.5 text-[9px] text-mdf-success"
+                    style={{
+                      background:
+                        "color-mix(in srgb, var(--mdf-success) 15%, transparent)",
+                    }}
+                  >
                     -{yearlySavingsPercent}%
                   </span>
                 ) : null}
@@ -118,16 +137,22 @@ export function PaywallDialog({
         </div>
 
         {error ? (
-          <div className="mb-3 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+          <div
+            className="mb-3 rounded-md border border-mdf-line-1 px-3 py-2 text-xs text-mdf-danger"
+            style={{
+              background:
+                "color-mix(in srgb, var(--mdf-danger) 10%, transparent)",
+            }}
+          >
             {error}
           </div>
         ) : null}
 
         <div className="flex items-center justify-end gap-2">
-          <Button variant="ghost" size="sm" onClick={onClose} disabled={busy}>
+          <Button variant="ghost" size="md" onClick={onClose} disabled={busy}>
             {t("notNow")}
           </Button>
-          <Button onClick={upgrade} disabled={busy}>
+          <Button variant="brand" size="md" onClick={upgrade} disabled={busy}>
             {busy ? t("redirecting") : t("upgrade")}
           </Button>
         </div>

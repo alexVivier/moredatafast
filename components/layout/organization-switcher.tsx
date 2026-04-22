@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Layers } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useAlert, usePrompt } from "@/components/ui/confirm-dialog";
 import {
   authClient,
   useActiveOrganization,
@@ -29,6 +30,8 @@ export function OrganizationSwitcher() {
   const router = useRouter();
   const { data: orgs, isPending: orgsPending } = useListOrganizations();
   const { data: activeOrg } = useActiveOrganization();
+  const prompt = usePrompt();
+  const alert = useAlert();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -61,7 +64,12 @@ export function OrganizationSwitcher() {
   }
 
   async function handleCreate() {
-    const name = window.prompt("Name of the new organization?");
+    const name = await prompt({
+      title: "Create organization",
+      description: "Give the new organization a name — the URL slug is generated for you.",
+      placeholder: "Organization name",
+      confirmLabel: "Create",
+    });
     if (!name || !name.trim()) return;
     const trimmed = name.trim();
     const slug = `${slugify(trimmed) || "workspace"}-${randomSuffix()}`;
@@ -72,7 +80,11 @@ export function OrganizationSwitcher() {
         slug,
       });
       if (res.error) {
-        window.alert(res.error.message || "Failed to create organization");
+        await alert({
+          title: "Couldn't create organization",
+          description: res.error.message || "Please try again in a moment.",
+          tone: "danger",
+        });
         return;
       }
       if (res.data?.id) {

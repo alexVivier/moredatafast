@@ -11,6 +11,7 @@ import { FilterBar } from "./filter-bar";
 import { SegmentsDropdown } from "./segments-dropdown";
 import { ShareDialog } from "./share-dialog";
 import { Button } from "@/components/ui/button";
+import { useAlert } from "@/components/ui/confirm-dialog";
 import { useDateRangeState } from "@/lib/hooks/use-date-range";
 import { downloadCsv, rowsToCsv } from "@/lib/utils/csv";
 import type { WidgetDefinition } from "@/widgets";
@@ -76,6 +77,8 @@ export function ViewClient({
 }: Props) {
   const t = useTranslations("dashboard.editMode");
   const tShare = useTranslations("dialogs.share");
+  const tc = useTranslations("common");
+  const alert = useAlert();
   const { resolved } = useDateRangeState();
 
   // `items` is the in-edit working copy. `baseline` tracks the last layout we
@@ -242,7 +245,10 @@ export function ViewClient({
       };
       const rows = envelope.data ?? [];
       if (rows.length === 0) {
-        alert("No data to export for the selected range.");
+        await alert({
+          title: "Nothing to export",
+          description: "No data was found for the selected range.",
+        });
         return;
       }
       const csv = rowsToCsv(rows, [
@@ -260,11 +266,15 @@ export function ViewClient({
         csv,
       );
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Export failed");
+      await alert({
+        title: tc("error"),
+        description: err instanceof Error ? err.message : "Export failed",
+        tone: "danger",
+      });
     } finally {
       setExporting(false);
     }
-  }, [siteId, resolved.startAt, resolved.endAt]);
+  }, [siteId, resolved.startAt, resolved.endAt, alert, tc]);
 
   const saveIndicator = (() => {
     if (!editMode) return null;
